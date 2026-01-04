@@ -1,16 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-
-interface TagPreference {
-  name: string;
-  weight: number;
-}
-
-interface UserPrefs {
-  tags: TagPreference[];
-  level: 'undergraduate' | 'graduate' | 'researcher' | 'practitioner';
-  dailyCount: number;
-}
+import { createJSONStorage, persist } from 'zustand/middleware';
+import type { UserPrefs, StoredUser } from '@/lib/authStorage';
 
 interface UserAction {
   paperId: string;
@@ -19,16 +9,10 @@ interface UserAction {
   readAt?: string;
 }
 
-interface User {
-  name: string;
-  isGuest: boolean;
-  onboardingCompleted: boolean;
-}
-
 interface GomgukStore {
   // User
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: StoredUser | null;
+  setUser: (user: StoredUser | null) => void;
   
   // Preferences
   prefs: UserPrefs | null;
@@ -106,6 +90,20 @@ export const useStore = create<GomgukStore>()(
     }),
     {
       name: 'gomguk-storage',
+      storage: createJSONStorage(() => {
+        try {
+          const testKey = '__gomguk_storage_test__';
+          window.localStorage.setItem(testKey, '1');
+          window.localStorage.removeItem(testKey);
+          return window.localStorage;
+        } catch {
+          return {
+            getItem: (key: string) => null,
+            setItem: () => {},
+            removeItem: () => {},
+          };
+        }
+      }),
     }
   )
 );

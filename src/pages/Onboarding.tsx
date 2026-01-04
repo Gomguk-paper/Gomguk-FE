@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store/useStore";
+import { setStoredPrefs } from "@/lib/authStorage";
 import { allTags } from "@/data/papers";
 import { TagChip } from "@/components/TagChip";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,7 @@ const levels = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { setPrefs, setUser, user } = useStore();
+  const { setPrefs } = useStore();
   
   const [step, setStep] = useState<Step>("tags");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -44,14 +45,13 @@ export default function Onboarding() {
   };
 
   const handleComplete = () => {
-    setPrefs({
+    const nextPrefs = {
       tags: selectedTags.map(name => ({ name, weight: tagWeights[name] || 3 })),
       level,
       dailyCount,
-    });
-    if (user) {
-      setUser({ ...user, onboardingCompleted: true });
-    }
+    };
+    setPrefs(nextPrefs);
+    setStoredPrefs(nextPrefs);
     navigate("/");
   };
 
