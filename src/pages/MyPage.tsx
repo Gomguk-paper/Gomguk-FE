@@ -6,10 +6,14 @@ import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { clearStoredUser } from "@/lib/authStorage";
 
 export default function MyPage() {
   const navigate = useNavigate();
-  const { user, actions, prefs } = useStore();
+  const { user, actionsByUser, prefs, setUser } = useStore();
+  const isGuest = user?.provider === "guest";
+  const userKey = user && !isGuest ? user.provider : null;
+  const actions = userKey ? actionsByUser[userKey] ?? [] : [];
 
   const likedPapers = useMemo(() => {
     const likedIds = actions.filter(a => a.liked).map(a => a.paperId);
@@ -26,6 +30,12 @@ export default function MyPage() {
     return papers.filter(p => readIds.includes(p.id));
   }, [actions]);
 
+  const handleLogout = () => {
+    clearStoredUser();
+    setUser(null);
+    navigate("/login");
+  };
+
   return (
     <main className="min-h-screen pb-20 bg-background">
       {/* Header */}
@@ -33,13 +43,18 @@ export default function MyPage() {
         <div className="p-4 max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h1 className="font-display text-xl font-bold">마이페이지</h1>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => navigate("/onboarding")}
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                로그아웃
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/onboarding")}
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
           
           {/* User Info */}
@@ -108,7 +123,9 @@ export default function MyPage() {
           </TabsList>
           
           <TabsContent value="saved" className="mt-4 space-y-4">
-            {savedPapers.length > 0 ? (
+            {isGuest ? (
+              <EmptyState icon={Bookmark} message="게스트 입니다 로그인하세요" />
+            ) : savedPapers.length > 0 ? (
               savedPapers.map(paper => (
                 <PaperCard key={paper.id} paper={paper} />
               ))
@@ -118,7 +135,9 @@ export default function MyPage() {
           </TabsContent>
           
           <TabsContent value="liked" className="mt-4 space-y-4">
-            {likedPapers.length > 0 ? (
+            {isGuest ? (
+              <EmptyState icon={Heart} message="게스트 입니다 로그인하세요" />
+            ) : likedPapers.length > 0 ? (
               likedPapers.map(paper => (
                 <PaperCard key={paper.id} paper={paper} />
               ))
@@ -128,7 +147,9 @@ export default function MyPage() {
           </TabsContent>
           
           <TabsContent value="history" className="mt-4 space-y-4">
-            {readPapers.length > 0 ? (
+            {isGuest ? (
+              <EmptyState icon={History} message="게스트 입니다 로그인하세요" />
+            ) : readPapers.length > 0 ? (
               readPapers.map(paper => (
                 <PaperCard key={paper.id} paper={paper} />
               ))

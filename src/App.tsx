@@ -37,34 +37,23 @@ function AppRoutes() {
   }
   const hasPrefs = Boolean(prefs);
   
-  // Redirect to login if no user
-  if (!user) {
-    return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    );
-  }
-  
-  // Redirect to onboarding if not completed
-  if (!hasPrefs) {
-    return (
-      <Routes>
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="*" element={<Navigate to="/onboarding" replace />} />
-      </Routes>
-    );
-  }
-  
   return (
     <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchPage />} />
-        <Route path="/mypage" element={<MyPage />} />
-        <Route path="/login" element={<Navigate to={hasPrefs ? "/" : "/onboarding"} replace />} />
-        <Route path="/onboarding" element={<Onboarding />} />
+        <Route
+          path="/mypage"
+          element={user ? <MyPage /> : <Navigate to="/login" replace state={{ reason: "auth", from: "/mypage" }} />}
+        />
+        <Route
+          path="/login"
+          element={user ? <Navigate to={hasPrefs ? "/" : "/onboarding"} replace /> : <Login />}
+        />
+        <Route
+          path="/onboarding"
+          element={user ? <Onboarding /> : <Navigate to="/login" replace />}
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <BottomNav />

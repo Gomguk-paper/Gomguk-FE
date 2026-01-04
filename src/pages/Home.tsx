@@ -7,10 +7,11 @@ import { PaperCard } from "@/components/PaperCard";
 import { ReportCard } from "@/components/ReportCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { TagChip } from "@/components/TagChip";
+import { clearStoredUser } from "@/lib/authStorage";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { prefs } = useStore();
+  const { prefs, user, setUser } = useStore();
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
 
@@ -43,6 +44,11 @@ export default function Home() {
     setCarouselOpen(true);
   };
 
+  const handleLogout = () => {
+    clearStoredUser();
+    setUser(null);
+  };
+
   return (
     <main className="min-h-screen pb-20 bg-background">
       {/* Header */}
@@ -63,9 +69,27 @@ export default function Home() {
             논문 검색...
           </button>
           
-          <button className="p-2 text-muted-foreground">
-            <Bell className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button className="p-2 text-muted-foreground">
+              <Bell className="w-5 h-5" />
+            </button>
+            {!user && (
+              <button
+                onClick={() => navigate("/login")}
+                className="px-3 py-2 text-xs font-semibold rounded-full border border-input bg-background hover:bg-secondary transition-colors"
+              >
+                로그인
+              </button>
+            )}
+            {user && (
+              <button
+                onClick={handleLogout}
+                className="px-3 py-2 text-xs font-semibold rounded-full border border-input bg-background hover:bg-secondary transition-colors"
+              >
+                로그아웃
+              </button>
+            )}
+          </div>
         </div>
       </header>
 

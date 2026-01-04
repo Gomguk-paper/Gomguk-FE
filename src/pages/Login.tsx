@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,11 +15,24 @@ import { BookOpen, Sparkles, Loader2 } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setUser } = useStore();
   const { toast } = useToast();
   const [authStatus, setAuthStatus] = useState<"idle" | "loading" | "authenticated" | "error">("idle");
   const [loadingProvider, setLoadingProvider] = useState<AuthProvider | null>(null);
   const [rememberMe, setRememberMe] = useState(true);
+  const loginAttemptRef = useRef(0);
+  const isMountedRef = useRef(true);
+  const loginNotice =
+    (location.state as { reason?: string } | null)?.reason === "auth"
+      ? "로그인이 필요합니다."
+      : null;
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const createMockUser = (provider: AuthProvider) => {
     const providerLabel = provider === "google" ? "Google" : provider === "kakao" ? "Kakao" : "Guest";
@@ -41,8 +54,14 @@ export default function Login() {
     setAuthStatus("loading");
     setLoadingProvider(provider);
     console.log(`login_click_${provider}`);
+    const attemptId = ++loginAttemptRef.current;
 
     try {
+      // Simulate an auth round-trip so leaving mid-flow doesn't mark the user as logged in.
+      await new Promise(resolve => setTimeout(resolve, 600));
+      if (!isMountedRef.current || attemptId !== loginAttemptRef.current) {
+        return;
+      }
       const user = createMockUser(provider);
       if (rememberMe) {
         if (!storageAvailable()) {
@@ -65,7 +84,9 @@ export default function Login() {
         description: "잠시 후 다시 시도해주세요.",
       });
     } finally {
-      setLoadingProvider(null);
+      if (isMountedRef.current && attemptId === loginAttemptRef.current) {
+        setLoadingProvider(null);
+      }
     }
   };
 
@@ -77,6 +98,11 @@ export default function Login() {
       aria-busy={isLoading}
     >
       <div className="w-full max-w-sm space-y-8 text-center">
+        {loginNotice && (
+          <div className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
+            {loginNotice}
+          </div>
+        )}
         {/* Logo */}
         <div id="login_brand" className="space-y-4">
           <div

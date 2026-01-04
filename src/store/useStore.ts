@@ -19,7 +19,7 @@ interface GomgukStore {
   setPrefs: (prefs: UserPrefs) => void;
   
   // Actions (likes, saves, reads)
-  actions: UserAction[];
+  actionsByUser: Record<string, UserAction[]>;
   toggleLike: (paperId: string) => void;
   toggleSave: (paperId: string) => void;
   markAsRead: (paperId: string) => void;
@@ -29,6 +29,13 @@ interface GomgukStore {
   currentSummaryIndex: number;
   setCurrentSummaryIndex: (index: number) => void;
 }
+
+const getUserActionKey = (user: StoredUser | null) => {
+  if (!user || user.provider === 'guest') {
+    return null;
+  }
+  return user.provider;
+};
 
 export const useStore = create<GomgukStore>()(
   persist(
@@ -42,47 +49,90 @@ export const useStore = create<GomgukStore>()(
       setPrefs: (prefs) => set({ prefs }),
       
       // Actions
-      actions: [],
+      actionsByUser: {},
       toggleLike: (paperId) => set((state) => {
-        const existing = state.actions.find(a => a.paperId === paperId);
+        const userKey = getUserActionKey(get().user);
+        if (!userKey) {
+          return state;
+        }
+        const currentActions = state.actionsByUser[userKey] ?? [];
+        const existing = currentActions.find(a => a.paperId === paperId);
         if (existing) {
           return {
-            actions: state.actions.map(a => 
+            actionsByUser: {
+              ...state.actionsByUser,
+              [userKey]: currentActions.map(a =>
               a.paperId === paperId ? { ...a, liked: !a.liked } : a
-            )
+              ),
+            },
           };
         }
         return {
-          actions: [...state.actions, { paperId, liked: true, saved: false }]
+          actionsByUser: {
+            ...state.actionsByUser,
+            [userKey]: [...currentActions, { paperId, liked: true, saved: false }],
+          },
         };
       }),
       toggleSave: (paperId) => set((state) => {
-        const existing = state.actions.find(a => a.paperId === paperId);
+        const userKey = getUserActionKey(get().user);
+        if (!userKey) {
+          return state;
+        }
+        const currentActions = state.actionsByUser[userKey] ?? [];
+        const existing = currentActions.find(a => a.paperId === paperId);
         if (existing) {
           return {
-            actions: state.actions.map(a => 
+            actionsByUser: {
+              ...state.actionsByUser,
+              [userKey]: currentActions.map(a =>
               a.paperId === paperId ? { ...a, saved: !a.saved } : a
-            )
+              ),
+            },
           };
         }
         return {
-          actions: [...state.actions, { paperId, liked: false, saved: true }]
+          actionsByUser: {
+            ...state.actionsByUser,
+            [userKey]: [...currentActions, { paperId, liked: false, saved: true }],
+          },
         };
       }),
       markAsRead: (paperId) => set((state) => {
-        const existing = state.actions.find(a => a.paperId === paperId);
+        const userKey = getUserActionKey(get().user);
+        if (!userKey) {
+          return state;
+        }
+        const currentActions = state.actionsByUser[userKey] ?? [];
+        const existing = currentActions.find(a => a.paperId === paperId);
         if (existing) {
           return {
-            actions: state.actions.map(a => 
+            actionsByUser: {
+              ...state.actionsByUser,
+              [userKey]: currentActions.map(a =>
               a.paperId === paperId ? { ...a, readAt: new Date().toISOString() } : a
-            )
+              ),
+            },
           };
         }
         return {
-          actions: [...state.actions, { paperId, liked: false, saved: false, readAt: new Date().toISOString() }]
+          actionsByUser: {
+            ...state.actionsByUser,
+            [userKey]: [
+              ...currentActions,
+              { paperId, liked: false, saved: false, readAt: new Date().toISOString() },
+            ],
+          },
         };
       }),
-      getAction: (paperId) => get().actions.find(a => a.paperId === paperId),
+      getAction: (paperId) => {
+        const userKey = getUserActionKey(get().user);
+        if (!userKey) {
+          return undefined;
+        }
+        const currentActions = get().actionsByUser[userKey] ?? [];
+        return currentActions.find(a => a.paperId === paperId);
+      },
       
       // UI State
       currentSummaryIndex: 0,
@@ -90,6 +140,7 @@ export const useStore = create<GomgukStore>()(
     }),
     {
       name: 'gomguk-storage',
+      version: 3,
       storage: createJSONStorage(() => {
         try {
           const testKey = '__gomguk_storage_test__';
@@ -103,6 +154,23 @@ export const useStore = create<GomgukStore>()(
             removeItem: () => {},
           };
         }
+      }),
+      migrate: (persistedState) => {
+        if (persistedState && typeof persistedState === 'object') {
+          const { user: _user, actions: _actions, ...rest } = persistedState as GomgukStore & {
+            actions?: UserAction[];
+          };
+          if (!('actionsByUser' in rest)) {
+            return { ...rest, actionsByUser: {} } as GomgukStore;
+          }
+          return rest as GomgukStore;
+        }
+        return persistedState as GomgukStore;
+      },
+      partialize: (state) => ({
+        prefs: state.prefs,
+        actionsByUser: state.actionsByUser,
+        currentSummaryIndex: state.currentSummaryIndex,
       }),
     }
   )
