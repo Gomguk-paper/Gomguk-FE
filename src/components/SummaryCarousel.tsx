@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Paper, summaries } from "@/data/papers";
 import { TagChip } from "./TagChip";
@@ -34,42 +34,73 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     }
   }, [open, currentPaperIndex, papers, markAsRead]);
 
+  const goNext = useCallback(() => {
+    setCurrentStep((step) => {
+      if (step === "hook") {
+        return "keypoints";
+      } else if (step === "keypoints") {
+        return "detailed";
+      } else {
+        // detailed 단계에서 다음 논문으로 이동
+        setCurrentPaperIndex((idx) => {
+          if (idx < papers.length - 1) {
+            return idx + 1;
+          } else {
+            onClose();
+            return idx;
+          }
+        });
+        return "hook";
+      }
+    });
+  }, [papers.length, onClose]);
+
+  const goPrev = useCallback(() => {
+    setCurrentStep((step) => {
+      if (step === "detailed") {
+        return "keypoints";
+      } else if (step === "keypoints") {
+        return "hook";
+      } else {
+        // hook 단계에서 이전 논문으로 이동
+        setCurrentPaperIndex((idx) => {
+          if (idx > 0) {
+            return idx - 1;
+          }
+          return idx;
+        });
+        return "detailed";
+      }
+    });
+  }, []);
+
+  // 키보드 이벤트 리스너 추가
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // ESC 키는 모달 닫기
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      // 나머지 모든 키는 다음으로 이동
+      goNext();
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [open, goNext, onClose]);
+
   if (!open) return null;
 
   const paper = papers[currentPaperIndex];
   const summary = summaries.find(s => s.paperId === paper.id);
 
   if (!summary) return null;
-
-  const goNext = () => {
-    if (currentStep === "hook") {
-      setCurrentStep("keypoints");
-    } else if (currentStep === "keypoints") {
-      setCurrentStep("detailed");
-    } else {
-      // Move to next paper
-      if (currentPaperIndex < papers.length - 1) {
-        setCurrentPaperIndex(prev => prev + 1);
-        setCurrentStep("hook");
-      } else {
-        onClose();
-      }
-    }
-  };
-
-  const goPrev = () => {
-    if (currentStep === "detailed") {
-      setCurrentStep("keypoints");
-    } else if (currentStep === "keypoints") {
-      setCurrentStep("hook");
-    } else {
-      // Move to previous paper
-      if (currentPaperIndex > 0) {
-        setCurrentPaperIndex(prev => prev - 1);
-        setCurrentStep("detailed");
-      }
-    }
-  };
 
   const steps: SummaryStep[] = ["hook", "keypoints", "detailed"];
   const stepIndex = steps.indexOf(currentStep);
@@ -170,7 +201,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
         {/* Navigation hint */}
         <p className="text-xs text-muted-foreground text-center mt-4">
-          탭하여 다음으로
+          탭하거나 키보드를 눌러 다음으로
         </p>
       </div>
 
