@@ -78,6 +78,13 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     setCurrentStep(targetStep);
   }, []);
 
+  const goToPaper = useCallback((targetIndex: number) => {
+    if (targetIndex >= 0 && targetIndex < papers.length) {
+      setCurrentPaperIndex(targetIndex);
+      setCurrentStep("hook"); // 논문 변경 시 첫 단계로 리셋
+    }
+  }, [papers.length]);
+
   // 키보드 이벤트 리스너 추가
   useEffect(() => {
     if (!open) return;
@@ -114,13 +121,18 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-2">
-          {papers.map((_, i) => (
-            <div
+          {papers.map((paper, i) => (
+            <button
               key={i}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPaper(i);
+              }}
               className={cn(
-                "h-1 rounded-full transition-all",
+                "h-1 rounded-full transition-all cursor-pointer hover:h-1.5",
                 i === currentPaperIndex ? "w-8 bg-primary" : "w-4 bg-muted"
               )}
+              aria-label={`${i + 1}번째 논문으로 이동: ${paper.title}`}
             />
           ))}
         </div>
