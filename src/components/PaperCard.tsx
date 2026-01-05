@@ -227,14 +227,35 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             <span className="text-xs">읽음</span>
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto text-xs"
-            onClick={onOpenSummary}
-          >
-            요약 보기
-          </Button>
+          <div className="ml-auto flex items-center gap-1">
+            {paper.pdfUrl && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                asChild
+              >
+                <a
+                  href={paper.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label="PDF 원문 보기 (새 탭에서 열림)"
+                >
+                  <FileText className="w-4 h-4 mr-1.5" />
+                  PDF 보기
+                </a>
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              onClick={onOpenSummary}
+            >
+              요약 보기
+            </Button>
+          </div>
         </div>
         {!canUseActions && authMessage && (
           <p className="text-xs text-muted-foreground">{authMessage}</p>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, FileText } from "lucide-react";
 import { Paper, summaries } from "@/data/papers";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
@@ -136,9 +136,28 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
             />
           ))}
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          {paper.pdfUrl && (
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              onClick={(e) => e.stopPropagation()}
+            >
+              <a
+                href={paper.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="PDF 원문 보기 (새 탭에서 열림)"
+              >
+                <FileText className="w-5 h-5" />
+              </a>
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Content */}
