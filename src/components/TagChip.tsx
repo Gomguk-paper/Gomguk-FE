@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { tagDescriptions } from "@/data/tagDescriptions";
 
 interface TagChipProps {
   tag: string;
@@ -18,9 +20,10 @@ const tagColorMap: Record<string, string> = {
 
 export function TagChip({ tag, selected, trending, onClick, size = "md" }: TagChipProps) {
   const colorClass = tagColorMap[tag] || "bg-secondary text-secondary-foreground border-border";
+  const description = tagDescriptions[tag] || `${tag} 관련 논문`;
   
-  return (
-    <button
+  const chipContent = (
+    <div
       onClick={onClick}
       className={cn(
         "inline-flex items-center gap-1 rounded-full border font-medium transition-all",
@@ -28,11 +31,26 @@ export function TagChip({ tag, selected, trending, onClick, size = "md" }: TagCh
         colorClass,
         selected && "ring-2 ring-primary ring-offset-1",
         trending && "animate-pulse",
-        onClick && "hover:scale-105 cursor-pointer"
+        onClick ? "hover:scale-105 cursor-pointer" : "cursor-default"
       )}
     >
       {trending && <span className="text-trending">🔥</span>}
       #{tag}
-    </button>
+    </div>
+  );
+
+  if (onClick) {
+    return chipContent;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {chipContent}
+      </TooltipTrigger>
+      <TooltipContent>
+        <p className="max-w-xs">{description}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
