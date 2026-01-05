@@ -74,6 +74,10 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     });
   }, []);
 
+  const goToStep = useCallback((targetStep: SummaryStep) => {
+    setCurrentStep(targetStep);
+  }, []);
+
   // 키보드 이벤트 리스너 추가
   useEffect(() => {
     if (!open) return;
@@ -145,12 +149,17 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         {/* Step indicator */}
         <div className="flex gap-2 mb-4">
           {steps.map((step, i) => (
-            <div
+            <button
               key={step}
+              onClick={(e) => {
+                e.stopPropagation(); // 부모의 onClick(goNext) 방지
+                goToStep(step);
+              }}
               className={cn(
-                "h-1 flex-1 rounded-full transition-all",
+                "h-1 flex-1 rounded-full transition-all cursor-pointer hover:h-1.5",
                 i <= stepIndex ? "bg-primary" : "bg-muted"
               )}
+              aria-label={`${step === "hook" ? "한줄 요약" : step === "keypoints" ? "핵심 포인트" : "상세 설명"} 단계로 이동`}
             />
           ))}
         </div>
@@ -201,7 +210,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
         {/* Navigation hint */}
         <p className="text-xs text-muted-foreground text-center mt-4">
-          탭하거나 키보드를 눌러 다음으로
+          진행 상태 바를 클릭하거나 탭하여 단계 이동
         </p>
       </div>
 
