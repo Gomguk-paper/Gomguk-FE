@@ -6,6 +6,7 @@ import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -149,11 +150,29 @@ export default function MyPage() {
   const chartConfig = {
     count: {
       label: "읽은 논문 수",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(220, 60%, 50%)",
     },
   };
 
-  const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+  // 명확한 색상 팔레트
+  const COLORS = [
+    "hsl(220, 60%, 50%)",  // 파란색 (primary)
+    "hsl(175, 60%, 45%)",  // 청록색 (accent)
+    "hsl(30, 80%, 55%)",   // 주황색
+    "hsl(340, 65%, 60%)",  // 분홍색
+    "hsl(200, 75%, 55%)",  // 하늘색
+  ];
+
+  // 주별 통계용 색상 (그라데이션 효과)
+  const getBarColor = (index: number, total: number) => {
+    const colors = [
+      "hsl(220, 60%, 50%)",
+      "hsl(220, 60%, 55%)",
+      "hsl(220, 60%, 60%)",
+      "hsl(220, 60%, 65%)",
+    ];
+    return colors[index % colors.length];
+  };
 
   const handleLogout = () => {
     clearStoredUser();
@@ -175,7 +194,7 @@ export default function MyPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate("/onboarding")}
+                onClick={() => navigate("/settings")}
               >
                 <Settings className="w-5 h-5" />
               </Button>
@@ -184,11 +203,14 @@ export default function MyPage() {
           
           {/* User Info */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <span className="text-2xl font-bold text-primary">
+            <Avatar className="w-16 h-16">
+              {user?.avatarUrl ? (
+                <AvatarImage src={user.avatarUrl} alt={user.name} />
+              ) : null}
+              <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
                 {user?.name?.[0] || "G"}
-              </span>
-            </div>
+              </AvatarFallback>
+            </Avatar>
             <div>
               <h2 className="font-semibold">{user?.name || ""}</h2>
               {prefs && (
@@ -352,7 +374,11 @@ export default function MyPage() {
                         <XAxis dataKey="week" />
                         <YAxis />
                         <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                        <Bar dataKey="count" radius={4}>
+                          {weeklyStats.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={getBarColor(index, weeklyStats.length)} />
+                          ))}
+                        </Bar>
                       </BarChart>
                     </ChartContainer>
                   </CardContent>
@@ -412,7 +438,15 @@ export default function MyPage() {
                           content={<ChartTooltipContent />}
                           labelFormatter={(value) => `${value}시`}
                         />
-                        <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                        <Bar dataKey="count" radius={4}>
+                          {hourlyStats.map((entry, index) => {
+                            // 값이 있는 시간대는 primary 색상, 없는 시간대는 연한 회색
+                            const color = entry.count > 0 
+                              ? "hsl(220, 60%, 50%)" 
+                              : "hsl(210, 15%, 85%)";
+                            return <Cell key={`cell-${index}`} fill={color} />;
+                          })}
+                        </Bar>
                       </BarChart>
                     </ChartContainer>
                   </CardContent>

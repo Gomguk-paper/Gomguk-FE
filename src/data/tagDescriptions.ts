@@ -15,3 +15,4 @@ export const tagDescriptions: Record<string, string> = {
   "Segmentation": "이미지 분할",
 };
 
+

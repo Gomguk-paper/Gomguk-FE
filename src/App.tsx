@@ -10,6 +10,7 @@ import Onboarding from "./pages/Onboarding";
 import Home from "./pages/Home";
 import SearchPage from "./pages/Search";
 import MyPage from "./pages/MyPage";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { getStoredPrefs, getStoredUser, clearStoredUser } from "@/lib/authStorage";
 import { useEffect, useState } from "react";
@@ -58,6 +59,10 @@ function AppRoutes() {
         <Route
           path="/onboarding"
           element={user ? <Onboarding /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/settings"
+          element={user ? <Settings /> : <Navigate to="/login" replace state={{ reason: "auth", from: "/settings" }} />}
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

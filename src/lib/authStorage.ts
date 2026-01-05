@@ -16,6 +16,7 @@ export interface StoredUser {
   name: string;
   provider: AuthProvider;
   createdAt: string;
+  avatarUrl?: string;
 }
 
 // Prototype only: never store real auth tokens in localStorage.
