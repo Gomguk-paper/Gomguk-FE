@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Bell, BookOpen } from "lucide-react";
 import { papers, reports, summaries } from "@/data/papers";
@@ -7,11 +7,12 @@ import { PaperCard } from "@/components/PaperCard";
 import { ReportCard } from "@/components/ReportCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { TagChip } from "@/components/TagChip";
+import { NotificationList } from "@/components/NotificationList";
 import { clearStoredUser } from "@/lib/authStorage";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { prefs, user, setUser } = useStore();
+  const { prefs, user, setUser, addNotification, getNotifications } = useStore();
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
 
@@ -44,6 +45,57 @@ export default function Home() {
     setCarouselOpen(true);
   };
 
+  const openCarouselByPaperId = (paperId: string) => {
+    const index = sortedPapers.findIndex(p => p.id === paperId);
+    if (index !== -1) {
+      openCarousel(index);
+    }
+  };
+
+  // 알림 생성 로직 (새로운 추천 논문, 관심 태그 매칭)
+  useEffect(() => {
+    if (!user || !prefs) return;
+
+    const existingNotifications = getNotifications();
+    const existingPaperIds = new Set(existingNotifications.map(n => n.paperId));
+
+    // 관심 태그와 매칭되는 논문에 대한 알림 생성
+    if (prefs.tags && prefs.tags.length > 0) {
+      sortedPapers.slice(0, 5).forEach((paper) => {
+        // 이미 알림이 있으면 스킵
+        if (existingPaperIds.has(paper.id)) return;
+
+        // 관심 태그와 매칭되는지 확인
+        const hasMatchingTag = prefs.tags!.some(prefTag =>
+          paper.tags.some(tag => tag.toLowerCase() === prefTag.name.toLowerCase())
+        );
+
+        if (hasMatchingTag) {
+          addNotification({
+            type: "tag_match",
+            paperId: paper.id,
+            title: paper.title,
+            message: `관심 태그와 매칭되는 새로운 논문이 추천되었습니다.`,
+          });
+          existingPaperIds.add(paper.id); // 중복 방지
+        }
+      });
+    }
+
+    // 새로운 추천 논문 알림 (상위 3개)
+    sortedPapers.slice(0, 3).forEach((paper) => {
+      if (existingPaperIds.has(paper.id)) return;
+
+      addNotification({
+        type: "new_recommendation",
+        paperId: paper.id,
+        title: paper.title,
+        message: `오늘의 추천 논문입니다.`,
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, prefs?.tags?.length]);
+
   const handleLogout = () => {
     clearStoredUser();
     setUser(null);
@@ -70,9 +122,13 @@ export default function Home() {
           </button>
           
           <div className="flex items-center gap-2">
-            <button className="p-2 text-muted-foreground">
-              <Bell className="w-5 h-5" />
-            </button>
+            {user ? (
+              <NotificationList onNotificationClick={openCarouselByPaperId} />
+            ) : (
+              <button className="p-2 text-muted-foreground opacity-50 cursor-not-allowed" disabled>
+                <Bell className="w-5 h-5" />
+              </button>
+            )}
             {!user && (
               <button
                 onClick={() => navigate("/login")}
