@@ -1,4 +1,4 @@
-export type AuthProvider = "google" | "kakao" | "guest";
+export type AuthProvider = "google" | "kakao";
 
 export interface TagPreference {
   name: string;
@@ -16,6 +16,7 @@ export interface StoredUser {
   name: string;
   provider: AuthProvider;
   createdAt: string;
+  avatarUrl?: string;
 }
 
 // Prototype only: never store real auth tokens in localStorage.

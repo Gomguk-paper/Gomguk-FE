@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight, X, FileText } from "lucide-react";
 import { Paper, summaries } from "@/data/papers";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useStore } from "@/store/useStore";
 
 interface SummaryCarouselProps {
   papers: Paper[];
@@ -17,6 +18,7 @@ type SummaryStep = "hook" | "keypoints" | "detailed";
 export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: SummaryCarouselProps) {
   const [currentPaperIndex, setCurrentPaperIndex] = useState(initialIndex);
   const [currentStep, setCurrentStep] = useState<SummaryStep>("hook");
+  const { markAsRead } = useStore();
 
   useEffect(() => {
     if (open) {
@@ -25,42 +27,91 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     }
   }, [open, initialIndex]);
 
+  // 모달이 열리거나 논문이 변경될 때 자동으로 읽음 처리
+  useEffect(() => {
+    if (open && papers[currentPaperIndex]) {
+      markAsRead(papers[currentPaperIndex].id);
+    }
+  }, [open, currentPaperIndex, papers, markAsRead]);
+
+  const goNext = useCallback(() => {
+    setCurrentStep((step) => {
+      if (step === "hook") {
+        return "keypoints";
+      } else if (step === "keypoints") {
+        return "detailed";
+      } else {
+        // detailed 단계에서 다음 논문으로 이동
+        setCurrentPaperIndex((idx) => {
+          if (idx < papers.length - 1) {
+            return idx + 1;
+          } else {
+            onClose();
+            return idx;
+          }
+        });
+        return "hook";
+      }
+    });
+  }, [papers.length, onClose]);
+
+  const goPrev = useCallback(() => {
+    setCurrentStep((step) => {
+      if (step === "detailed") {
+        return "keypoints";
+      } else if (step === "keypoints") {
+        return "hook";
+      } else {
+        // hook 단계에서 이전 논문으로 이동
+        setCurrentPaperIndex((idx) => {
+          if (idx > 0) {
+            return idx - 1;
+          }
+          return idx;
+        });
+        return "detailed";
+      }
+    });
+  }, []);
+
+  const goToStep = useCallback((targetStep: SummaryStep) => {
+    setCurrentStep(targetStep);
+  }, []);
+
+  const goToPaper = useCallback((targetIndex: number) => {
+    if (targetIndex >= 0 && targetIndex < papers.length) {
+      setCurrentPaperIndex(targetIndex);
+      setCurrentStep("hook"); // 논문 변경 시 첫 단계로 리셋
+    }
+  }, [papers.length]);
+
+  // 키보드 이벤트 리스너 추가
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // ESC 키는 모달 닫기
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      // 나머지 모든 키는 다음으로 이동
+      goNext();
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [open, goNext, onClose]);
+
   if (!open) return null;
 
   const paper = papers[currentPaperIndex];
   const summary = summaries.find(s => s.paperId === paper.id);
 
   if (!summary) return null;
-
-  const goNext = () => {
-    if (currentStep === "hook") {
-      setCurrentStep("keypoints");
-    } else if (currentStep === "keypoints") {
-      setCurrentStep("detailed");
-    } else {
-      // Move to next paper
-      if (currentPaperIndex < papers.length - 1) {
-        setCurrentPaperIndex(prev => prev + 1);
-        setCurrentStep("hook");
-      } else {
-        onClose();
-      }
-    }
-  };
-
-  const goPrev = () => {
-    if (currentStep === "detailed") {
-      setCurrentStep("keypoints");
-    } else if (currentStep === "keypoints") {
-      setCurrentStep("hook");
-    } else {
-      // Move to previous paper
-      if (currentPaperIndex > 0) {
-        setCurrentPaperIndex(prev => prev - 1);
-        setCurrentStep("detailed");
-      }
-    }
-  };
 
   const steps: SummaryStep[] = ["hook", "keypoints", "detailed"];
   const stepIndex = steps.indexOf(currentStep);
@@ -70,19 +121,43 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-2">
-          {papers.map((_, i) => (
-            <div
+          {papers.map((paper, i) => (
+            <button
               key={i}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPaper(i);
+              }}
               className={cn(
-                "h-1 rounded-full transition-all",
+                "h-1 rounded-full transition-all cursor-pointer hover:h-1.5",
                 i === currentPaperIndex ? "w-8 bg-primary" : "w-4 bg-muted"
               )}
+              aria-label={`${i + 1}번째 논문으로 이동: ${paper.title}`}
             />
           ))}
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          {paper.pdfUrl && (
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              onClick={(e) => e.stopPropagation()}
+            >
+              <a
+                href={paper.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="PDF 원문 보기 (새 탭에서 열림)"
+              >
+                <FileText className="w-5 h-5" />
+              </a>
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Content */}
@@ -105,12 +180,17 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         {/* Step indicator */}
         <div className="flex gap-2 mb-4">
           {steps.map((step, i) => (
-            <div
+            <button
               key={step}
+              onClick={(e) => {
+                e.stopPropagation(); // 부모의 onClick(goNext) 방지
+                goToStep(step);
+              }}
               className={cn(
-                "h-1 flex-1 rounded-full transition-all",
+                "h-1 flex-1 rounded-full transition-all cursor-pointer hover:h-1.5",
                 i <= stepIndex ? "bg-primary" : "bg-muted"
               )}
+              aria-label={`${step === "hook" ? "한줄 요약" : step === "keypoints" ? "핵심 포인트" : "상세 설명"} 단계로 이동`}
             />
           ))}
         </div>
@@ -161,7 +241,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
         {/* Navigation hint */}
         <p className="text-xs text-muted-foreground text-center mt-4">
-          탭하여 다음으로
+          진행 상태 바를 클릭하거나 탭하여 단계 이동
         </p>
       </div>
 
