@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Heart, Bookmark, History, ChevronRight, Calendar } from "lucide-react";
+import { Settings, Heart, Bookmark, History, ChevronRight, Calendar, BarChart3, TrendingUp } from "lucide-react";
 import { papers } from "@/data/papers";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
@@ -13,8 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { clearStoredUser } from "@/lib/authStorage";
-import { format, isToday, isThisWeek, isThisMonth, parseISO, startOfDay } from "date-fns";
+import { format, isToday, isThisWeek, isThisMonth, parseISO, startOfDay, startOfWeek, startOfMonth, eachDayOfInterval, subDays, subWeeks, subMonths } from "date-fns";
 import { ko } from "date-fns/locale/ko";
 
 export default function MyPage() {
@@ -86,6 +89,71 @@ export default function MyPage() {
     const readIds = actions.filter(a => a.readAt).map(a => a.paperId);
     return papers.filter(p => readIds.includes(p.id));
   }, [actions]);
+
+  // 주별 읽기 통계
+  const weeklyStats = useMemo(() => {
+    const now = new Date();
+    const weeksAgo = 4;
+    const stats: { week: string; count: number }[] = [];
+    
+    for (let i = weeksAgo - 1; i >= 0; i--) {
+      const weekStart = startOfWeek(subWeeks(now, i), { locale: ko });
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      
+      const count = readPapersWithDate.filter(item => {
+        const readDate = item.readDate;
+        return readDate >= weekStart && readDate <= weekEnd;
+      }).length;
+      
+      stats.push({
+        week: format(weekStart, "M/d", { locale: ko }),
+        count,
+      });
+    }
+    
+    return stats;
+  }, [readPapersWithDate]);
+
+  // 태그별 읽기 분포
+  const tagDistribution = useMemo(() => {
+    const tagCounts: Record<string, number> = {};
+    
+    readPapersWithDate.forEach(({ paper }) => {
+      paper.tags.forEach(tag => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+      });
+    });
+    
+    return Object.entries(tagCounts)
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5); // 상위 5개만 표시
+  }, [readPapersWithDate]);
+
+  // 시간대별 읽기 통계
+  const hourlyStats = useMemo(() => {
+    const hourCounts: Record<number, number> = {};
+    
+    readPapersWithDate.forEach(({ readDate }) => {
+      const hour = readDate.getHours();
+      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+    });
+    
+    return Array.from({ length: 24 }, (_, i) => ({
+      hour: i,
+      count: hourCounts[i] || 0,
+    }));
+  }, [readPapersWithDate]);
+
+  const chartConfig = {
+    count: {
+      label: "읽은 논문 수",
+      color: "hsl(var(--chart-1))",
+    },
+  };
+
+  const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
   const handleLogout = () => {
     clearStoredUser();
@@ -164,7 +232,7 @@ export default function MyPage() {
 
         {/* Tabs */}
         <Tabs defaultValue="saved" className="p-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="saved" className="gap-1.5">
               <Bookmark className="w-4 h-4" />
               저장
@@ -176,6 +244,10 @@ export default function MyPage() {
             <TabsTrigger value="history" className="gap-1.5">
               <History className="w-4 h-4" />
               히스토리
+            </TabsTrigger>
+            <TabsTrigger value="stats" className="gap-1.5">
+              <BarChart3 className="w-4 h-4" />
+              통계
             </TabsTrigger>
           </TabsList>
           
@@ -259,6 +331,122 @@ export default function MyPage() {
               </>
             ) : (
               <EmptyState icon={History} message="읽은 논문이 없어요" />
+            )}
+          </TabsContent>
+
+          <TabsContent value="stats" className="mt-4 space-y-4">
+            {readPapersWithDate.length > 0 ? (
+              <>
+                {/* 주별 읽기 통계 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4" />
+                      주별 읽기 통계
+                    </CardTitle>
+                    <CardDescription>최근 4주간 읽은 논문 수</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer config={chartConfig}>
+                      <BarChart data={weeklyStats}>
+                        <XAxis dataKey="week" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                      </BarChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+
+                {/* 태그별 읽기 분포 */}
+                {tagDistribution.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4" />
+                        태그별 읽기 분포
+                      </CardTitle>
+                      <CardDescription>가장 많이 읽은 태그 Top 5</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ChartContainer config={chartConfig}>
+                        <PieChart>
+                          <Pie
+                            data={tagDistribution}
+                            dataKey="count"
+                            nameKey="tag"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            label={({ tag, count }) => `${tag}: ${count}`}
+                          >
+                            {tagDistribution.map((_, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                        </PieChart>
+                      </ChartContainer>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* 시간대별 읽기 통계 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      시간대별 읽기 패턴
+                    </CardTitle>
+                    <CardDescription>언제 가장 많이 읽으시나요?</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer config={chartConfig}>
+                      <BarChart data={hourlyStats}>
+                        <XAxis 
+                          dataKey="hour" 
+                          tickFormatter={(value) => `${value}시`}
+                        />
+                        <YAxis />
+                        <ChartTooltip 
+                          content={<ChartTooltipContent />}
+                          labelFormatter={(value) => `${value}시`}
+                        />
+                        <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                      </BarChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+
+                {/* 읽기 습관 요약 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">읽기 습관 요약</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">총 읽은 논문</span>
+                      <span className="text-lg font-bold">{readPapersWithDate.length}개</span>
+                    </div>
+                    {tagDistribution.length > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">가장 많이 읽은 태그</span>
+                        <span className="text-lg font-bold">{tagDistribution[0].tag}</span>
+                      </div>
+                    )}
+                    {hourlyStats.some(h => h.count > 0) && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">가장 많이 읽는 시간대</span>
+                        <span className="text-lg font-bold">
+                          {hourlyStats.reduce((max, h) => h.count > max.count ? h : max, hourlyStats[0]).hour}시
+                        </span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <EmptyState icon={BarChart3} message="읽은 논문이 없어 통계를 표시할 수 없어요" />
             )}
           </TabsContent>
         </Tabs>
