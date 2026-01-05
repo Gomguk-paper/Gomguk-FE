@@ -6,6 +6,16 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { WhyThisModal } from "./WhyThisModal";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface PaperCardProps {
   paper: Paper;
@@ -15,6 +25,8 @@ interface PaperCardProps {
 export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const { user, getAction, toggleLike, toggleSave, markAsRead } = useStore();
   const [showWhyModal, setShowWhyModal] = useState(false);
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const navigate = useNavigate();
   
   const action = getAction(paper.id);
   const summary = summaries.find(s => s.paperId === paper.id);
@@ -25,6 +37,19 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const authMessage = !user
     ? "로그인 후 좋아요/저장/읽음 기능을 사용할 수 있어요."
     : null;
+
+  const handleActionClick = (action: () => void) => {
+    if (!user) {
+      setShowLoginAlert(true);
+      return;
+    }
+    action();
+  };
+
+  const handleLoginConfirm = () => {
+    setShowLoginAlert(false);
+    navigate("/login");
+  };
 
   return (
     <>
@@ -80,8 +105,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             variant="ghost"
             size="sm"
             className={cn("gap-1.5", isLiked && "text-liked")}
-            onClick={() => toggleLike(paper.id)}
-            disabled={!canUseActions}
+            onClick={() => handleActionClick(() => toggleLike(paper.id))}
           >
             <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
             <span className="text-xs">좋아요</span>
@@ -91,8 +115,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             variant="ghost"
             size="sm"
             className={cn("gap-1.5", isSaved && "text-saved")}
-            onClick={() => toggleSave(paper.id)}
-            disabled={!canUseActions}
+            onClick={() => handleActionClick(() => toggleSave(paper.id))}
           >
             <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
             <span className="text-xs">저장</span>
@@ -102,8 +125,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             variant="ghost"
             size="sm"
             className={cn("gap-1.5", isRead && "text-accent")}
-            onClick={() => markAsRead(paper.id)}
-            disabled={!canUseActions}
+            onClick={() => handleActionClick(() => markAsRead(paper.id))}
           >
             <Check className={cn("w-4 h-4", isRead && "stroke-[3]")} />
             <span className="text-xs">읽음</span>
@@ -128,6 +150,22 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
         open={showWhyModal} 
         onOpenChange={setShowWhyModal} 
       />
+
+      <AlertDialog open={showLoginAlert} onOpenChange={setShowLoginAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>로그인이 필요합니다</AlertDialogTitle>
+            <AlertDialogDescription>
+              이 기능을 사용하려면 로그인이 필요합니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleLoginConfirm}>
+              확인
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
