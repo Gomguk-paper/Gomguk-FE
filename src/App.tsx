@@ -11,7 +11,7 @@ import Home from "./pages/Home";
 import SearchPage from "./pages/Search";
 import MyPage from "./pages/MyPage";
 import NotFound from "./pages/NotFound";
-import { getStoredPrefs, getStoredUser } from "@/lib/authStorage";
+import { getStoredPrefs, getStoredUser, clearStoredUser } from "@/lib/authStorage";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
@@ -23,9 +23,14 @@ function AppRoutes() {
   useEffect(() => {
     const storedUser = getStoredUser();
     const storedPrefs = getStoredPrefs();
-    if (!user && storedUser) {
+    
+    // 기존 게스트 사용자 자동 로그아웃
+    if (storedUser?.provider === "guest") {
+      clearStoredUser();
+    } else if (!user && storedUser) {
       setUser(storedUser);
     }
+    
     if (!prefs && storedPrefs) {
       setPrefs(storedPrefs);
     }

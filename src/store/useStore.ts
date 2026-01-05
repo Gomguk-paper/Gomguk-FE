@@ -31,7 +31,7 @@ interface GomgukStore {
 }
 
 const getUserActionKey = (user: StoredUser | null) => {
-  if (!user || user.provider === 'guest') {
+  if (!user) {
     return null;
   }
   return user.provider;

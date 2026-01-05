@@ -4,6 +4,7 @@ import { Paper, summaries } from "@/data/papers";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useStore } from "@/store/useStore";
 
 interface SummaryCarouselProps {
   papers: Paper[];
@@ -17,6 +18,7 @@ type SummaryStep = "hook" | "keypoints" | "detailed";
 export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: SummaryCarouselProps) {
   const [currentPaperIndex, setCurrentPaperIndex] = useState(initialIndex);
   const [currentStep, setCurrentStep] = useState<SummaryStep>("hook");
+  const { markAsRead } = useStore();
 
   useEffect(() => {
     if (open) {
@@ -24,6 +26,13 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       setCurrentStep("hook");
     }
   }, [open, initialIndex]);
+
+  // 모달이 열리거나 논문이 변경될 때 자동으로 읽음 처리
+  useEffect(() => {
+    if (open && papers[currentPaperIndex]) {
+      markAsRead(papers[currentPaperIndex].id);
+    }
+  }, [open, currentPaperIndex, papers, markAsRead]);
 
   if (!open) return null;
 

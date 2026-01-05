@@ -1,73 +1,76 @@
-# Welcome to your Lovable project
+# 논문 추천 서비스 프로젝트
 
-## Project info
+## 프로젝트 정보
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
-## How can I edit this code?
+## 코드를 어떻게 편집할 수 있나요?
 
-There are several ways of editing your application.
+애플리케이션을 편집하는 여러 가지 방법이 있습니다.
 
-**Use Lovable**
+**Lovable 사용**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+[Lovable 프로젝트](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID)에 방문하여 프롬프트를 시작하세요.
 
-Changes made via Lovable will be committed automatically to this repo.
+Lovable을 통해 만든 변경사항은 자동으로 이 저장소에 커밋됩니다.
 
-**Use your preferred IDE**
+**선호하는 IDE 사용**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+자신의 IDE를 사용하여 로컬에서 작업하려면 이 저장소를 클론하고 변경사항을 푸시할 수 있습니다. 푸시된 변경사항은 Lovable에도 반영됩니다.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+필수 요구사항은 Node.js와 npm이 설치되어 있어야 합니다 - [nvm으로 설치하기](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Follow these steps:
+다음 단계를 따르세요:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# 1단계: 프로젝트의 Git URL을 사용하여 저장소를 클론합니다.
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# 2단계: 프로젝트 디렉토리로 이동합니다.
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
+# 3단계: 필요한 의존성을 설치합니다.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4단계: 자동 리로드와 즉시 미리보기가 가능한 개발 서버를 시작합니다.
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+**GitHub에서 파일 직접 편집**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- 원하는 파일로 이동합니다.
+- 파일 보기의 오른쪽 상단에 있는 "Edit" 버튼(연필 아이콘)을 클릭합니다.
+- 변경사항을 만들고 커밋합니다.
 
-**Use GitHub Codespaces**
+**GitHub Codespaces 사용**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- 저장소의 메인 페이지로 이동합니다.
+- 오른쪽 상단 근처의 "Code" 버튼(녹색 버튼)을 클릭합니다.
+- "Codespaces" 탭을 선택합니다.
+- "New codespace"를 클릭하여 새로운 Codespace 환경을 시작합니다.
+- Codespace 내에서 파일을 직접 편집하고 완료되면 변경사항을 커밋하고 푸시합니다.
 
-## What technologies are used for this project?
+## 이 프로젝트에서 사용되는 기술은 무엇인가요?
 
-This project is built with:
+이 프로젝트는 다음 기술로 구축되었습니다:
 
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- React Router
+- Zustand (상태 관리)
+- React Query
 
-## How can I deploy this project?
+## 이 프로젝트를 어떻게 배포할 수 있나요?
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+[Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID)을 열고 Share -> Publish를 클릭하세요.
 
-## Can I connect a custom domain to my Lovable project?
+## Lovable 프로젝트에 커스텀 도메인을 연결할 수 있나요?
 
-Yes, you can!
+네, 가능합니다!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+도메인을 연결하려면 Project > Settings > Domains로 이동하여 Connect Domain을 클릭하세요.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+자세한 내용은 여기를 참조하세요: [커스텀 도메인 설정](https://docs.lovable.dev/features/custom-domain#custom-domain)

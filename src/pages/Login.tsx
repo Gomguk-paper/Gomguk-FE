@@ -35,10 +35,10 @@ export default function Login() {
   }, []);
 
   const createMockUser = (provider: AuthProvider) => {
-    const providerLabel = provider === "google" ? "Google" : provider === "kakao" ? "Kakao" : "Guest";
+    const providerLabel = provider === "google" ? "Google" : "Kakao";
     return {
       id: `${Date.now()}`,
-      name: provider === "guest" ? "Guest" : `${providerLabel} 사용자`,
+      name: `${providerLabel} 사용자`,
       provider,
       createdAt: new Date().toISOString(),
     };
@@ -64,12 +64,6 @@ export default function Login() {
       }
       const user = createMockUser(provider);
       if (rememberMe) {
-        if (!storageAvailable()) {
-          toast({
-            title: "저장소 접근이 제한되어 게스트 모드로 진행합니다",
-            description: "페이지 이동 시 로그인 상태가 해제될 수 있어요.",
-          });
-        }
         setStoredUser(user);
       } else {
         clearStoredUser();
@@ -150,17 +144,6 @@ export default function Login() {
           >
             {loadingProvider === "kakao" && <Loader2 className="animate-spin" />}
             Kakao로 시작하기
-          </Button>
-          <Button
-            id="btn_login_guest"
-            variant="outline"
-            className="w-full h-12 text-base"
-            onClick={() => handleLogin("guest")}
-            disabled={isLoading}
-            aria-label="게스트로 시작하기"
-          >
-            {loadingProvider === "guest" && <Loader2 className="animate-spin" />}
-            둘러보기(게스트)
           </Button>
         </div>
 

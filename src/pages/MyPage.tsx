@@ -11,8 +11,7 @@ import { clearStoredUser } from "@/lib/authStorage";
 export default function MyPage() {
   const navigate = useNavigate();
   const { user, actionsByUser, prefs, setUser } = useStore();
-  const isGuest = user?.provider === "guest";
-  const userKey = user && !isGuest ? user.provider : null;
+  const userKey = user?.provider ?? null;
   const actions = userKey ? actionsByUser[userKey] ?? [] : [];
 
   const likedPapers = useMemo(() => {
@@ -65,7 +64,7 @@ export default function MyPage() {
               </span>
             </div>
             <div>
-              <h2 className="font-semibold">{user?.name || "게스트"}</h2>
+              <h2 className="font-semibold">{user?.name || ""}</h2>
               {prefs && (
                 <p className="text-sm text-muted-foreground">
                   관심 분야 {prefs.tags.length}개 • {prefs.level === "undergraduate" ? "학부생" : prefs.level === "graduate" ? "대학원생" : prefs.level === "researcher" ? "연구자" : "실무자"}
@@ -123,9 +122,7 @@ export default function MyPage() {
           </TabsList>
           
           <TabsContent value="saved" className="mt-4 space-y-4">
-            {isGuest ? (
-              <EmptyState icon={Bookmark} message="게스트 입니다 로그인하세요" />
-            ) : savedPapers.length > 0 ? (
+            {savedPapers.length > 0 ? (
               savedPapers.map(paper => (
                 <PaperCard key={paper.id} paper={paper} />
               ))
@@ -135,9 +132,7 @@ export default function MyPage() {
           </TabsContent>
           
           <TabsContent value="liked" className="mt-4 space-y-4">
-            {isGuest ? (
-              <EmptyState icon={Heart} message="게스트 입니다 로그인하세요" />
-            ) : likedPapers.length > 0 ? (
+            {likedPapers.length > 0 ? (
               likedPapers.map(paper => (
                 <PaperCard key={paper.id} paper={paper} />
               ))
@@ -147,9 +142,7 @@ export default function MyPage() {
           </TabsContent>
           
           <TabsContent value="history" className="mt-4 space-y-4">
-            {isGuest ? (
-              <EmptyState icon={History} message="게스트 입니다 로그인하세요" />
-            ) : readPapers.length > 0 ? (
+            {readPapers.length > 0 ? (
               readPapers.map(paper => (
                 <PaperCard key={paper.id} paper={paper} />
               ))

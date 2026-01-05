@@ -21,13 +21,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const isLiked = action?.liked || false;
   const isSaved = action?.saved || false;
   const isRead = !!action?.readAt;
-  const isGuest = user?.provider === "guest";
-  const canUseActions = Boolean(user) && !isGuest;
+  const canUseActions = Boolean(user);
   const authMessage = !user
     ? "로그인 후 좋아요/저장/읽음 기능을 사용할 수 있어요."
-    : isGuest
-      ? "게스트 입니다. 로그인하세요."
-      : null;
+    : null;
 
   return (
     <>
