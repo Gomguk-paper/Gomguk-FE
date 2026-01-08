@@ -7,17 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 import { WhyThisModal } from "./WhyThisModal";
+import { LoginModal } from "./LoginModal";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 interface PaperCardProps {
   paper: Paper;
@@ -27,10 +18,9 @@ interface PaperCardProps {
 export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const { user, getAction, toggleLike, toggleSave, markAsRead } = useStore();
   const [showWhyModal, setShowWhyModal] = useState(false);
-  const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAbstract, setShowAbstract] = useState(false);
   const [showAllAuthors, setShowAllAuthors] = useState(false);
-  const navigate = useNavigate();
   
   const action = getAction(paper.id);
   const summary = summaries.find(s => s.paperId === paper.id);
@@ -55,15 +45,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
   const handleActionClick = (action: () => void) => {
     if (!user) {
-      setShowLoginAlert(true);
+      setShowLoginModal(true);
       return;
     }
     action();
-  };
-
-  const handleLoginConfirm = () => {
-    setShowLoginAlert(false);
-    navigate("/login");
   };
 
   return (
@@ -268,21 +253,11 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
         onOpenChange={setShowWhyModal} 
       />
 
-      <AlertDialog open={showLoginAlert} onOpenChange={setShowLoginAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>로그인이 필요합니다</AlertDialogTitle>
-            <AlertDialogDescription>
-              이 기능을 사용하려면 로그인이 필요합니다.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={handleLoginConfirm}>
-              확인
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <LoginModal
+        open={showLoginModal}
+        onOpenChange={setShowLoginModal}
+        showNotice={true}
+      />
     </>
   );
 }

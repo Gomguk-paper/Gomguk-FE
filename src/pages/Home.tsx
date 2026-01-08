@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Bell, BookOpen } from "lucide-react";
 import { papers, reports, summaries } from "@/data/papers";
@@ -8,6 +8,7 @@ import { ReportCard } from "@/components/ReportCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { TagChip } from "@/components/TagChip";
 import { NotificationList } from "@/components/NotificationList";
+import { LoginModal } from "@/components/LoginModal";
 import { clearStoredUser } from "@/lib/authStorage";
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
   const { prefs, user, setUser, addNotification, getNotifications } = useStore();
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   // Sort papers by personalized score
   const sortedPapers = useMemo(() => {
@@ -131,7 +133,8 @@ export default function Home() {
             )}
             {!user && (
               <button
-                onClick={() => navigate("/login")}
+                data-login-trigger
+                onClick={() => setLoginModalOpen(true)}
                 className="px-3 py-2 text-xs font-semibold rounded-full border border-input bg-background hover:bg-secondary transition-colors"
               >
                 로그인
@@ -212,6 +215,12 @@ export default function Home() {
         initialIndex={selectedPaperIndex}
         open={carouselOpen}
         onClose={() => setCarouselOpen(false)}
+      />
+
+      {/* Login Modal */}
+      <LoginModal
+        open={loginModalOpen}
+        onOpenChange={setLoginModalOpen}
       />
     </main>
   );

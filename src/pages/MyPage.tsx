@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Settings, Heart, Bookmark, History, ChevronRight, Calendar, BarChart3, TrendingUp } from "lucide-react";
 import { papers } from "@/data/papers";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
+import { LoginModal } from "@/components/LoginModal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -24,8 +25,16 @@ import { ko } from "date-fns/locale/ko";
 export default function MyPage() {
   const navigate = useNavigate();
   const { user, actionsByUser, prefs, setUser } = useStore();
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const userKey = user?.provider ?? null;
   const actions = userKey ? actionsByUser[userKey] ?? [] : [];
+
+  // 로그인하지 않은 사용자가 마이페이지에 접근하면 모달 표시
+  useEffect(() => {
+    if (!user) {
+      setLoginModalOpen(true);
+    }
+  }, [user]);
 
   const likedPapers = useMemo(() => {
     const likedIds = actions.filter(a => a.liked).map(a => a.paperId);
@@ -485,6 +494,13 @@ export default function MyPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        open={loginModalOpen}
+        onOpenChange={setLoginModalOpen}
+        showNotice={true}
+      />
     </main>
   );
 }

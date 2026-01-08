@@ -50,7 +50,7 @@ function AppRoutes() {
         <Route path="/search" element={<SearchPage />} />
         <Route
           path="/mypage"
-          element={user ? <MyPage /> : <Navigate to="/login" replace state={{ reason: "auth", from: "/mypage" }} />}
+          element={<MyPage />}
         />
         <Route
           path="/login"

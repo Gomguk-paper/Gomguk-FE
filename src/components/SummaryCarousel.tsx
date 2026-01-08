@@ -41,19 +41,11 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       } else if (step === "keypoints") {
         return "detailed";
       } else {
-        // detailed 단계에서 다음 논문으로 이동
-        setCurrentPaperIndex((idx) => {
-          if (idx < papers.length - 1) {
-            return idx + 1;
-          } else {
-            onClose();
-            return idx;
-          }
-        });
-        return "hook";
+        // detailed 단계에서는 다음 논문으로 이동하지 않고 그대로 유지
+        return "detailed";
       }
     });
-  }, [papers.length, onClose]);
+  }, []);
 
   const goPrev = useCallback(() => {
     setCurrentStep((step) => {
@@ -62,17 +54,26 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       } else if (step === "keypoints") {
         return "hook";
       } else {
-        // hook 단계에서 이전 논문으로 이동
-        setCurrentPaperIndex((idx) => {
-          if (idx > 0) {
-            return idx - 1;
-          }
-          return idx;
-        });
-        return "detailed";
+        return "hook";
       }
     });
   }, []);
+
+  // 다음 논문으로 이동
+  const goNextPaper = useCallback(() => {
+    if (currentPaperIndex < papers.length - 1) {
+      setCurrentPaperIndex(currentPaperIndex + 1);
+      setCurrentStep("hook");
+    }
+  }, [currentPaperIndex, papers.length]);
+
+  // 이전 논문으로 이동
+  const goPrevPaper = useCallback(() => {
+    if (currentPaperIndex > 0) {
+      setCurrentPaperIndex(currentPaperIndex - 1);
+      setCurrentStep("hook");
+    }
+  }, [currentPaperIndex]);
 
   const goToStep = useCallback((targetStep: SummaryStep) => {
     setCurrentStep(targetStep);
@@ -95,8 +96,19 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         onClose();
         return;
       }
-      // 나머지 모든 키는 다음으로 이동
-      goNext();
+      // 화살표 키로 논문 이동
+      if (e.key === "ArrowRight") {
+        goNextPaper();
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        goPrevPaper();
+        return;
+      }
+      // 나머지 키는 단계 이동
+      if (e.key !== "Escape" && e.key !== "ArrowRight" && e.key !== "ArrowLeft") {
+        goNext();
+      }
     };
 
     window.addEventListener("keydown", handleKeyPress);
@@ -104,7 +116,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [open, goNext, onClose]);
+  }, [open, goNext, goNextPaper, goPrevPaper, onClose]);
 
   if (!open) return null;
 
@@ -245,20 +257,79 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         </p>
       </div>
 
-      {/* Side navigation buttons */}
+      {/* Side navigation buttons - 논문 이동 */}
       <button
-        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card shadow-lg opacity-50 hover:opacity-100 transition-opacity"
-        onClick={(e) => { e.stopPropagation(); goPrev(); }}
-        disabled={currentPaperIndex === 0 && currentStep === "hook"}
+        className={cn(
+          "absolute left-4 top-1/2 -translate-y-1/2 z-20",
+          "p-3 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
+          "hover:bg-background hover:scale-110 transition-all",
+          "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100",
+          currentPaperIndex === 0 && "opacity-50"
+        )}
+        onClick={(e) => { 
+          e.stopPropagation(); 
+          goPrevPaper(); 
+        }}
+        disabled={currentPaperIndex === 0}
+        aria-label="이전 논문"
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="w-6 h-6 text-foreground" />
       </button>
       <button
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card shadow-lg opacity-50 hover:opacity-100 transition-opacity"
-        onClick={(e) => { e.stopPropagation(); goNext(); }}
+        className={cn(
+          "absolute right-4 top-1/2 -translate-y-1/2 z-20",
+          "p-3 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
+          "hover:bg-background hover:scale-110 transition-all",
+          "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100",
+          currentPaperIndex === papers.length - 1 && "opacity-50"
+        )}
+        onClick={(e) => { 
+          e.stopPropagation(); 
+          goNextPaper(); 
+        }}
+        disabled={currentPaperIndex === papers.length - 1}
+        aria-label="다음 논문"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-6 h-6 text-foreground" />
       </button>
+
+      {/* Step navigation buttons - 단계 이동 */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        <button
+          className={cn(
+            "px-4 py-2 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
+            "hover:bg-background transition-all text-sm",
+            "disabled:opacity-30 disabled:cursor-not-allowed",
+            currentStep === "hook" && "opacity-50"
+          )}
+          onClick={(e) => { 
+            e.stopPropagation(); 
+            goPrev(); 
+          }}
+          disabled={currentStep === "hook"}
+          aria-label="이전 단계"
+        >
+          <ChevronLeft className="w-4 h-4 inline mr-1" />
+          이전
+        </button>
+        <button
+          className={cn(
+            "px-4 py-2 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
+            "hover:bg-background transition-all text-sm",
+            "disabled:opacity-30 disabled:cursor-not-allowed",
+            currentStep === "detailed" && "opacity-50"
+          )}
+          onClick={(e) => { 
+            e.stopPropagation(); 
+            goNext(); 
+          }}
+          disabled={currentStep === "detailed"}
+          aria-label="다음 단계"
+        >
+          다음
+          <ChevronRight className="w-4 h-4 inline ml-1" />
+        </button>
+      </div>
     </div>
   );
 }
