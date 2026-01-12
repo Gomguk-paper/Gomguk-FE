@@ -1,7 +1,18 @@
 """
 데이터베이스 설정 및 모델 정의
 """
-from sqlalchemy import create_engine, Column, Integer, String, Text, Float, DateTime, Boolean, JSON
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    Integer,
+    JSON,
+    String,
+    Text,
+    create_engine,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -26,8 +37,9 @@ Base = declarative_base()
 
 class Paper(Base):
     """논문 모델"""
+
     __tablename__ = "papers"
-    
+
     id = Column(String, primary_key=True)  # arxiv_id
     arxiv_id = Column(String, unique=True, index=True)
     title = Column(String, nullable=False)
@@ -40,16 +52,16 @@ class Paper(Base):
     arxiv_url = Column(String)
     published_date = Column(DateTime)
     updated_date = Column(DateTime)
-    
+
     # 메트릭스
     citations = Column(Integer, default=0)
     trending_score = Column(Float, default=0.0)
     recency_score = Column(Float, default=0.0)
-    
+
     # 크롤링 정보
     crawled_at = Column(DateTime, default=datetime.utcnow)
     is_summarized = Column(Boolean, default=False)
-    
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -62,8 +74,12 @@ class Paper(Base):
             "abstract": self.abstract,
             "pdf_url": self.pdf_url,
             "arxiv_url": self.arxiv_url,
-            "published_date": self.published_date.isoformat() if self.published_date else None,
-            "updated_date": self.updated_date.isoformat() if self.updated_date else None,
+            "published_date": (
+                self.published_date.isoformat() if self.published_date else None
+            ),
+            "updated_date": (
+                self.updated_date.isoformat() if self.updated_date else None
+            ),
             "metrics": {
                 "citations": self.citations,
                 "trending_score": self.trending_score,
@@ -75,8 +91,9 @@ class Paper(Base):
 
 class Summary(Base):
     """논문 요약 모델"""
+
     __tablename__ = "summaries"
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     paper_id = Column(String, index=True)
     hook_one_liner = Column(Text)
@@ -84,7 +101,7 @@ class Summary(Base):
     detailed = Column(Text)
     evidence_scope = Column(String)  # "abstract", "intro", "full"
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     def to_dict(self):
         return {
             "paperId": self.paper_id,
@@ -97,8 +114,9 @@ class Summary(Base):
 
 class UserAction(Base):
     """사용자 행동 모델 (좋아요, 저장, 읽음)"""
+
     __tablename__ = "user_actions"
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String, index=True)
     paper_id = Column(String, index=True)
@@ -111,8 +129,9 @@ class UserAction(Base):
 
 class UserPreference(Base):
     """사용자 선호도 모델"""
+
     __tablename__ = "user_preferences"
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String, unique=True, index=True)
     tags = Column(JSON)  # [{"name": "NLP", "weight": 5}]
@@ -120,7 +139,7 @@ class UserPreference(Base):
     daily_count = Column(Integer, default=10)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     def to_dict(self):
         return {
             "tags": self.tags or [],

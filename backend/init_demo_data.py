@@ -2,7 +2,8 @@
 데모용 초기 데이터 생성 스크립트
 AI 논문 중 인용수가 많은 상위 5개 논문을 추가합니다.
 """
-from database import SessionLocal, Paper, init_db
+
+from models.database import SessionLocal, Paper, init_db
 from datetime import datetime
 
 # 데모 데이터: 실제 인기 AI 논문들
@@ -11,7 +12,16 @@ DEMO_PAPERS = [
         "id": "arxiv_1706.03762",
         "arxiv_id": "1706.03762",
         "title": "Attention Is All You Need",
-        "authors": ["Vaswani, A.", "Shazeer, N.", "Parmar, N.", "Uszkoreit, J.", "Jones, L.", "Gomez, A. N.", "Kaiser, L.", "Polosukhin, I."],
+        "authors": [
+            "Vaswani, A.",
+            "Shazeer, N.",
+            "Parmar, N.",
+            "Uszkoreit, J.",
+            "Jones, L.",
+            "Gomez, A. N.",
+            "Kaiser, L.",
+            "Polosukhin, I.",
+        ],
         "year": 2017,
         "venue": "NeurIPS",
         "tags": ["cs.CL", "cs.LG", "cs.AI"],
@@ -62,7 +72,20 @@ DEMO_PAPERS = [
         "id": "arxiv_2010.11929",
         "arxiv_id": "2010.11929",
         "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
-        "authors": ["Dosovitskiy, A.", "Beyer, L.", "Kolesnikov, A.", "Weissenborn, D.", "Zhai, X.", "Unterthiner, T.", "Dehghani, M.", "Minderer, M.", "Heigold, G.", "Gelly, S.", "Uszkoreit, J.", "Houlsby, N."],
+        "authors": [
+            "Dosovitskiy, A.",
+            "Beyer, L.",
+            "Kolesnikov, A.",
+            "Weissenborn, D.",
+            "Zhai, X.",
+            "Unterthiner, T.",
+            "Dehghani, M.",
+            "Minderer, M.",
+            "Heigold, G.",
+            "Gelly, S.",
+            "Uszkoreit, J.",
+            "Houlsby, N.",
+        ],
         "year": 2020,
         "venue": "ICLR",
         "tags": ["cs.CV", "cs.LG", "cs.AI"],
@@ -98,16 +121,18 @@ DEMO_PAPERS = [
 def init_demo_data():
     """데모 데이터 초기화"""
     print("데모 데이터 초기화 중...")
-    
+
     # DB 초기화
     init_db()
-    
+
     db = SessionLocal()
     try:
         for paper_data in DEMO_PAPERS:
             # 기존 논문 확인
-            existing = db.query(Paper).filter(Paper.arxiv_id == paper_data["arxiv_id"]).first()
-            
+            existing = (
+                db.query(Paper).filter(Paper.arxiv_id == paper_data["arxiv_id"]).first()
+            )
+
             if existing:
                 print(f"  ✓ {paper_data['title'][:50]}... (이미 존재)")
                 # 업데이트
@@ -118,10 +143,10 @@ def init_demo_data():
                 print(f"  + {paper_data['title'][:50]}... (추가)")
                 paper = Paper(**paper_data)
                 db.add(paper)
-        
+
         db.commit()
         print(f"\n✅ 총 {len(DEMO_PAPERS)}개 데모 논문 초기화 완료")
-        
+
     except Exception as e:
         print(f"❌ 오류: {e}")
         db.rollback()

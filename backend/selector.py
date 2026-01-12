@@ -2,8 +2,9 @@
 논문 선별 로직
 인용수가 많은 상위 논문을 선별합니다.
 """
-from typing import List, Dict
-from database import SessionLocal, Paper
+
+from typing import List
+from models.database import SessionLocal, Paper
 import os
 from dotenv import load_dotenv
 
@@ -16,7 +17,7 @@ def select_papers_for_summarization() -> List[str]:
     """
     요약할 논문을 선별합니다.
     인용수가 많은 상위 논문을 반환합니다.
-    
+
     Returns:
         선별된 논문 ID 리스트
     """
@@ -30,7 +31,7 @@ def select_papers_for_summarization() -> List[str]:
             .limit(TOP_CITATIONS_COUNT)
             .all()
         )
-        
+
         # 인용수가 0인 경우, 최신 논문 우선
         if len(papers) < TOP_CITATIONS_COUNT:
             additional_papers = (
@@ -41,9 +42,9 @@ def select_papers_for_summarization() -> List[str]:
                 .all()
             )
             papers.extend(additional_papers)
-        
+
         return [paper.id for paper in papers]
-        
+
     finally:
         db.close()
 

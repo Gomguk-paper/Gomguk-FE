@@ -8,6 +8,7 @@ import sys
 try:
     print("📦 모듈 import 테스트 시작...")
     from main import app
+
     print("✅ 모든 모듈 import 성공!")
     print(f"✅ FastAPI 앱 생성 완료: {app.title}")
     sys.exit(0)
@@ -19,5 +20,6 @@ except ImportError as e:
 except Exception as e:
     print(f"❌ 오류 발생: {e}")
     import traceback
+
     traceback.print_exc()
     sys.exit(1)

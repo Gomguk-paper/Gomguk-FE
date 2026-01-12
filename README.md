@@ -52,8 +52,7 @@ npm run dev
 
 ## 이 프로젝트에서 사용되는 기술은 무엇인가요?
 
-이 프로젝트는 다음 기술로 구축되었습니다:
-
+### 프론트엔드
 - Vite
 - TypeScript
 - React
@@ -62,6 +61,47 @@ npm run dev
 - React Router
 - Zustand (상태 관리)
 - React Query
+
+### 백엔드
+- FastAPI
+- SQLAlchemy (SQLite)
+- arXiv API (논문 크롤링)
+- OpenAI API (논문 요약)
+- GitHub Actions (자동화)
+
+## 백엔드 설정 및 실행
+
+백엔드 관련 자세한 내용은 [backend/README.md](./backend/README.md)를 참조하세요.
+
+### 빠른 시작
+
+```bash
+# 백엔드 디렉토리로 이동
+cd backend
+
+# 의존성 설치
+pip install -r requirements.txt
+
+# 환경 변수 설정 (.env 파일 생성)
+cp env.example .env
+# .env 파일을 편집하여 OPENAI_API_KEY 등 설정
+
+# 데이터베이스 초기화
+python -c "from database import init_db; init_db()"
+
+# 데모 데이터 초기화 (AI 논문 상위 5개)
+python init_demo_data.py
+
+# 서버 실행
+python main.py
+```
+
+서버는 `http://localhost:8000`에서 실행되며, API 문서는 `http://localhost:8000/docs`에서 확인할 수 있습니다.
+
+### 주요 기능
+
+1. **추천 논문 조회 API (POST `/api/recommendations`)**: 사용자 정보를 기반으로 추천 알고리즘을 통해 논문 반환
+2. **자동화 파이프라인**: GitHub Actions를 통해 매일 arXiv에서 논문 크롤링 → 선별 → 요약 자동 실행
 
 ## 이 프로젝트를 어떻게 배포할 수 있나요?
 
