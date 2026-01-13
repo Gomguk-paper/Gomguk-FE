@@ -164,16 +164,15 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
       <div
         ref={modalRef}
         className={cn(
-          "fixed left-1/2 z-50",
+          "fixed left-1/2 top-1/2 z-50",
           "bg-background border rounded-lg shadow-2xl",
           "max-w-lg w-full mx-4",
           "p-6",
-          "transform transition-all duration-300 ease-out",
           // prefers-reduced-motion 지원
-          "motion-reduce:transition-none motion-reduce:animate-none",
+          "motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:scale-100",
           open 
-            ? "top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-100 scale-100" 
-            : "top-0 -translate-x-1/2 -translate-y-1/2 opacity-0 scale-95"
+            ? "animate-back-in-down" 
+            : "opacity-0 scale-95"
         )}
         onClick={(e) => e.stopPropagation()}
       >

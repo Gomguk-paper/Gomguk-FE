@@ -124,4 +124,35 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* BackInDown-like animation for modal */
+  @keyframes backInDown {
+    0% {
+      transform: translate(-50%, -80px);
+      opacity: 0;
+    }
+    100% {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+  }
+
+  @keyframes backOutDown {
+    0% {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -80px);
+      opacity: 0;
+    }
+  }
+
+  .animate-back-in-down {
+    animation: backInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-back-out-down {
+    animation: backOutDown 0.3s ease-in forwards;
+  }
 }
