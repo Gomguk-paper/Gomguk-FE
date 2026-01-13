@@ -1,8 +1,6 @@
 # 논문 추천 서비스 프로젝트
 
-**선호하는 IDE 사용**
-
-자신의 IDE를 사용하여 로컬에서 작업하려면 이 저장소를 클론하고 변경사항을 푸시할 수 있습니다. 푸시된 변경사항은 Lovable에도 반영됩니다.
+## 시작하기
 
 필수 요구사항은 Node.js와 npm이 설치되어 있어야 합니다 - [nvm으로 설치하기](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -73,7 +71,7 @@ cp env.example .env
 # .env 파일을 편집하여 OPENAI_API_KEY 등 설정
 
 # 데이터베이스 초기화
-python -c "from database import init_db; init_db()"
+python -c "from core.database import init_db; init_db()"
 
 # 데모 데이터 초기화 (AI 논문 상위 5개)
 python init_demo_data.py
