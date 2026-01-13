@@ -1,19 +1,5 @@
 # 논문 추천 서비스 프로젝트
 
-## 프로젝트 정보
-
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
-
-## 코드를 어떻게 편집할 수 있나요?
-
-애플리케이션을 편집하는 여러 가지 방법이 있습니다.
-
-**Lovable 사용**
-
-[Lovable 프로젝트](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID)에 방문하여 프롬프트를 시작하세요.
-
-Lovable을 통해 만든 변경사항은 자동으로 이 저장소에 커밋됩니다.
-
 **선호하는 IDE 사용**
 
 자신의 IDE를 사용하여 로컬에서 작업하려면 이 저장소를 클론하고 변경사항을 푸시할 수 있습니다. 푸시된 변경사항은 Lovable에도 반영됩니다.
@@ -102,15 +88,3 @@ python main.py
 
 1. **추천 논문 조회 API (POST `/api/recommendations`)**: 사용자 정보를 기반으로 추천 알고리즘을 통해 논문 반환
 2. **자동화 파이프라인**: GitHub Actions를 통해 매일 arXiv에서 논문 크롤링 → 선별 → 요약 자동 실행
-
-## 이 프로젝트를 어떻게 배포할 수 있나요?
-
-[Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID)을 열고 Share -> Publish를 클릭하세요.
-
-## Lovable 프로젝트에 커스텀 도메인을 연결할 수 있나요?
-
-네, 가능합니다!
-
-도메인을 연결하려면 Project > Settings > Domains로 이동하여 Connect Domain을 클릭하세요.
-
-자세한 내용은 여기를 참조하세요: [커스텀 도메인 설정](https://docs.lovable.dev/features/custom-domain#custom-domain)
