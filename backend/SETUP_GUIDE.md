@@ -51,7 +51,7 @@ TOP_CITATIONS_COUNT=5
 ## 3단계: 데이터베이스 초기화
 
 ```bash
-python3 -c "from database import init_db; init_db()"
+python3 -c "from core.database import init_db; init_db()"
 ```
 
 ## 4단계: 데모 데이터 추가 (선택사항)
@@ -149,6 +149,6 @@ uvicorn main:app --host 0.0.0.0 --port 8001
 
 ```bash
 rm -rf data/
-python3 -c "from database import init_db; init_db()"
+python3 -c "from core.database import init_db; init_db()"
 python3 init_demo_data.py
 ```

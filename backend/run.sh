@@ -11,7 +11,7 @@ fi
 
 # 데이터베이스 초기화
 echo "📦 데이터베이스 초기화 중..."
-python -c "from database import init_db; init_db()"
+python -c "from core.database import init_db; init_db()"
 
 # 데모 데이터 초기화 (데이터가 없을 경우)
 echo "📚 데모 데이터 확인 중..."

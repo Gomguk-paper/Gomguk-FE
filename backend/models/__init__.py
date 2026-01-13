@@ -1,15 +1,10 @@
 """
-데이터베이스 모델 정의
+ORM 모델 정의
 """
 
-from .database import Base, Paper, Summary, UserAction, UserPreference, get_db, init_db
+from .paper import Paper
+from .summary import Summary
+from .user_action import UserAction
+from .user_preference import UserPreference
 
-__all__ = [
-    "Base",
-    "Paper",
-    "Summary",
-    "UserAction",
-    "UserPreference",
-    "get_db",
-    "init_db",
-]
+__all__ = ["Paper", "Summary", "UserAction", "UserPreference"]

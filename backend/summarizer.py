@@ -4,7 +4,9 @@
 
 import os
 from typing import Dict, Optional
-from models.database import SessionLocal, Paper, Summary
+from core.database import SessionLocal
+from models.paper import Paper
+from models.summary import Summary
 from dotenv import load_dotenv
 
 load_dotenv()

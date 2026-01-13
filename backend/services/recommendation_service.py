@@ -4,8 +4,13 @@
 
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from models.database import Paper, UserAction, UserPreference
+from models.paper import Paper
+from models.user_action import UserAction
+from models.user_preference import UserPreference
 from schemas.recommendation import RecommendationRequest
+from crud.user_preference import get_user_preference
+from crud.user_action import get_user_actions
+from crud.paper import get_all_papers
 
 
 class RecommendationService:
@@ -77,16 +82,14 @@ class RecommendationService:
     @staticmethod
     def get_user_preferences(db: Session, user_id: str) -> Optional[UserPreference]:
         """사용자 선호도 조회"""
-        return (
-            db.query(UserPreference).filter(UserPreference.user_id == user_id).first()
-        )
+        return get_user_preference(db, user_id)
 
     @staticmethod
     def get_user_actions(db: Session, user_id: str) -> List[UserAction]:
         """사용자 행동 기록 조회"""
-        return db.query(UserAction).filter(UserAction.user_id == user_id).all()
+        return get_user_actions(db, user_id)
 
     @staticmethod
     def get_all_papers(db: Session) -> List[Paper]:
         """모든 논문 조회"""
-        return db.query(Paper).all()
+        return get_all_papers(db)

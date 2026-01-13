@@ -153,7 +153,7 @@ python3 main.py
 ### 데이터베이스 초기화
 ```bash
 cd backend
-python3 -c "from database import init_db; init_db()"
+python3 -c "from core.database import init_db; init_db()"
 python3 init_demo_data.py
 ```
 

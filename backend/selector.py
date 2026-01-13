@@ -4,7 +4,8 @@
 """
 
 from typing import List
-from models.database import SessionLocal, Paper
+from core.database import SessionLocal
+from models.paper import Paper
 import os
 from dotenv import load_dotenv
 

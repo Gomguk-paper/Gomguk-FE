@@ -4,13 +4,14 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from models.database import get_db, Summary
+from core.database import get_db
 from schemas.recommendation import (
     RecommendationRequest,
     RecommendationResponse,
     PaperResponse,
 )
 from services.recommendation_service import RecommendationService
+from crud.summary import get_summary_by_paper_id
 
 router = APIRouter(prefix="/api/recommendations", tags=["recommendations"])
 
@@ -26,20 +27,13 @@ async def get_recommendations(
     사용자 정보를 기반으로 추천 알고리즘을 통해 논문을 반환합니다.
     """
     try:
-        # 사용자 선호도 조회
         user_prefs = RecommendationService.get_user_preferences(db, request.user_id)
-
-        # 사용자 행동 기록 조회
         user_actions = RecommendationService.get_user_actions(db, request.user_id)
-
-        # 모든 논문 조회
         all_papers = RecommendationService.get_all_papers(db)
 
         if not all_papers:
-            # 논문이 없으면 빈 리스트 반환
             return RecommendationResponse(papers=[], total=0)
 
-        # 각 논문에 대해 추천 점수 계산
         scored_papers = []
         for paper in all_papers:
             score = RecommendationService.calculate_recommendation_score(
@@ -47,18 +41,13 @@ async def get_recommendations(
             )
             scored_papers.append((paper, score))
 
-        # 점수 기준으로 정렬 (내림차순)
         scored_papers.sort(key=lambda x: x[1], reverse=True)
-
-        # 상위 N개 선택
         daily_count = request.daily_count or 10
         top_papers = scored_papers[:daily_count]
 
-        # 응답 형식으로 변환
         paper_responses = []
         for paper, score in top_papers:
-            # 요약 정보 조회
-            summary = db.query(Summary).filter(Summary.paper_id == paper.id).first()
+            summary = get_summary_by_paper_id(db, paper.id)
 
             paper_response = PaperResponse(
                 id=paper.id,

@@ -4,15 +4,26 @@ arXiv 논문 추천 및 요약 백엔드 시스템
 
 ## 기능
 
-1. **추천 논문 조회 API (POST)**: 사용자 정보를 기반으로 추천 알고리즘을 통해 논문을 반환
-2. **요약할 논문 선별 파이프라인 (CRON)**: 크롤링 → 선별 → 요약 자동화
+1. **추천 논문 조회 API**: 사용자 정보를 기반으로 추천 알고리즘을 통해 논문을 반환
+2. **논문 크롤링 및 요약 파이프라인**: 크롤링 → 선별 → 요약 자동화
 
-## 설치
+## 빠른 시작
 
 ```bash
 cd backend
 pip install -r requirements.txt
+python -c "from core.database import init_db; init_db()"
+python init_demo_data.py
+python main.py
 ```
+
+서버는 `http://localhost:8000`에서 실행되며, API 문서는 `http://localhost:8000/docs`에서 확인할 수 있습니다.
+
+## 상세 가이드
+
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)**: 설치 및 실행 가이드
+- **[API_GUIDE.md](API_GUIDE.md)**: API 사용 가이드
+- **[README_STRUCTURE.md](README_STRUCTURE.md)**: 프로젝트 구조 설명
 
 ## 환경 변수 설정
 
@@ -28,40 +39,30 @@ MAX_PAPERS_PER_CRAWL=100
 TOP_CITATIONS_COUNT=5
 ```
 
-## 데이터베이스 초기화
+## 주요 API 엔드포인트
 
-```bash
-python -c "from database import init_db; init_db()"
+### POST /api/recommendations
+추천 논문 조회
+
+**요청:**
+```json
+{
+  "user_id": "user123",
+  "tags": [{"name": "NLP", "weight": 5}],
+  "level": "researcher",
+  "daily_count": 10,
+  "exclude_ids": []
+}
 ```
 
-## 데모 데이터 초기화
+### GET /api/papers/{paper_id}
+특정 논문 조회
 
-```bash
-python init_demo_data.py
-```
+### GET /api/summaries/{paper_id}
+논문 요약 조회
 
-이 스크립트는 AI 논문 중 인용수가 많은 상위 5개 논문을 데이터베이스에 추가합니다:
-- Attention Is All You Need (Transformer)
-- BERT
-- Denoising Diffusion Probabilistic Models
-- Vision Transformer (ViT)
-- GPT-4 Technical Report
-
-## 서버 실행
-
-```bash
-python main.py
-```
-
-또는 uvicorn 직접 사용:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-서버는 `http://localhost:8000`에서 실행됩니다.
-
-API 문서는 `http://localhost:8000/docs`에서 확인할 수 있습니다.
+### POST /api/user-preferences
+사용자 선호도 저장
 
 ## 파이프라인 실행
 
@@ -70,76 +71,6 @@ API 문서는 `http://localhost:8000/docs`에서 확인할 수 있습니다.
 ```bash
 python pipeline.py
 ```
-
-## API 엔드포인트
-
-### POST /api/recommendations
-
-추천 논문 조회
-
-**요청 본문:**
-```json
-{
-  "user_id": "user123",
-  "tags": [{"name": "NLP", "weight": 5}, {"name": "Transformer", "weight": 3}],
-  "level": "researcher",
-  "daily_count": 10,
-  "exclude_ids": ["arxiv_1706.03762"]
-}
-```
-
-**응답:**
-```json
-{
-  "papers": [
-    {
-      "id": "arxiv_1706.03762",
-      "title": "Attention Is All You Need",
-      "authors": ["Vaswani, A.", ...],
-      "year": 2017,
-      "venue": "NeurIPS",
-      "tags": ["cs.CL", "cs.LG"],
-      "abstract": "...",
-      "pdf_url": "https://arxiv.org/pdf/1706.03762",
-      "metrics": {
-        "citations": 85000,
-        "trendingScore": 95.0,
-        "recencyScore": 60.0
-      },
-      "summary": {
-        "paperId": "arxiv_1706.03762",
-        "hookOneLiner": "...",
-        "keyPoints": ["...", "..."],
-        "detailed": "...",
-        "evidenceScope": "abstract"
-      }
-    }
-  ],
-  "total": 10
-}
-```
-
-### GET /api/papers/{paper_id}
-
-특정 논문 조회
-
-### GET /api/summaries/{paper_id}
-
-논문 요약 조회
-
-### POST /api/user-preferences
-
-사용자 선호도 저장
-
-## GitHub Actions
-
-`.github/workflows/arxiv-pipeline.yml` 파일이 매일 자동으로 실행되어:
-1. arXiv에서 최신 논문 크롤링
-2. 인용수 기준 상위 5개 논문 선별
-3. 선별된 논문 요약 생성
-4. 데이터베이스 업데이트 및 커밋
-
-수동 실행도 가능합니다 (GitHub Actions 탭에서 "Run workflow" 클릭).
 
 ## 추천 알고리즘
 

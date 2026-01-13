@@ -38,7 +38,7 @@ echo ""
 # 데이터베이스 확인
 if [ ! -d "data" ] || [ ! -f "data/papers.db" ]; then
     echo "📦 2단계: 데이터베이스 초기화 중..."
-    python3 -c "from database import init_db; init_db()"
+    python3 -c "from core.database import init_db; init_db()"
     echo "✅ 데이터베이스 초기화 완료"
     echo ""
     

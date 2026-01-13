@@ -2,7 +2,8 @@
 크롤링-선별-요약 파이프라인
 """
 
-from models.database import SessionLocal, Paper, init_db
+from core.database import SessionLocal, init_db
+from models.paper import Paper
 from crawler import fetch_arxiv_papers
 from selector import select_papers_for_summarization
 from summarizer import generate_summary, save_summary
@@ -29,12 +30,10 @@ def save_papers_to_db(papers: list):
             )
 
             if existing:
-                # 업데이트
                 for key, value in paper_data.items():
                     if key != "id" and hasattr(existing, key):
                         setattr(existing, key, value)
             else:
-                # 새 논문 추가
                 paper = Paper(**paper_data)
                 db.add(paper)
 
@@ -60,7 +59,6 @@ def run_pipeline():
     print(f"파이프라인 시작: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 50)
 
-    # 1. 크롤링
     print("\n[1단계] arXiv 논문 크롤링 중...")
     papers = fetch_arxiv_papers()
     print(f"   → {len(papers)}개 논문 수집 완료")
@@ -69,11 +67,9 @@ def run_pipeline():
         print("⚠️  수집된 논문이 없습니다.")
         return
 
-    # 2. DB 저장
     print("\n[2단계] 데이터베이스 저장 중...")
     save_papers_to_db(papers)
 
-    # 3. 논문 선별
     print("\n[3단계] 요약할 논문 선별 중...")
     selected_ids = select_papers_for_summarization()
     print(f"   → {len(selected_ids)}개 논문 선별 완료")
@@ -82,7 +78,6 @@ def run_pipeline():
         print("⚠️  선별된 논문이 없습니다.")
         return
 
-    # 4. 요약 생성 및 저장
     print("\n[4단계] 논문 요약 생성 중...")
     db = SessionLocal()
     try:
@@ -112,8 +107,5 @@ def run_pipeline():
 
 
 if __name__ == "__main__":
-    # 데이터베이스 초기화
     init_db()
-
-    # 파이프라인 실행
     run_pipeline()

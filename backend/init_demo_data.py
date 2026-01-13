@@ -3,7 +3,8 @@
 AI 논문 중 인용수가 많은 상위 5개 논문을 추가합니다.
 """
 
-from models.database import SessionLocal, Paper, init_db
+from core.database import SessionLocal, init_db
+from models.paper import Paper
 from datetime import datetime
 
 # 데모 데이터: 실제 인기 AI 논문들

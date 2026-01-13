@@ -4,19 +4,21 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from models.database import get_db, Paper, Summary
+from core.database import get_db
+from crud.paper import get_paper
+from crud.summary import get_summary_by_paper_id
 
 router = APIRouter(prefix="/api/papers", tags=["papers"])
 
 
 @router.get("/{paper_id}")
-async def get_paper(paper_id: str, db: Session = Depends(get_db)):
+async def get_paper_endpoint(paper_id: str, db: Session = Depends(get_db)):
     """특정 논문 조회"""
-    paper = db.query(Paper).filter(Paper.id == paper_id).first()
+    paper = get_paper(db, paper_id)
     if not paper:
         raise HTTPException(status_code=404, detail="논문을 찾을 수 없습니다.")
 
-    summary = db.query(Summary).filter(Summary.paper_id == paper_id).first()
+    summary = get_summary_by_paper_id(db, paper_id)
 
     return {
         **paper.to_dict(),

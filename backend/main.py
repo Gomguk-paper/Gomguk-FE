@@ -6,8 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
-from models.database import init_db
-from routers import (
+from core.database import init_db
+from api import (
     recommendation_router,
     papers_router,
     summaries_router,
