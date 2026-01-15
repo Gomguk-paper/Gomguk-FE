@@ -104,10 +104,10 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen pb-20 bg-background">
+    <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b">
-        <div className="flex items-center gap-3 p-4 max-w-lg mx-auto">
+      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt">
+        <div className="flex items-center gap-3 p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary-foreground" />
@@ -152,7 +152,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Today's Card News Section */}
         <section className="p-4">
           <h2 className="font-display font-semibold text-lg mb-3">📰 오늘의 카드뉴스</h2>

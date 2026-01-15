@@ -24,14 +24,14 @@ function AppRoutes() {
   useEffect(() => {
     const storedUser = getStoredUser();
     const storedPrefs = getStoredPrefs();
-    
+
     // 기존 게스트 사용자 자동 로그아웃
     if (storedUser?.provider === "guest") {
       clearStoredUser();
     } else if (!user && storedUser) {
       setUser(storedUser);
     }
-    
+
     if (!prefs && storedPrefs) {
       setPrefs(storedPrefs);
     }
@@ -42,16 +42,13 @@ function AppRoutes() {
     return null;
   }
   const hasPrefs = Boolean(prefs);
-  
+
   return (
     <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchPage />} />
-        <Route
-          path="/mypage"
-          element={<MyPage />}
-        />
+        <Route path="/mypage" element={<MyPage />} />
         <Route
           path="/login"
           element={user ? <Navigate to={hasPrefs ? "/" : "/onboarding"} replace /> : <Login />}
@@ -62,7 +59,13 @@ function AppRoutes() {
         />
         <Route
           path="/settings"
-          element={user ? <Settings /> : <Navigate to="/login" replace state={{ reason: "auth", from: "/settings" }} />}
+          element={
+            user ? (
+              <Settings />
+            ) : (
+              <Navigate to="/login" replace state={{ reason: "auth", from: "/settings" }} />
+            )
+          }
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

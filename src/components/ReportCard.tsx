@@ -9,7 +9,7 @@ interface ReportCardProps {
 
 export function ReportCard({ report }: ReportCardProps) {
   const navigate = useNavigate();
-  
+
   const handleViewPapers = () => {
     const tagQuery = report.tags[0];
     navigate(`/search?tag=${tagQuery}`);
@@ -18,19 +18,15 @@ export function ReportCard({ report }: ReportCardProps) {
   return (
     <article className="bg-card rounded-lg border shadow-card p-4 space-y-3">
       <div className="flex flex-wrap gap-1.5">
-        {report.tags.map(tag => (
+        {report.tags.map((tag) => (
           <TagChip key={tag} tag={tag} size="sm" />
         ))}
       </div>
-      
-      <h3 className="font-display font-semibold text-base leading-snug">
-        {report.title}
-      </h3>
-      
-      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-        {report.summary}
-      </p>
-      
+
+      <h3 className="font-display font-semibold text-base leading-snug">{report.title}</h3>
+
+      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{report.summary}</p>
+
       <button
         onClick={handleViewPapers}
         className="flex items-center gap-1 text-sm text-primary font-medium hover:underline"

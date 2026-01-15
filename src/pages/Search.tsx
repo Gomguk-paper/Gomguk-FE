@@ -81,10 +81,10 @@ export default function SearchPage() {
   const trendingTags = allTags.slice(0, 8);
 
   return (
-    <main className="min-h-screen pb-20 bg-background">
+    <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b">
-        <div className="p-4 max-w-lg mx-auto space-y-3">
+      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt">
+        <div className="p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr space-y-3">
           {/* Search Input */}
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -122,7 +122,7 @@ export default function SearchPage() {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Popular Tags */}
         {!query && !selectedTag && (
           <section className="p-4">

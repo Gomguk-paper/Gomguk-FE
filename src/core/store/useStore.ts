@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import type { UserPrefs, StoredUser } from '@/lib/authStorage';
+import type { UserPrefs, StoredUser } from '@/core/lib/authStorage';
 
 interface UserAction {
   paperId: string;

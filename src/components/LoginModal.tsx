@@ -34,9 +34,9 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
     if (open) {
       // 현재 활성 요소 저장 (포커스 복귀용)
       previousActiveElementRef.current = document.activeElement as HTMLElement;
-      
+
       // 트리거 버튼 찾기 (data-login-trigger 속성을 가진 요소)
-      const trigger = document.querySelector('[data-login-trigger]') as HTMLElement;
+      const trigger = document.querySelector("[data-login-trigger]") as HTMLElement;
       if (trigger) {
         triggerButtonRef.current = trigger;
       }
@@ -140,10 +140,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
 
   return (
     <div
-      className={cn(
-        "fixed inset-0 z-50",
-        open ? "block" : "pointer-events-none"
-      )}
+      className={cn("fixed inset-0 z-50", open ? "block" : "pointer-events-none")}
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-modal-title"
@@ -170,9 +167,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
           "p-6",
           // prefers-reduced-motion 지원
           "motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:scale-100",
-          open 
-            ? "animate-back-in-down" 
-            : "opacity-0 scale-95"
+          open ? "animate-back-in-down" : "opacity-0 scale-95"
         )}
         onClick={(e) => e.stopPropagation()}
       >
@@ -193,11 +188,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
         <h2 id="login-modal-title" className="sr-only">
           로그인
         </h2>
-        <LoginForm
-          onSuccess={handleLoginSuccess}
-          showNotice={showNotice}
-          compact={true}
-        />
+        <LoginForm onSuccess={handleLoginSuccess} showNotice={showNotice} compact={true} />
       </div>
     </div>
   );

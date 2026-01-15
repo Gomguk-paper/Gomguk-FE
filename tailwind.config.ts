@@ -7,12 +7,13 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "1rem",
+      padding: {
+        DEFAULT: "1rem",
+        sm: "1rem",
+      },
       screens: {
-        sm: "640px",
-        md: "768px",
-        lg: "1024px",
-        xl: "1280px",
+        DEFAULT: "100%",
+        sm: "480px", // 모바일 최대 너비
       },
     },
     extend: {
@@ -98,6 +99,18 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "slide-down": "slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         "fade-in": "fade-in 0.2s ease-out",
+      },
+      spacing: {
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+        "safe-left": "env(safe-area-inset-left)",
+        "safe-right": "env(safe-area-inset-right)",
+      },
+      minHeight: {
+        "touch": "44px",
+      },
+      minWidth: {
+        "touch": "44px",
       },
     },
   },
