@@ -9,6 +9,7 @@ export interface Paper {
   tags: string[];
   abstract: string;
   pdfUrl: string;
+  imageUrl?: string; // 논문 figure 이미지
   metrics: {
     trendingScore: number;
     recencyScore: number;

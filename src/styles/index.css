@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,15 +12,15 @@
     --background: 210 25% 98%;
     --foreground: 220 30% 15%;
 
-    --card: 0 0% 100%;
+    --card: 0 0% 100%; /* 흰색 */
     --card-foreground: 220 30% 15%;
 
-    --popover: 0 0% 100%;
+    --popover: 0 0% 100%; /* 흰색 */
     --popover-foreground: 220 30% 15%;
 
-    /* Navy Blue Primary */
+    /* Navy Blue Primary (남색) */
     --primary: 220 60% 35%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 100%; /* 흰색 */
 
     /* Light Gray Secondary */
     --secondary: 210 20% 94%;
@@ -130,11 +130,11 @@
 
 @layer utilities {
   .font-display {
-    font-family: 'IBM Plex Serif', serif;
+    font-family: 'Noto Serif KR', serif;
   }
   
   .font-sans {
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Noto Sans KR', sans-serif;
   }
 
   .shadow-soft {

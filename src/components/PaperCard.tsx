@@ -20,6 +20,7 @@ import { useState } from "react";
 import { WhyThisModal } from "./WhyThisModal";
 import { LoginModal } from "./LoginModal";
 import { cn } from "@/lib/utils";
+import { UI_CONSTANTS } from "@/core/config/constants";
 
 interface PaperCardProps {
   paper: Paper;
@@ -43,12 +44,16 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
   // 추상 미리보기 (2-3줄)
   const abstractPreview =
-    paper.abstract.length > 150 ? paper.abstract.substring(0, 150) + "..." : paper.abstract;
+    paper.abstract.length > UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH
+      ? paper.abstract.substring(0, UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH) + "..."
+      : paper.abstract;
 
   // 저자 표시 로직
-  const shouldCollapseAuthors = paper.authors.length > 3;
+  const shouldCollapseAuthors = paper.authors.length > UI_CONSTANTS.PAPER.MAX_DISPLAYED_AUTHORS;
   const displayedAuthors =
-    shouldCollapseAuthors && !showAllAuthors ? paper.authors.slice(0, 3) : paper.authors;
+    shouldCollapseAuthors && !showAllAuthors
+      ? paper.authors.slice(0, UI_CONSTANTS.PAPER.MAX_DISPLAYED_AUTHORS)
+      : paper.authors;
 
   const handleActionClick = (action: () => void) => {
     if (!user) {
@@ -58,18 +63,58 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
     action();
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // 버튼이나 링크 클릭 시에는 카드 클릭 이벤트 무시
+    if (
+      (e.target as HTMLElement).closest("button") ||
+      (e.target as HTMLElement).closest("a") ||
+      (e.target as HTMLElement).closest('[role="button"]')
+    ) {
+      return;
+    }
+    if (onOpenSummary) {
+      onOpenSummary();
+    }
+  };
+
   return (
     <>
       <article
         className={cn(
-          "bg-card rounded-lg border shadow-card p-4 space-y-3 transition-all",
+          "bg-card rounded-lg border shadow-card p-4 space-y-3 transition-all cursor-pointer",
           isRead && "opacity-75"
         )}
+        onClick={handleCardClick}
       >
+        {/* Image */}
+        {paper.imageUrl && (
+          <div className="w-full h-48 rounded-lg overflow-hidden mb-3 bg-muted flex items-center justify-center">
+            <img
+              src={paper.imageUrl}
+              alt={`${paper.title} figure`}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // 이미지 로드 실패 시 아이콘 표시
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+                if (target.parentElement) {
+                  target.parentElement.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center text-muted-foreground">
+                      <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  `;
+                }
+              }}
+            />
+          </div>
+        )}
+
         {/* Header: Tags & Why */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-wrap gap-1.5">
-            {paper.tags.slice(0, 3).map((tag) => (
+            {paper.tags.slice(0, UI_CONSTANTS.PAPER.MAX_DISPLAYED_TAGS).map((tag) => (
               <TagChip key={tag} tag={tag} size="sm" />
             ))}
           </div>
@@ -77,17 +122,17 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             variant="ghost"
             size="sm"
             className="text-muted-foreground text-xs gap-1 h-7"
-            onClick={() => setShowWhyModal(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowWhyModal(true);
+            }}
           >
             <HelpCircle className="w-3.5 h-3.5" />왜 추천?
           </Button>
         </div>
 
         {/* Title */}
-        <h3
-          className="font-display font-semibold text-lg leading-snug text-foreground cursor-pointer hover:text-primary transition-colors"
-          onClick={onOpenSummary}
-        >
+        <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors">
           {paper.title}
         </h3>
 
@@ -107,7 +152,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             >
               {showAbstract ? paper.abstract : abstractPreview}
             </p>
-            {paper.abstract.length > 150 && (
+            {paper.abstract.length > UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH && (
               <CollapsibleTrigger asChild>
                 <button className="text-xs text-primary hover:underline flex items-center gap-1">
                   {showAbstract ? (
@@ -141,16 +186,22 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                 ))}
                 {shouldCollapseAuthors && !showAllAuthors && (
                   <button
-                    onClick={() => setShowAllAuthors(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAllAuthors(true);
+                    }}
                     className="text-primary hover:underline flex items-center gap-1"
                   >
-                    외 {paper.authors.length - 3}명
+                    외 {paper.authors.length - UI_CONSTANTS.PAPER.MAX_DISPLAYED_AUTHORS}명
                     <ChevronDown className="w-3 h-3" />
                   </button>
                 )}
                 {shouldCollapseAuthors && showAllAuthors && (
                   <button
-                    onClick={() => setShowAllAuthors(false)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAllAuthors(false);
+                    }}
                     className="text-primary hover:underline flex items-center gap-1"
                   >
                     접기
@@ -197,7 +248,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               variant="ghost"
               size="sm"
               className={cn("gap-1.5 min-h-touch", isLiked && "text-liked")}
-              onClick={() => handleActionClick(() => toggleLike(paper.id))}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleActionClick(() => toggleLike(paper.id));
+              }}
             >
               <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
               <span className="text-xs hidden sm:inline">좋아요</span>
@@ -207,7 +261,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               variant="ghost"
               size="sm"
               className={cn("gap-1.5 min-h-touch", isSaved && "text-saved")}
-              onClick={() => handleActionClick(() => toggleSave(paper.id))}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleActionClick(() => toggleSave(paper.id));
+              }}
             >
               <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
               <span className="text-xs hidden sm:inline">저장</span>
@@ -217,7 +274,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               variant="ghost"
               size="sm"
               className={cn("gap-1.5 min-h-touch", isRead && "text-accent")}
-              onClick={() => handleActionClick(() => markAsRead(paper.id))}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleActionClick(() => markAsRead(paper.id));
+              }}
             >
               <Check className={cn("w-4 h-4", isRead && "stroke-[3]")} />
               <span className="text-xs hidden sm:inline">읽음</span>
@@ -244,7 +304,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               variant="default"
               size="sm"
               className="text-xs min-h-touch"
-              onClick={onOpenSummary}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onOpenSummary) onOpenSummary();
+              }}
             >
               요약 보기
             </Button>

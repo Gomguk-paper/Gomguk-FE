@@ -18,8 +18,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['IBM Plex Sans', 'sans-serif'],
-        display: ['IBM Plex Serif', 'serif'],
+        sans: ['Noto Sans KR', 'sans-serif'],
+        display: ['Noto Serif KR', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
