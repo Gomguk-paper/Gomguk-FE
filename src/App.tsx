@@ -36,10 +36,17 @@ function AppRoutes() {
       setPrefs(storedPrefs);
     }
     setHydrated(true);
-  }, [user, prefs, setUser, setPrefs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 초기 마운트 시에만 실행
 
   if (!hydrated) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="mb-4 text-lg font-semibold">로딩 중...</div>
+        </div>
+      </div>
+    );
   }
   const hasPrefs = Boolean(prefs);
 

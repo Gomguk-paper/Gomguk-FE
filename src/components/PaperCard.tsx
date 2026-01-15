@@ -15,7 +15,7 @@ import { useStore } from "@/store/useStore";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 import { WhyThisModal } from "./WhyThisModal";
 import { LoginModal } from "./LoginModal";
