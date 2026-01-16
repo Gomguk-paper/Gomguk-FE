@@ -193,7 +193,7 @@ export default function MyPage() {
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
       <header className="bg-card border-b mobile-safe-area-pt">
-        <div className="p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <h1 className="font-display text-xl font-bold">마이페이지</h1>
             <div className="flex items-center gap-2">

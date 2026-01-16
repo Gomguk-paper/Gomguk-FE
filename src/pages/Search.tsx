@@ -84,7 +84,7 @@ export default function SearchPage() {
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt">
-        <div className="p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr space-y-3">
+        <div className="p-4 space-y-3">
           {/* Search Input */}
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />

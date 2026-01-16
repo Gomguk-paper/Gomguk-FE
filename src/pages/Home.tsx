@@ -107,7 +107,7 @@ export default function Home() {
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt">
-        <div className="flex items-center justify-between gap-3 p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+        <div className="flex items-center justify-between gap-3 p-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary-foreground" />
