@@ -13,17 +13,13 @@ interface SummaryCarouselProps {
   onClose: () => void;
 }
 
-type SummaryStep = "hook" | "keypoints" | "detailed";
-
 export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: SummaryCarouselProps) {
   const [currentPaperIndex, setCurrentPaperIndex] = useState(initialIndex);
-  const [currentStep, setCurrentStep] = useState<SummaryStep>("hook");
   const { markAsRead } = useStore();
 
   useEffect(() => {
     if (open) {
       setCurrentPaperIndex(initialIndex);
-      setCurrentStep("hook");
     }
   }, [open, initialIndex]);
 
@@ -34,37 +30,23 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     }
   }, [open, currentPaperIndex, papers, markAsRead]);
 
-  const goNext = useCallback(() => {
-    setCurrentStep((step) => {
-      if (step === "hook") {
-        return "keypoints";
-      } else if (step === "keypoints") {
-        return "detailed";
-      } else {
-        // detailed 단계에서는 다음 논문으로 이동하지 않고 그대로 유지
-        return "detailed";
-      }
-    });
-  }, []);
-
-  // goPrev는 현재 사용하지 않음 (하단 네비게이션 버튼 제거로 인해)
-  // const goPrev = useCallback(() => {
-  //   setCurrentStep((step) => {
-  //     if (step === "detailed") {
-  //       return "keypoints";
-  //     } else if (step === "keypoints") {
-  //       return "hook";
-  //     } else {
-  //       return "hook";
-  //     }
-  //   });
-  // }, []);
+  // 모달이 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    // cleanup: 모달이 unmount될 때 원래대로 복원
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   // 다음 논문으로 이동
   const goNextPaper = useCallback(() => {
     if (currentPaperIndex < papers.length - 1) {
       setCurrentPaperIndex(currentPaperIndex + 1);
-      setCurrentStep("hook");
     }
   }, [currentPaperIndex, papers.length]);
 
@@ -72,19 +54,13 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   const goPrevPaper = useCallback(() => {
     if (currentPaperIndex > 0) {
       setCurrentPaperIndex(currentPaperIndex - 1);
-      setCurrentStep("hook");
     }
   }, [currentPaperIndex]);
-
-  const goToStep = useCallback((targetStep: SummaryStep) => {
-    setCurrentStep(targetStep);
-  }, []);
 
   const goToPaper = useCallback(
     (targetIndex: number) => {
       if (targetIndex >= 0 && targetIndex < papers.length) {
         setCurrentPaperIndex(targetIndex);
-        setCurrentStep("hook"); // 논문 변경 시 첫 단계로 리셋
       }
     },
     [papers.length]
@@ -109,10 +85,6 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         goPrevPaper();
         return;
       }
-      // 나머지 키는 단계 이동
-      if (e.key !== "Escape" && e.key !== "ArrowRight" && e.key !== "ArrowLeft") {
-        goNext();
-      }
     };
 
     window.addEventListener("keydown", handleKeyPress);
@@ -120,7 +92,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [open, goNext, goNextPaper, goPrevPaper, onClose]);
+  }, [open, goNextPaper, goPrevPaper, onClose]);
 
   if (!open) return null;
 
@@ -128,9 +100,6 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   const summary = summaries.find((s) => s.paperId === paper.id);
 
   if (!summary) return null;
-
-  const steps: SummaryStep[] = ["hook", "keypoints", "detailed"];
-  const stepIndex = steps.indexOf(currentStep);
 
   return (
     <div
@@ -178,8 +147,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
       {/* Content */}
       <div
-        className="h-full flex flex-col justify-center px-6 pt-16 pb-24 max-w-lg mx-auto"
-        onClick={goNext}
+        className="h-full flex flex-col px-6 pt-16 pb-24 max-w-lg mx-auto overflow-y-auto"
         onMouseDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
       >
@@ -193,83 +161,57 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         {/* Title */}
         <h2 className="font-display text-xl font-semibold mb-6 text-foreground">{paper.title}</h2>
 
-        {/* Step indicator */}
-        <div className="flex gap-2 mb-4">
-          {steps.map((step, i) => (
-            <button
-              key={step}
-              onClick={(e) => {
-                e.stopPropagation(); // 부모의 onClick(goNext) 방지
-                goToStep(step);
-              }}
-              className={cn(
-                "h-1 flex-1 rounded-full transition-all cursor-pointer hover:h-1.5",
-                i <= stepIndex ? "bg-primary" : "bg-muted"
-              )}
-              aria-label={`${step === "hook" ? "한줄 요약" : step === "keypoints" ? "핵심 포인트" : "상세 설명"} 단계로 이동`}
-            />
-          ))}
+        {/* Summary content - all sections at once */}
+        <div className="space-y-8">
+          {/* 한줄 요약 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              한줄 요약
+            </span>
+            <p className="text-2xl font-display font-medium mt-3 leading-relaxed">
+              💡 {summary.hookOneLiner}
+            </p>
+          </div>
+
+          {/* 핵심 포인트 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              핵심 포인트
+            </span>
+            <ul className="mt-4 space-y-3">
+              {summary.keyPoints.map((point, i) => (
+                <li
+                  key={i}
+                  className="flex gap-3 items-start text-lg"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <span className="text-primary font-bold">{i + 1}.</span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 상세 설명 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              상세 설명
+            </span>
+            <p className="mt-4 text-base leading-relaxed text-foreground/90">
+              {summary.detailed}
+            </p>
+            <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
+              <span className="text-xs text-muted-foreground">
+                📚 요약 근거:{" "}
+                {summary.evidenceScope === "full"
+                  ? "전체 논문"
+                  : summary.evidenceScope === "intro"
+                    ? "서론 기반"
+                    : "초록 기반"}
+              </span>
+            </div>
+          </div>
         </div>
-
-        {/* Summary content based on step */}
-        <div className="flex-1 overflow-y-auto">
-          {currentStep === "hook" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                한줄 요약
-              </span>
-              <p className="text-2xl font-display font-medium mt-3 leading-relaxed">
-                💡 {summary.hookOneLiner}
-              </p>
-            </div>
-          )}
-
-          {currentStep === "keypoints" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                핵심 포인트
-              </span>
-              <ul className="mt-4 space-y-3">
-                {summary.keyPoints.map((point, i) => (
-                  <li
-                    key={i}
-                    className="flex gap-3 items-start text-lg"
-                    style={{ animationDelay: `${i * 100}ms` }}
-                  >
-                    <span className="text-primary font-bold">{i + 1}.</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {currentStep === "detailed" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                상세 설명
-              </span>
-              <p className="mt-4 text-base leading-relaxed text-foreground/90">
-                {summary.detailed}
-              </p>
-              <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
-                <span className="text-xs text-muted-foreground">
-                  📚 요약 근거:{" "}
-                  {summary.evidenceScope === "full"
-                    ? "전체 논문"
-                    : summary.evidenceScope === "intro"
-                      ? "서론 기반"
-                      : "초록 기반"}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation hint */}
-        <p className="text-xs text-muted-foreground text-center mt-4">
-          화면을 클릭하거나 탭하여 다음 단계로 이동
-        </p>
       </div>
 
       {/* Side navigation buttons - 논문 이동 (크게) */}
