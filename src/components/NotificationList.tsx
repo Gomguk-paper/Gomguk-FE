@@ -3,11 +3,7 @@ import { Bell, Sparkles, Tag, Bookmark, Clock } from "lucide-react";
 import { useStore, type Notification } from "@/store/useStore";
 import { papers } from "@/data/papers";
 import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale/ko";
@@ -90,7 +86,7 @@ export function NotificationList({ onNotificationClick }: NotificationListProps)
             <div className="divide-y">
               {sortedNotifications.map((notification) => {
                 const Icon = getNotificationIcon(notification.type);
-                const paper = papers.find(p => p.id === notification.paperId);
+                const paper = papers.find((p) => p.id === notification.paperId);
                 const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
                   addSuffix: true,
                   locale: ko,
@@ -106,10 +102,14 @@ export function NotificationList({ onNotificationClick }: NotificationListProps)
                     )}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={cn(
-                        "mt-0.5 p-2 rounded-full",
-                        !notification.read ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                      )}>
+                      <div
+                        className={cn(
+                          "mt-0.5 p-2 rounded-full",
+                          !notification.read
+                            ? "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground"
+                        )}
+                      >
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -143,4 +143,3 @@ export function NotificationList({ onNotificationClick }: NotificationListProps)
     </Popover>
   );
 }
-

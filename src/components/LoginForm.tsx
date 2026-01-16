@@ -3,12 +3,7 @@ import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AuthProvider,
-  getStoredPrefs,
-  setStoredUser,
-  clearStoredUser,
-} from "@/lib/authStorage";
+import { AuthProvider, getStoredPrefs, setStoredUser, clearStoredUser } from "@/lib/authStorage";
 import { BookOpen, Sparkles, Loader2 } from "lucide-react";
 
 interface LoginFormProps {
@@ -22,10 +17,17 @@ interface LoginFormProps {
   compact?: boolean;
 }
 
-export function LoginForm({ onSuccess, onError, showNotice = false, compact = false }: LoginFormProps) {
+export function LoginForm({
+  onSuccess,
+  onError,
+  showNotice = false,
+  compact = false,
+}: LoginFormProps) {
   const { setUser } = useStore();
   const { toast } = useToast();
-  const [authStatus, setAuthStatus] = useState<"idle" | "loading" | "authenticated" | "error">("idle");
+  const [authStatus, setAuthStatus] = useState<"idle" | "loading" | "authenticated" | "error">(
+    "idle"
+  );
   const [loadingProvider, setLoadingProvider] = useState<AuthProvider | null>(null);
   const [rememberMe, setRememberMe] = useState(true);
   const loginAttemptRef = useRef(0);
@@ -68,7 +70,7 @@ export function LoginForm({ onSuccess, onError, showNotice = false, compact = fa
 
     try {
       // Simulate an auth round-trip so leaving mid-flow doesn't mark the user as logged in.
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
       if (!isMountedRef.current || attemptId !== loginAttemptRef.current) {
         return;
       }
@@ -106,7 +108,7 @@ export function LoginForm({ onSuccess, onError, showNotice = false, compact = fa
             로그인이 필요합니다.
           </div>
         )}
-        
+
         {/* Logo */}
         <div id="login_brand" className="space-y-3">
           <div
@@ -255,9 +257,7 @@ export function LoginForm({ onSuccess, onError, showNotice = false, compact = fa
         </a>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        프로토타입 버전 • 실제 로그인 없이 체험
-      </p>
+      <p className="text-xs text-muted-foreground">프로토타입 버전 • 실제 로그인 없이 체험</p>
     </div>
   );
 }

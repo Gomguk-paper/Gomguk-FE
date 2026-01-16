@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap');
+@import url('//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css');
 
 @tailwind base;
 @tailwind components;
@@ -12,15 +12,15 @@
     --background: 210 25% 98%;
     --foreground: 220 30% 15%;
 
-    --card: 0 0% 100%;
+    --card: 0 0% 100%; /* 흰색 */
     --card-foreground: 220 30% 15%;
 
-    --popover: 0 0% 100%;
+    --popover: 0 0% 100%; /* 흰색 */
     --popover-foreground: 220 30% 15%;
 
-    /* Navy Blue Primary */
+    /* Navy Blue Primary (남색) */
     --primary: 220 60% 35%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 100%; /* 흰색 */
 
     /* Light Gray Secondary */
     --secondary: 210 20% 94%;
@@ -55,6 +55,17 @@
 
     --shadow-soft: 0 2px 8px -2px hsl(220 30% 15% / 0.08);
     --shadow-card: 0 4px 16px -4px hsl(220 30% 15% / 0.1);
+
+    /* Mobile Design Tokens */
+    --mobile-max-width: 480px;
+    --mobile-spacing-xs: 0.5rem; /* 8px */
+    --mobile-spacing-sm: 0.75rem; /* 12px */
+    --mobile-spacing-md: 1rem; /* 16px */
+    --mobile-spacing-lg: 1.5rem; /* 24px */
+    --mobile-spacing-xl: 2rem; /* 32px */
+    --mobile-touch-target: 44px; /* 최소 터치 영역 */
+    --mobile-bottom-nav-height: 64px;
+    --mobile-header-height: 56px;
   }
 
   .dark {
@@ -96,16 +107,35 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+    /* Mobile-first: 데스크톱에서도 모바일 화면처럼 중앙 정렬 */
+    max-width: var(--mobile-max-width);
+    margin: 0 auto;
+    /* Safe Area 대응 */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* 모바일 뷰포트 최소 너비 보장 */
+  html {
+    min-width: 320px;
+  }
+
+  /* 데스크톱에서도 모바일 레이아웃 유지 */
+  @media (min-width: 481px) {
+    body {
+      box-shadow: 0 0 0 1px hsl(var(--border));
+    }
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: 'IBM Plex Serif', serif;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
   }
   
   .font-sans {
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
   }
 
   .shadow-soft {
@@ -154,5 +184,46 @@
 
   .animate-back-out-down {
     animation: backOutDown 0.3s ease-in forwards;
+  }
+
+  /* Mobile Layout Utilities */
+  .mobile-container {
+    max-width: var(--mobile-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--mobile-spacing-md);
+    padding-right: var(--mobile-spacing-md);
+  }
+
+  .mobile-safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .mobile-safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-safe-area-pl {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .mobile-safe-area-pr {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Touch Target 최소 크기 보장 */
+  .touch-target {
+    min-height: var(--mobile-touch-target);
+    min-width: var(--mobile-touch-target);
+  }
+
+  /* 모바일 피드 카드 간격 */
+  .mobile-feed-gap {
+    gap: var(--mobile-spacing-md);
+  }
+
+  /* 하단 네비게이션 높이 보정 */
+  .mobile-content-padding {
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
   }
 }

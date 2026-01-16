@@ -24,34 +24,38 @@ function AppRoutes() {
   useEffect(() => {
     const storedUser = getStoredUser();
     const storedPrefs = getStoredPrefs();
-    
+
     // 기존 게스트 사용자 자동 로그아웃
     if (storedUser?.provider === "guest") {
       clearStoredUser();
     } else if (!user && storedUser) {
       setUser(storedUser);
     }
-    
+
     if (!prefs && storedPrefs) {
       setPrefs(storedPrefs);
     }
     setHydrated(true);
-  }, [user, prefs, setUser, setPrefs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 초기 마운트 시에만 실행
 
   if (!hydrated) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="mb-4 text-lg font-semibold">로딩 중...</div>
+        </div>
+      </div>
+    );
   }
   const hasPrefs = Boolean(prefs);
-  
+
   return (
     <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchPage />} />
-        <Route
-          path="/mypage"
-          element={<MyPage />}
-        />
+        <Route path="/mypage" element={<MyPage />} />
         <Route
           path="/login"
           element={user ? <Navigate to={hasPrefs ? "/" : "/onboarding"} replace /> : <Login />}
@@ -62,7 +66,13 @@ function AppRoutes() {
         />
         <Route
           path="/settings"
-          element={user ? <Settings /> : <Navigate to="/login" replace state={{ reason: "auth", from: "/settings" }} />}
+          element={
+            user ? (
+              <Settings />
+            ) : (
+              <Navigate to="/login" replace state={{ reason: "auth", from: "/settings" }} />
+            )
+          }
         />
         <Route path="*" element={<NotFound />} />
       </Routes>

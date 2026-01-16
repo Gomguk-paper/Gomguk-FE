@@ -1,15 +1,15 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Bell, BookOpen } from "lucide-react";
+import { Bell, BookOpen } from "lucide-react";
 import { papers, reports, summaries } from "@/data/papers";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { ReportCard } from "@/components/ReportCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
-import { TagChip } from "@/components/TagChip";
 import { NotificationList } from "@/components/NotificationList";
 import { LoginModal } from "@/components/LoginModal";
 import { clearStoredUser } from "@/lib/authStorage";
+import { UI_CONSTANTS } from "@/core/config/constants";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -39,8 +39,8 @@ export default function Home() {
     });
   }, [prefs]);
 
-  // Get featured papers for carousel (top 5)
-  const featuredPapers = sortedPapers.slice(0, 5);
+  // Get featured papers for carousel
+  const featuredPapers = sortedPapers.slice(0, UI_CONSTANTS.PAPER.FEATURED_COUNT);
 
   const openCarousel = (index: number) => {
     setSelectedPaperIndex(index);
@@ -63,7 +63,7 @@ export default function Home() {
 
     // 관심 태그와 매칭되는 논문에 대한 알림 생성
     if (prefs.tags && prefs.tags.length > 0) {
-      sortedPapers.slice(0, 5).forEach((paper) => {
+      sortedPapers.slice(0, UI_CONSTANTS.PAPER.FEATURED_COUNT).forEach((paper) => {
         // 이미 알림이 있으면 스킵
         if (existingPaperIds.has(paper.id)) return;
 
@@ -104,24 +104,16 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen pb-20 bg-background">
+    <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b">
-        <div className="flex items-center gap-3 p-4 max-w-lg mx-auto">
+      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt">
+        <div className="flex items-center justify-between gap-3 p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-display font-bold text-lg">곰국</span>
           </div>
-          
-          <button 
-            onClick={() => navigate("/search")}
-            className="flex-1 flex items-center gap-2 px-4 py-2 bg-secondary rounded-full text-muted-foreground text-sm"
-          >
-            <Search className="w-4 h-4" />
-            논문 검색...
-          </button>
           
           <div className="flex items-center gap-2">
             {user ? (
@@ -152,38 +144,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto">
-        {/* Today's Card News Section */}
-        <section className="p-4">
-          <h2 className="font-display font-semibold text-lg mb-3">📰 오늘의 카드뉴스</h2>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4">
-            {featuredPapers.map((paper, index) => {
-              const summary = summaries.find(s => s.paperId === paper.id);
-              return (
-                <button
-                  key={paper.id}
-                  onClick={() => openCarousel(index)}
-                  className="flex-shrink-0 w-64 p-4 bg-card rounded-xl border shadow-card text-left hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex gap-1.5 mb-2">
-                    {paper.tags.slice(0, 2).map(tag => (
-                      <TagChip key={tag} tag={tag} size="sm" />
-                    ))}
-                  </div>
-                  <h3 className="font-medium text-sm line-clamp-2 mb-2">
-                    {paper.title}
-                  </h3>
-                  {summary && (
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      💡 {summary.hookOneLiner}
-                    </p>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
+      <div className="max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Tech Reports Section */}
         <section className="p-4">
           <h2 className="font-display font-semibold text-lg mb-3">🔥 기술 리포트</h2>

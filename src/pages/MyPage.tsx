@@ -190,10 +190,10 @@ export default function MyPage() {
   };
 
   return (
-    <main className="min-h-screen pb-20 bg-background">
+    <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
-      <header className="bg-card border-b">
-        <div className="p-4 max-w-lg mx-auto">
+      <header className="bg-card border-b mobile-safe-area-pt">
+        <div className="p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
           <div className="flex items-center justify-between mb-4">
             <h1 className="font-display text-xl font-bold">마이페이지</h1>
             <div className="flex items-center gap-2">
@@ -248,7 +248,7 @@ export default function MyPage() {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Settings Link */}
         <button
           onClick={() => navigate("/onboarding")}
