@@ -25,3 +25,6 @@ dist-ssr
 
 # Backend
 backend/
+
+# Claude Code temporary files                                                                                                                                                   
+tmpclaude* 
