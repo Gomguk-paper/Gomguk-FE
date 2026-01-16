@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  User, 
-  Bell, 
-  BookOpen, 
+import {
+  ArrowLeft,
+  User,
+  Bell,
+  BookOpen,
   LogOut,
   Mail,
   Target,
   Edit2,
   Camera,
-  X
+  X,
+  Monitor
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,13 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -132,10 +140,10 @@ export default function Settings() {
   };
 
   return (
-    <main className="min-h-screen pb-20 bg-background">
+    <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b">
-        <div className="flex items-center gap-3 p-4 max-w-lg mx-auto">
+      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt md:hidden">
+        <div className="flex items-center gap-3 p-4 max-w-[480px] md:max-w-2xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
           <Button
             variant="ghost"
             size="icon"
@@ -147,7 +155,7 @@ export default function Settings() {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto p-4 space-y-4">
+      <div className="max-w-[480px] md:max-w-2xl mx-auto p-4 mobile-safe-area-pl mobile-safe-area-pr space-y-4">
         {/* 프로필 설정 */}
         <Card>
           <CardHeader>
@@ -366,6 +374,46 @@ export default function Settings() {
                 현재 {prefs.tags.length}개의 관심 분야가 설정되어 있습니다
               </p>
             )}
+          </CardContent>
+        </Card>
+
+        {/* 화면 설정 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <BookOpen className="w-4 h-4" /> {/* Reuse icon or import Monitor/Smartphone */}
+              화면 설정
+            </CardTitle>
+            <CardDescription>화면 레이아웃 방식을 선택하세요</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="layout-mode" className="text-sm font-medium">
+                레이아웃 모드
+              </Label>
+              <Select
+                value={prefs?.layoutMode || "auto"}
+                onValueChange={(v) => {
+                  if (prefs) {
+                    const updatedPrefs: UserPrefs = { ...prefs, layoutMode: v as "auto" | "mobile" | "desktop" };
+                    setPrefs(updatedPrefs);
+                    setStoredPrefs(updatedPrefs);
+                  }
+                }}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">자동 (기본)</SelectItem>
+                  <SelectItem value="mobile">모바일 전용</SelectItem>
+                  <SelectItem value="desktop">데스크탑 전용</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              '모바일 전용'을 선택하면 PC에서도 모바일 화면처럼 좁게 표시됩니다.
+            </p>
           </CardContent>
         </Card>
 

@@ -24,34 +24,38 @@ function AppRoutes() {
   useEffect(() => {
     const storedUser = getStoredUser();
     const storedPrefs = getStoredPrefs();
-    
+
     // 기존 게스트 사용자 자동 로그아웃
     if (storedUser?.provider === "guest") {
       clearStoredUser();
     } else if (!user && storedUser) {
       setUser(storedUser);
     }
-    
+
     if (!prefs && storedPrefs) {
       setPrefs(storedPrefs);
     }
     setHydrated(true);
-  }, [user, prefs, setUser, setPrefs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 초기 마운트 시에만 실행
 
   if (!hydrated) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="mb-4 text-lg font-semibold">로딩 중...</div>
+        </div>
+      </div>
+    );
   }
   const hasPrefs = Boolean(prefs);
-  
+
   return (
     <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchPage />} />
-        <Route
-          path="/mypage"
-          element={<MyPage />}
-        />
+        <Route path="/mypage" element={<MyPage />} />
         <Route
           path="/login"
           element={user ? <Navigate to={hasPrefs ? "/" : "/onboarding"} replace /> : <Login />}
@@ -62,14 +66,63 @@ function AppRoutes() {
         />
         <Route
           path="/settings"
-          element={user ? <Settings /> : <Navigate to="/login" replace state={{ reason: "auth", from: "/settings" }} />}
+          element={
+            user ? (
+              <Settings />
+            ) : (
+              <Navigate to="/login" replace state={{ reason: "auth", from: "/settings" }} />
+            )
+          }
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <BottomNav />
     </>
   );
 }
+
+import { DesktopSidebar } from "@/components/DesktopSidebar";
+import { RightSidebar } from "@/components/RightSidebar";
+
+const AppLayout = () => {
+  const { prefs } = useStore();
+  const layoutMode = prefs?.layoutMode || "auto";
+
+  // Determine visibility classes based on layout mode
+  // Auto: default responsive behavior
+  // Mobile: Force mobile view (hide sidebars, show bottom nav, max-w-480px)
+  // Desktop: Force desktop view (show sidebars, hide bottom nav)
+
+  const isMobileMode = layoutMode === "mobile";
+  const isDesktopMode = layoutMode === "desktop";
+
+  return (
+    <div className="flex min-h-screen justify-center bg-background">
+      {/* Left Sidebar */}
+      {!isMobileMode && <DesktopSidebar />}
+
+      {/* Main Content */}
+      <div
+        className={`flex-1 w-full relative border-x min-h-screen transition-all
+          ${isMobileMode ? "max-w-[480px] border-x-0" : "max-w-[672px]"}
+        `}
+      >
+        <AppRoutes />
+
+        {/* Bottom Nav: Visible on mobile OR if Mobile Mode is forced */}
+        {/* If isMobileMode is true, we render BottomNav without md:hidden */}
+        {/* If auto, we keep md:hidden. If desktop, we hide it completely */}
+        {(!isDesktopMode) && (
+          <div className={isMobileMode ? "block" : "md:hidden"}>
+            <BottomNav />
+          </div>
+        )}
+      </div>
+
+      {/* Right Sidebar */}
+      {!isMobileMode && <RightSidebar />}
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -77,7 +130,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AppRoutes />
+        <AppLayout />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

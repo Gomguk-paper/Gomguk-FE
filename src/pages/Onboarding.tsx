@@ -6,8 +6,9 @@ import { allTags } from "@/data/papers";
 import { TagChip } from "@/components/TagChip";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Star, ArrowRight, ArrowLeft } from "lucide-react";
+import { Star, ArrowRight, ArrowLeft, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { UI_CONSTANTS, ROUTES } from "@/core/config/constants";
 
 type Step = "tags" | "weights" | "level" | "count";
 
@@ -26,7 +27,7 @@ export default function Onboarding() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagWeights, setTagWeights] = useState<Record<string, number>>({});
   const [level, setLevel] = useState<typeof levels[number]["value"]>("undergraduate");
-  const [dailyCount, setDailyCount] = useState(10);
+  const [dailyCount, setDailyCount] = useState(UI_CONSTANTS.ONBOARDING.DEFAULT_DAILY_COUNT);
 
   const toggleTag = (tag: string) => {
     if (selectedTags.includes(tag)) {
@@ -36,7 +37,7 @@ export default function Onboarding() {
       setTagWeights(newWeights);
     } else {
       setSelectedTags(prev => [...prev, tag]);
-      setTagWeights(prev => ({ ...prev, [tag]: 3 }));
+      setTagWeights(prev => ({ ...prev, [tag]: UI_CONSTANTS.ONBOARDING.DEFAULT_TAG_WEIGHT }));
     }
   };
 
@@ -46,13 +47,28 @@ export default function Onboarding() {
 
   const handleComplete = () => {
     const nextPrefs = {
-      tags: selectedTags.map(name => ({ name, weight: tagWeights[name] || 3 })),
+      tags: selectedTags.map(name => ({
+        name,
+        weight: tagWeights[name] || UI_CONSTANTS.ONBOARDING.DEFAULT_TAG_WEIGHT,
+      })),
       level,
       dailyCount,
     };
     setPrefs(nextPrefs);
     setStoredPrefs(nextPrefs);
-    navigate("/");
+    navigate(ROUTES.HOME);
+  };
+
+  const handleSkip = () => {
+    // 기본 설정으로 온보딩 건너뛰기
+    const defaultPrefs = {
+      tags: [],
+      level: "undergraduate" as const,
+      dailyCount: UI_CONSTANTS.ONBOARDING.DEFAULT_DAILY_COUNT,
+    };
+    setPrefs(defaultPrefs);
+    setStoredPrefs(defaultPrefs);
+    navigate(ROUTES.HOME);
   };
 
   const nextStep = () => {
@@ -69,12 +85,26 @@ export default function Onboarding() {
   };
 
   const canProceed = () => {
-    if (step === "tags") return selectedTags.length >= 3;
+    if (step === "tags")
+      return selectedTags.length >= UI_CONSTANTS.PAPER.MIN_TAGS_FOR_ONBOARDING;
     return true;
   };
 
   return (
     <main className="min-h-screen flex flex-col p-6 bg-background">
+      {/* Skip Button */}
+      <div className="flex justify-end mb-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSkip}
+          className="gap-2 text-muted-foreground"
+        >
+          <X className="w-4 h-4" />
+          건너뛰기
+        </Button>
+      </div>
+
       {/* Progress */}
       <div className="flex gap-2 mb-8">
         {["tags", "weights", "level", "count"].map((s, i) => (
@@ -96,7 +126,9 @@ export default function Onboarding() {
           <div className="space-y-6 animate-fade-in">
             <div>
               <h1 className="font-display text-2xl font-bold">관심 분야를 선택하세요</h1>
-              <p className="text-muted-foreground mt-2">최소 3개를 선택해주세요</p>
+              <p className="text-muted-foreground mt-2">
+                최소 {UI_CONSTANTS.PAPER.MIN_TAGS_FOR_ONBOARDING}개를 선택해주세요
+              </p>
             </div>
             
             <div className="flex flex-wrap gap-2">
@@ -198,15 +230,15 @@ export default function Onboarding() {
               <Slider
                 value={[dailyCount]}
                 onValueChange={([v]) => setDailyCount(v)}
-                min={5}
-                max={30}
+                min={UI_CONSTANTS.ONBOARDING.MIN_DAILY_COUNT}
+                max={UI_CONSTANTS.ONBOARDING.MAX_DAILY_COUNT}
                 step={5}
                 className="w-full"
               />
               
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>5개</span>
-                <span>30개</span>
+                <span>{UI_CONSTANTS.ONBOARDING.MIN_DAILY_COUNT}개</span>
+                <span>{UI_CONSTANTS.ONBOARDING.MAX_DAILY_COUNT}개</span>
               </div>
             </div>
           </div>

@@ -47,17 +47,18 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     });
   }, []);
 
-  const goPrev = useCallback(() => {
-    setCurrentStep((step) => {
-      if (step === "detailed") {
-        return "keypoints";
-      } else if (step === "keypoints") {
-        return "hook";
-      } else {
-        return "hook";
-      }
-    });
-  }, []);
+  // goPrev는 현재 사용하지 않음 (하단 네비게이션 버튼 제거로 인해)
+  // const goPrev = useCallback(() => {
+  //   setCurrentStep((step) => {
+  //     if (step === "detailed") {
+  //       return "keypoints";
+  //     } else if (step === "keypoints") {
+  //       return "hook";
+  //     } else {
+  //       return "hook";
+  //     }
+  //   });
+  // }, []);
 
   // 다음 논문으로 이동
   const goNextPaper = useCallback(() => {
@@ -79,12 +80,15 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     setCurrentStep(targetStep);
   }, []);
 
-  const goToPaper = useCallback((targetIndex: number) => {
-    if (targetIndex >= 0 && targetIndex < papers.length) {
-      setCurrentPaperIndex(targetIndex);
-      setCurrentStep("hook"); // 논문 변경 시 첫 단계로 리셋
-    }
-  }, [papers.length]);
+  const goToPaper = useCallback(
+    (targetIndex: number) => {
+      if (targetIndex >= 0 && targetIndex < papers.length) {
+        setCurrentPaperIndex(targetIndex);
+        setCurrentStep("hook"); // 논문 변경 시 첫 단계로 리셋
+      }
+    },
+    [papers.length]
+  );
 
   // 키보드 이벤트 리스너 추가
   useEffect(() => {
@@ -112,7 +116,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     };
 
     window.addEventListener("keydown", handleKeyPress);
-    
+
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
@@ -121,7 +125,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   if (!open) return null;
 
   const paper = papers[currentPaperIndex];
-  const summary = summaries.find(s => s.paperId === paper.id);
+  const summary = summaries.find((s) => s.paperId === paper.id);
 
   if (!summary) return null;
 
@@ -129,7 +133,12 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   const stepIndex = steps.indexOf(currentStep);
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm animate-fade-in"
+      style={{ pointerEvents: "auto" }}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+    >
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-2">
@@ -150,12 +159,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         </div>
         <div className="flex items-center gap-2">
           {paper.pdfUrl && (
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              onClick={(e) => e.stopPropagation()}
-            >
+            <Button variant="ghost" size="icon" asChild onClick={(e) => e.stopPropagation()}>
               <a
                 href={paper.pdfUrl}
                 target="_blank"
@@ -173,21 +177,21 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       </div>
 
       {/* Content */}
-      <div 
+      <div
         className="h-full flex flex-col justify-center px-6 pt-16 pb-24 max-w-lg mx-auto"
         onClick={goNext}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
       >
         {/* Tags */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {paper.tags.slice(0, 3).map(tag => (
+          {paper.tags.slice(0, 3).map((tag) => (
             <TagChip key={tag} tag={tag} size="sm" />
           ))}
         </div>
 
         {/* Title */}
-        <h2 className="font-display text-xl font-semibold mb-6 text-foreground">
-          {paper.title}
-        </h2>
+        <h2 className="font-display text-xl font-semibold mb-6 text-foreground">{paper.title}</h2>
 
         {/* Step indicator */}
         <div className="flex gap-2 mb-4">
@@ -211,7 +215,9 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         <div className="flex-1 overflow-y-auto">
           {currentStep === "hook" && (
             <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">한줄 요약</span>
+              <span className="text-xs font-medium text-primary uppercase tracking-wide">
+                한줄 요약
+              </span>
               <p className="text-2xl font-display font-medium mt-3 leading-relaxed">
                 💡 {summary.hookOneLiner}
               </p>
@@ -220,11 +226,13 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
           {currentStep === "keypoints" && (
             <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">핵심 포인트</span>
+              <span className="text-xs font-medium text-primary uppercase tracking-wide">
+                핵심 포인트
+              </span>
               <ul className="mt-4 space-y-3">
                 {summary.keyPoints.map((point, i) => (
-                  <li 
-                    key={i} 
+                  <li
+                    key={i}
                     className="flex gap-3 items-start text-lg"
                     style={{ animationDelay: `${i * 100}ms` }}
                   >
@@ -238,13 +246,20 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
           {currentStep === "detailed" && (
             <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">상세 설명</span>
+              <span className="text-xs font-medium text-primary uppercase tracking-wide">
+                상세 설명
+              </span>
               <p className="mt-4 text-base leading-relaxed text-foreground/90">
                 {summary.detailed}
               </p>
               <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
                 <span className="text-xs text-muted-foreground">
-                  📚 요약 근거: {summary.evidenceScope === "full" ? "전체 논문" : summary.evidenceScope === "intro" ? "서론 기반" : "초록 기반"}
+                  📚 요약 근거:{" "}
+                  {summary.evidenceScope === "full"
+                    ? "전체 논문"
+                    : summary.evidenceScope === "intro"
+                      ? "서론 기반"
+                      : "초록 기반"}
                 </span>
               </div>
             </div>
@@ -253,83 +268,51 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
         {/* Navigation hint */}
         <p className="text-xs text-muted-foreground text-center mt-4">
-          진행 상태 바를 클릭하거나 탭하여 단계 이동
+          화면을 클릭하거나 탭하여 다음 단계로 이동
         </p>
       </div>
 
-      {/* Side navigation buttons - 논문 이동 */}
+      {/* Side navigation buttons - 논문 이동 (크게) */}
       <button
         className={cn(
           "absolute left-4 top-1/2 -translate-y-1/2 z-20",
-          "p-3 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
-          "hover:bg-background hover:scale-110 transition-all",
+          "p-4 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
+          "hover:bg-background hover:scale-110 transition-all min-h-touch min-w-touch",
           "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100",
+          "flex items-center justify-center",
           currentPaperIndex === 0 && "opacity-50"
         )}
-        onClick={(e) => { 
-          e.stopPropagation(); 
-          goPrevPaper(); 
+        onClick={(e) => {
+          e.stopPropagation();
+          goPrevPaper();
         }}
         disabled={currentPaperIndex === 0}
         aria-label="이전 논문"
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
       >
-        <ChevronLeft className="w-6 h-6 text-foreground" />
+        <ChevronLeft className="w-8 h-8 text-foreground" />
       </button>
       <button
         className={cn(
           "absolute right-4 top-1/2 -translate-y-1/2 z-20",
-          "p-3 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
-          "hover:bg-background hover:scale-110 transition-all",
+          "p-4 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
+          "hover:bg-background hover:scale-110 transition-all min-h-touch min-w-touch",
           "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100",
+          "flex items-center justify-center",
           currentPaperIndex === papers.length - 1 && "opacity-50"
         )}
-        onClick={(e) => { 
-          e.stopPropagation(); 
-          goNextPaper(); 
+        onClick={(e) => {
+          e.stopPropagation();
+          goNextPaper();
         }}
         disabled={currentPaperIndex === papers.length - 1}
         aria-label="다음 논문"
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
       >
-        <ChevronRight className="w-6 h-6 text-foreground" />
+        <ChevronRight className="w-8 h-8 text-foreground" />
       </button>
-
-      {/* Step navigation buttons - 단계 이동 */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-        <button
-          className={cn(
-            "px-4 py-2 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
-            "hover:bg-background transition-all text-sm",
-            "disabled:opacity-30 disabled:cursor-not-allowed",
-            currentStep === "hook" && "opacity-50"
-          )}
-          onClick={(e) => { 
-            e.stopPropagation(); 
-            goPrev(); 
-          }}
-          disabled={currentStep === "hook"}
-          aria-label="이전 단계"
-        >
-          <ChevronLeft className="w-4 h-4 inline mr-1" />
-          이전
-        </button>
-        <button
-          className={cn(
-            "px-4 py-2 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
-            "hover:bg-background transition-all text-sm",
-            "disabled:opacity-30 disabled:cursor-not-allowed",
-            currentStep === "detailed" && "opacity-50"
-          )}
-          onClick={(e) => { 
-            e.stopPropagation(); 
-            goNext(); 
-          }}
-          disabled={currentStep === "detailed"}
-          aria-label="다음 단계"
-        >
-          다음
-          <ChevronRight className="w-4 h-4 inline ml-1" />
-        </button>
-      </div>
     </div>
   );
 }
