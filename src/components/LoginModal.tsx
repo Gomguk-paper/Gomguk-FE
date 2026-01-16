@@ -161,7 +161,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
       <div
         ref={modalRef}
         className={cn(
-          "fixed left-1/2 top-1/2 z-50",
+          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50",
           "bg-background border rounded-lg shadow-2xl",
           "max-w-lg w-full mx-4",
           "p-6",
