@@ -9,6 +9,7 @@ export interface UserPrefs {
   tags: TagPreference[];
   level: "undergraduate" | "graduate" | "researcher" | "practitioner";
   dailyCount: number;
+  layoutMode?: "auto" | "mobile" | "desktop";
 }
 
 export interface StoredUser {
