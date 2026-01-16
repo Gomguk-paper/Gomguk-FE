@@ -16,24 +16,37 @@ export function ReportCard({ report }: ReportCardProps) {
   };
 
   return (
-    <article className="bg-card rounded-lg border shadow-card p-4 space-y-3">
-      <div className="flex flex-wrap gap-1.5">
-        {report.tags.map((tag) => (
-          <TagChip key={tag} tag={tag} size="sm" />
-        ))}
+    <article className="bg-card rounded-lg border shadow-card overflow-hidden">
+      {/* Thumbnail Image */}
+      {report.imageUrl && (
+        <div className="w-full h-48 overflow-hidden bg-muted">
+          <img
+            src={report.imageUrl}
+            alt={report.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      <div className="p-4 space-y-3">
+        <div className="flex flex-wrap gap-1.5">
+          {report.tags.map((tag) => (
+            <TagChip key={tag} tag={tag} size="sm" />
+          ))}
+        </div>
+
+        <h3 className="font-display font-semibold text-base leading-snug">{report.title}</h3>
+
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{report.summary}</p>
+
+        <button
+          onClick={handleViewPapers}
+          className="flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+        >
+          관련 논문 {report.relatedPaperIds.length}편 보기
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
-
-      <h3 className="font-display font-semibold text-base leading-snug">{report.title}</h3>
-
-      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{report.summary}</p>
-
-      <button
-        onClick={handleViewPapers}
-        className="flex items-center gap-1 text-sm text-primary font-medium hover:underline"
-      >
-        관련 논문 {report.relatedPaperIds.length}편 보기
-        <ArrowRight className="w-4 h-4" />
-      </button>
     </article>
   );
 }

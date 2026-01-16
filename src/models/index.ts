@@ -31,4 +31,5 @@ export interface Report {
   summary: string;
   tags: string[];
   relatedPaperIds: string[];
+  imageUrl?: string; // 썸네일 이미지
 }

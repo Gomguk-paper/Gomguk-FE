@@ -10,6 +10,7 @@ export const papers: Paper[] = [
     tags: ["Transformer", "NLP", "Attention"],
     abstract: "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks...",
     pdfUrl: "https://arxiv.org/pdf/1706.03762",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 95, recencyScore: 60, citations: 85000 },
   },
   {
@@ -21,6 +22,7 @@ export const papers: Paper[] = [
     tags: ["NLP", "Transformer", "Pre-training"],
     abstract: "We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers...",
     pdfUrl: "https://arxiv.org/pdf/1810.04805",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 88, recencyScore: 65, citations: 65000 },
   },
   {
@@ -32,6 +34,7 @@ export const papers: Paper[] = [
     tags: ["Diffusion", "Generative", "Vision"],
     abstract: "We present high quality image synthesis results using diffusion probabilistic models...",
     pdfUrl: "https://arxiv.org/pdf/2006.11239",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 92, recencyScore: 75, citations: 12000 },
   },
   {
@@ -43,6 +46,7 @@ export const papers: Paper[] = [
     tags: ["RL", "Policy Gradient", "Optimization"],
     abstract: "We propose a new family of policy gradient methods for reinforcement learning...",
     pdfUrl: "https://arxiv.org/pdf/1707.06347",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 85, recencyScore: 55, citations: 18000 },
   },
   {
@@ -54,6 +58,7 @@ export const papers: Paper[] = [
     tags: ["Vision", "Transformer", "Image Classification"],
     abstract: "While the Transformer architecture has become the de-facto standard for NLP tasks, its applications to computer vision remain limited...",
     pdfUrl: "https://arxiv.org/pdf/2010.11929",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 90, recencyScore: 80, citations: 22000 },
   },
   {
@@ -65,6 +70,7 @@ export const papers: Paper[] = [
     tags: ["LLM", "Multimodal", "Scaling"],
     abstract: "We report the development of GPT-4, a large-scale multimodal model which can accept image and text inputs...",
     pdfUrl: "https://arxiv.org/pdf/2303.08774",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 98, recencyScore: 95, citations: 8000 },
   },
   {
@@ -76,6 +82,7 @@ export const papers: Paper[] = [
     tags: ["RL", "RLHF", "Human Feedback"],
     abstract: "For sophisticated reinforcement learning systems to interact usefully with real-world environments...",
     pdfUrl: "https://arxiv.org/pdf/1706.03741",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 94, recencyScore: 70, citations: 5000 },
   },
   {
@@ -87,6 +94,7 @@ export const papers: Paper[] = [
     tags: ["Diffusion", "Vision", "Generative"],
     abstract: "We present high-resolution image synthesis with latent diffusion models...",
     pdfUrl: "https://arxiv.org/pdf/2112.10752",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 96, recencyScore: 88, citations: 15000 },
   },
   {
@@ -98,6 +106,7 @@ export const papers: Paper[] = [
     tags: ["LLM", "Prompting", "Reasoning"],
     abstract: "We explore how generating a chain of thought -- a series of intermediate reasoning steps...",
     pdfUrl: "https://arxiv.org/pdf/2201.11903",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 91, recencyScore: 85, citations: 6000 },
   },
   {
@@ -109,6 +118,7 @@ export const papers: Paper[] = [
     tags: ["Vision", "CNN", "Deep Learning"],
     abstract: "Deeper neural networks are more difficult to train. We present a residual learning framework...",
     pdfUrl: "https://arxiv.org/pdf/1512.03385",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 75, recencyScore: 40, citations: 150000 },
   },
   {
@@ -120,6 +130,7 @@ export const papers: Paper[] = [
     tags: ["LLM", "Safety", "Alignment"],
     abstract: "We discuss a method we call Constitutional AI (CAI) for training harmless AI assistants...",
     pdfUrl: "https://arxiv.org/pdf/2212.08073",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 89, recencyScore: 90, citations: 1500 },
   },
   {
@@ -131,6 +142,7 @@ export const papers: Paper[] = [
     tags: ["Vision", "Segmentation", "Foundation Model"],
     abstract: "We introduce the Segment Anything project: a new task, model, and dataset for image segmentation...",
     pdfUrl: "https://arxiv.org/pdf/2304.02643",
+    imageUrl: "/mockup_thumb.jpg",
     metrics: { trendingScore: 97, recencyScore: 92, citations: 4000 },
   },
 ];
@@ -289,6 +301,7 @@ export const reports: Report[] = [
     summary: "GPT-4V, Gemini 등 멀티모달 모델이 주류가 되고, AutoGPT 같은 에이전트 시스템이 부상하고 있습니다. 작은 모델의 효율성 연구도 활발합니다.",
     tags: ["LLM", "Multimodal", "Agent"],
     relatedPaperIds: ["p6", "p9"],
+    imageUrl: "/mockup_thumb.jpg",
   },
   {
     id: "r2",
@@ -296,6 +309,7 @@ export const reports: Report[] = [
     summary: "Stable Diffusion의 성공 이후, Sora 같은 비디오 생성 모델이 등장했습니다. 3D 생성과 컨트롤러블 생성이 차세대 연구 방향입니다.",
     tags: ["Diffusion", "Vision", "Generative"],
     relatedPaperIds: ["p3", "p8"],
+    imageUrl: "/mockup_thumb.jpg",
   },
   {
     id: "r3",
@@ -303,6 +317,7 @@ export const reports: Report[] = [
     summary: "LLM 정렬에서 RLHF가 표준이 되었지만, DPO 같은 더 단순한 방법들도 등장하고 있습니다. 인간 피드백 없는 정렬 연구도 진행 중입니다.",
     tags: ["RL", "RLHF", "Alignment"],
     relatedPaperIds: ["p4", "p7", "p11"],
+    imageUrl: "/mockup_thumb.jpg",
   },
 ];
 
