@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  User, 
-  Bell, 
-  BookOpen, 
+import {
+  ArrowLeft,
+  User,
+  Bell,
+  BookOpen,
   LogOut,
   Mail,
   Target,
@@ -134,8 +134,8 @@ export default function Settings() {
   return (
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt">
-        <div className="flex items-center gap-3 p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt md:hidden">
+        <div className="flex items-center gap-3 p-4 max-w-[480px] md:max-w-2xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
           <Button
             variant="ghost"
             size="icon"
@@ -147,7 +147,7 @@ export default function Settings() {
         </div>
       </header>
 
-      <div className="max-w-[480px] mx-auto p-4 mobile-safe-area-pl mobile-safe-area-pr space-y-4">
+      <div className="max-w-[480px] md:max-w-2xl mx-auto p-4 mobile-safe-area-pl mobile-safe-area-pr space-y-4">
         {/* 프로필 설정 */}
         <Card>
           <CardHeader>

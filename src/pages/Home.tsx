@@ -23,7 +23,7 @@ export default function Home() {
     return [...papers].sort((a, b) => {
       let scoreA = a.metrics.trendingScore + a.metrics.recencyScore;
       let scoreB = b.metrics.trendingScore + b.metrics.recencyScore;
-      
+
       if (prefs?.tags) {
         prefs.tags.forEach(({ name, weight }) => {
           if (a.tags.some(t => t.toLowerCase() === name.toLowerCase())) {
@@ -34,7 +34,7 @@ export default function Home() {
           }
         });
       }
-      
+
       return scoreB - scoreA;
     });
   }, [prefs]);
@@ -106,15 +106,15 @@ export default function Home() {
   return (
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt">
-        <div className="flex items-center justify-between gap-3 p-4 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt md:hidden">
+        <div className="flex items-center justify-between gap-3 p-4 max-w-[480px] md:max-w-2xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary-foreground" />
             </div>
             <span className="font-display font-bold text-lg">곰국</span>
           </div>
-          
+
           <div className="flex items-center gap-2">
             {user ? (
               <NotificationList onNotificationClick={openCarouselByPaperId} />
@@ -144,7 +144,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+      <div className="max-w-[480px] md:max-w-2xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Tech Reports Section */}
         <section className="p-4">
           <h2 className="font-display font-semibold text-lg mb-3">🔥 기술 리포트</h2>

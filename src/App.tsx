@@ -76,10 +76,12 @@ function AppRoutes() {
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <BottomNav />
     </>
   );
 }
+
+import { DesktopSidebar } from "@/components/DesktopSidebar";
+import { RightSidebar } from "@/components/RightSidebar";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -87,7 +89,14 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AppRoutes />
+        <div className="flex min-h-screen justify-center">
+          <DesktopSidebar />
+          <div className="flex-1 w-full max-w-[672px] relative border-x min-h-screen">
+            <AppRoutes />
+            <BottomNav />
+          </div>
+          <RightSidebar />
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
