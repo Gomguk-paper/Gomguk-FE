@@ -284,7 +284,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             </Button>
           </div>
 
-          {/* Secondary Actions (PDF/요약) */}
+          {/* Secondary Actions (PDF) */}
           <div className="flex items-center gap-2">
             {paper.pdfUrl && (
               <Button variant="outline" size="sm" className="text-xs min-h-touch" asChild>
@@ -300,17 +300,6 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                 </a>
               </Button>
             )}
-            <Button
-              variant="default"
-              size="sm"
-              className="text-xs min-h-touch"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onOpenSummary) onOpenSummary();
-              }}
-            >
-              요약 보기
-            </Button>
           </div>
         </div>
         {!canUseActions && authMessage && (
