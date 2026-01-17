@@ -26,7 +26,7 @@ function AppRoutes() {
     const storedPrefs = getStoredPrefs();
 
     // 기존 게스트 사용자 자동 로그아웃
-    if (storedUser?.provider === "guest") {
+    if ((storedUser?.provider as string) === "guest") {
       clearStoredUser();
     } else if (!user && storedUser) {
       setUser(storedUser);
@@ -103,7 +103,7 @@ const AppLayout = () => {
       {/* Main Content */}
       <div
         className={`flex-1 w-full relative border-x min-h-screen transition-all
-          ${isMobileMode ? "max-w-[480px] border-x-0" : "max-w-[672px]"}
+          ${isMobileMode ? "max-w-[480px] border-x-0" : "max-w-[672px] lg:max-w-4xl"}
         `}
       >
         <AppRoutes />

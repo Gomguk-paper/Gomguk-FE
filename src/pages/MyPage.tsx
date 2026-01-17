@@ -249,12 +249,12 @@ export default function MyPage() {
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Mobile Header - Hidden on Desktop */}
       <header className="bg-card border-b mobile-safe-area-pt md:hidden">
-        <div className="p-4 max-w-[480px] md:max-w-2xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+        <div className="p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
           {renderMyPageHeader()}
         </div>
       </header>
 
-      <div className="max-w-[480px] md:max-w-2xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+      <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Desktop Header Area - Hidden on Mobile */}
         <div className="hidden md:block p-4">
           {renderMyPageHeader()}
