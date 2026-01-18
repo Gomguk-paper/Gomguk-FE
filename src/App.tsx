@@ -24,14 +24,14 @@ function AppRoutes() {
   useEffect(() => {
     const storedUser = getStoredUser();
     const storedPrefs = getStoredPrefs();
-    
+
     // 기존 게스트 사용자 자동 로그아웃
-    if (storedUser?.provider === "guest") {
+    if ((storedUser?.provider as string) === "guest") {
       clearStoredUser();
     } else if (!user && storedUser) {
       setUser(storedUser);
     }
-    
+
     if (!prefs && storedPrefs) {
       setPrefs(storedPrefs);
     }
@@ -42,7 +42,7 @@ function AppRoutes() {
     return null;
   }
   const hasPrefs = Boolean(prefs);
-  
+
   return (
     <>
       <Routes>
