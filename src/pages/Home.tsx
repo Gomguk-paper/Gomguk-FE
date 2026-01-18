@@ -107,7 +107,7 @@ export default function Home() {
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt md:hidden">
-        <div className="flex items-center justify-between gap-3 p-4 max-w-[480px] md:max-w-2xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+        <div className="flex items-center justify-between gap-3 p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary-foreground" />
@@ -144,7 +144,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="max-w-[480px] md:max-w-2xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+      <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Tech Reports Section */}
         <section className="p-4">
           <h2 className="font-display font-semibold text-lg mb-3">🔥 기술 리포트</h2>

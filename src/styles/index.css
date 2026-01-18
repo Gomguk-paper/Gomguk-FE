@@ -123,9 +123,17 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  /* 모바일 뷰포트 최소 너비 보장 */
+  /* 모바일 뷰포트 최소 너비 보장 및 스크롤바 숨김 */
   html {
     min-width: 320px;
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
   }
 
   /* 데스크톱에서도 모바일 레이아웃 유지 */

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,6 +6,12 @@ import { papers } from "@/data/papers";
 
 export function RightSidebar() {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Hide on login and onboarding pages
+    if (location.pathname === "/login" || location.pathname === "/onboarding") {
+        return null;
+    }
 
     // Calculate tag counts
     const tagCounts: Record<string, number> = {};
@@ -28,7 +34,7 @@ export function RightSidebar() {
     ];
 
     return (
-        <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto">
+        <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
             {/* Search Bar Placeholder (Optional, if we decided to move it here, but keeping it in main body for now) */}
 
             {/* Trends Section */}
