@@ -66,7 +66,7 @@ export default function MyPage() {
   // 날짜 필터 적용
   const filteredReadPapers = useMemo(() => {
     let filtered = [...readPapersWithDate];
-    
+
     if (dateFilter === "today") {
       filtered = filtered.filter(item => isToday(item.readDate));
     } else if (dateFilter === "week") {
@@ -74,7 +74,7 @@ export default function MyPage() {
     } else if (dateFilter === "month") {
       filtered = filtered.filter(item => isThisMonth(item.readDate));
     }
-    
+
     // 최신순 정렬
     return filtered.sort((a, b) => b.readDate.getTime() - a.readDate.getTime());
   }, [readPapersWithDate, dateFilter]);
@@ -82,7 +82,7 @@ export default function MyPage() {
   // 날짜별 그룹화
   const groupedReadPapers = useMemo(() => {
     const groups: Record<string, typeof filteredReadPapers> = {};
-    
+
     filteredReadPapers.forEach(item => {
       const dateKey = format(startOfDay(item.readDate), "yyyy-MM-dd");
       if (!groups[dateKey]) {
@@ -90,7 +90,7 @@ export default function MyPage() {
       }
       groups[dateKey].push(item);
     });
-    
+
     // 날짜별로 정렬 (최신순)
     return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
   }, [filteredReadPapers]);
@@ -105,36 +105,36 @@ export default function MyPage() {
     const now = new Date();
     const weeksAgo = 4;
     const stats: { week: string; count: number }[] = [];
-    
+
     for (let i = weeksAgo - 1; i >= 0; i--) {
       const weekStart = startOfWeek(subWeeks(now, i), { locale: ko });
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekEnd.getDate() + 6);
-      
+
       const count = readPapersWithDate.filter(item => {
         const readDate = item.readDate;
         return readDate >= weekStart && readDate <= weekEnd;
       }).length;
-      
+
       stats.push({
         week: format(weekStart, "M/d", { locale: ko }),
         count,
       });
     }
-    
+
     return stats;
   }, [readPapersWithDate]);
 
   // 태그별 읽기 분포
   const tagDistribution = useMemo(() => {
     const tagCounts: Record<string, number> = {};
-    
+
     readPapersWithDate.forEach(({ paper }) => {
       paper.tags.forEach(tag => {
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
     });
-    
+
     return Object.entries(tagCounts)
       .map(([tag, count]) => ({ tag, count }))
       .sort((a, b) => b.count - a.count)
@@ -144,12 +144,12 @@ export default function MyPage() {
   // 시간대별 읽기 통계
   const hourlyStats = useMemo(() => {
     const hourCounts: Record<number, number> = {};
-    
+
     readPapersWithDate.forEach(({ readDate }) => {
       const hour = readDate.getHours();
       hourCounts[hour] = (hourCounts[hour] || 0) + 1;
     });
-    
+
     return Array.from({ length: 24 }, (_, i) => ({
       hour: i,
       count: hourCounts[i] || 0,
@@ -189,66 +189,76 @@ export default function MyPage() {
     navigate("/login");
   };
 
+  const renderMyPageHeader = () => (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="font-display text-xl font-bold">마이페이지</h1>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            로그아웃
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/settings")}
+          >
+            <Settings className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* User Info */}
+      <div className="flex items-center gap-4">
+        <Avatar className="w-16 h-16">
+          {user?.avatarUrl ? (
+            <AvatarImage src={user.avatarUrl} alt={user.name} />
+          ) : null}
+          <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
+            {user?.name?.[0] || "G"}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h2 className="font-semibold">{user?.name || ""}</h2>
+          {prefs && (
+            <p className="text-sm text-muted-foreground">
+              관심 분야 {prefs.tags.length}개 • {prefs.level === "undergraduate" ? "학부생" : prefs.level === "graduate" ? "대학원생" : prefs.level === "researcher" ? "연구자" : "실무자"}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-primary">{likedPapers.length}</div>
+          <div className="text-xs text-muted-foreground">좋아요</div>
+        </div>
+        <div className="text-center">
+          <div className="text-2xl font-bold text-primary">{savedPapers.length}</div>
+          <div className="text-xs text-muted-foreground">저장</div>
+        </div>
+        <div className="text-center">
+          <div className="text-2xl font-bold text-primary">{readPapers.length}</div>
+          <div className="text-xs text-muted-foreground">읽음</div>
+        </div>
+      </div>
+    </>
+  );
+
   return (
-    <main className="min-h-screen pb-20 bg-background">
-      {/* Header */}
-      <header className="bg-card border-b">
-        <div className="p-4 max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="font-display text-xl font-bold">마이페이지</h1>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                로그아웃
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/settings")}
-              >
-                <Settings className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-          
-          {/* User Info */}
-          <div className="flex items-center gap-4">
-            <Avatar className="w-16 h-16">
-              {user?.avatarUrl ? (
-                <AvatarImage src={user.avatarUrl} alt={user.name} />
-              ) : null}
-              <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
-                {user?.name?.[0] || "G"}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="font-semibold">{user?.name || ""}</h2>
-              {prefs && (
-                <p className="text-sm text-muted-foreground">
-                  관심 분야 {prefs.tags.length}개 • {prefs.level === "undergraduate" ? "학부생" : prefs.level === "graduate" ? "대학원생" : prefs.level === "researcher" ? "연구자" : "실무자"}
-                </p>
-              )}
-            </div>
-          </div>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{likedPapers.length}</div>
-              <div className="text-xs text-muted-foreground">좋아요</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{savedPapers.length}</div>
-              <div className="text-xs text-muted-foreground">저장</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{readPapers.length}</div>
-              <div className="text-xs text-muted-foreground">읽음</div>
-            </div>
-          </div>
+    <main className="min-h-screen mobile-content-padding bg-background">
+      {/* Mobile Header - Hidden on Desktop */}
+      <header className="bg-card border-b mobile-safe-area-pt md:hidden">
+        <div className="p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+          {renderMyPageHeader()}
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+        {/* Desktop Header Area - Hidden on Mobile */}
+        <div className="hidden md:block p-4">
+          {renderMyPageHeader()}
+        </div>
         {/* Settings Link */}
         <button
           onClick={() => navigate("/onboarding")}
@@ -281,7 +291,7 @@ export default function MyPage() {
               통계
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="saved" className="mt-4 space-y-4">
             {savedPapers.length > 0 ? (
               savedPapers.map(paper => (
@@ -291,7 +301,7 @@ export default function MyPage() {
               <EmptyState icon={Bookmark} message="저장한 논문이 없어요" />
             )}
           </TabsContent>
-          
+
           <TabsContent value="liked" className="mt-4 space-y-4">
             {likedPapers.length > 0 ? (
               likedPapers.map(paper => (
@@ -301,7 +311,7 @@ export default function MyPage() {
               <EmptyState icon={Heart} message="좋아요한 논문이 없어요" />
             )}
           </TabsContent>
-          
+
           <TabsContent value="history" className="mt-4 space-y-4">
             {readPapersWithDate.length > 0 ? (
               <>
@@ -330,10 +340,10 @@ export default function MyPage() {
                     {groupedReadPapers.map(([dateKey, items]) => {
                       const date = parseISO(dateKey);
                       const isTodayDate = isToday(date);
-                      const dateLabel = isTodayDate 
-                        ? "오늘" 
+                      const dateLabel = isTodayDate
+                        ? "오늘"
                         : format(date, "yyyy년 M월 d일 (E)", { locale: ko });
-                      
+
                       return (
                         <div key={dateKey} className="space-y-3">
                           <div className="flex items-center gap-2 pb-2 border-b">
@@ -438,20 +448,20 @@ export default function MyPage() {
                   <CardContent>
                     <ChartContainer config={chartConfig}>
                       <BarChart data={hourlyStats}>
-                        <XAxis 
-                          dataKey="hour" 
+                        <XAxis
+                          dataKey="hour"
                           tickFormatter={(value) => `${value}시`}
                         />
                         <YAxis />
-                        <ChartTooltip 
+                        <ChartTooltip
                           content={<ChartTooltipContent />}
                           labelFormatter={(value) => `${value}시`}
                         />
                         <Bar dataKey="count" radius={4}>
                           {hourlyStats.map((entry, index) => {
                             // 값이 있는 시간대는 primary 색상, 없는 시간대는 연한 회색
-                            const color = entry.count > 0 
-                              ? "hsl(220, 60%, 50%)" 
+                            const color = entry.count > 0
+                              ? "hsl(220, 60%, 50%)"
                               : "hsl(210, 15%, 85%)";
                             return <Cell key={`cell-${index}`} fill={color} />;
                           })}

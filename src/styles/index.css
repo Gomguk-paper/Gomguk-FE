@@ -1,0 +1,238 @@
+@import url('//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Gomguk Design System - Academic/Professional Theme */
+
+@layer base {
+  :root {
+    /* Academic Navy Theme */
+    --background: 210 25% 98%;
+    --foreground: 220 30% 15%;
+
+    --card: 0 0% 100%;
+    /* 흰색 */
+    --card-foreground: 220 30% 15%;
+
+    --popover: 0 0% 100%;
+    /* 흰색 */
+    --popover-foreground: 220 30% 15%;
+
+    /* Navy Blue Primary (남색) */
+    --primary: 220 60% 35%;
+    --primary-foreground: 0 0% 100%;
+    /* 흰색 */
+
+    /* Light Gray Secondary */
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 220 30% 25%;
+
+    --muted: 210 15% 92%;
+    --muted-foreground: 220 15% 45%;
+
+    /* Teal Accent for highlights */
+    --accent: 175 60% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 220 60% 35%;
+
+    --radius: 0.5rem;
+
+    /* Custom tokens for Gomguk */
+    --tag-rl: 280 60% 55%;
+    --tag-vision: 200 75% 50%;
+    --tag-nlp: 340 65% 55%;
+    --tag-transformer: 30 80% 50%;
+    --tag-diffusion: 160 55% 45%;
+
+    --trending: 25 90% 55%;
+    --saved: 220 60% 35%;
+    --liked: 0 75% 60%;
+
+    --shadow-soft: 0 2px 8px -2px hsl(220 30% 15% / 0.08);
+    --shadow-card: 0 4px 16px -4px hsl(220 30% 15% / 0.1);
+
+    /* Mobile Design Tokens */
+    --mobile-max-width: 480px;
+    --mobile-spacing-xs: 0.5rem;
+    /* 8px */
+    --mobile-spacing-sm: 0.75rem;
+    /* 12px */
+    --mobile-spacing-md: 1rem;
+    /* 16px */
+    --mobile-spacing-lg: 1.5rem;
+    /* 24px */
+    --mobile-spacing-xl: 2rem;
+    /* 32px */
+    --mobile-touch-target: 44px;
+    /* 최소 터치 영역 */
+    --mobile-bottom-nav-height: 64px;
+    --mobile-header-height: 56px;
+  }
+
+  .dark {
+    --background: 220 25% 10%;
+    --foreground: 210 20% 95%;
+
+    --card: 220 25% 14%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 220 25% 14%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 210 70% 60%;
+    --primary-foreground: 220 25% 10%;
+
+    --secondary: 220 20% 20%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 220 20% 18%;
+    --muted-foreground: 210 15% 60%;
+
+    --accent: 175 50% 50%;
+    --accent-foreground: 220 25% 10%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 210 20% 95%;
+
+    --border: 220 20% 22%;
+    --input: 220 20% 22%;
+    --ring: 210 70% 60%;
+
+    --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+
+    /* Safe Area 대응 */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* 모바일 뷰포트 최소 너비 보장 */
+  html {
+    min-width: 320px;
+  }
+
+  /* 데스크톱에서도 모바일 레이아웃 유지 */
+  @media (min-width: 481px) {
+    body {
+      box-shadow: 0 0 0 1px hsl(var(--border));
+    }
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+  }
+
+  .font-sans {
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* BackInDown-like animation for modal */
+  @keyframes backInDown {
+    0% {
+      transform: translate(-50%, -80px);
+      opacity: 0;
+    }
+
+    100% {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+  }
+
+  @keyframes backOutDown {
+    0% {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translate(-50%, -80px);
+      opacity: 0;
+    }
+  }
+
+  .animate-back-in-down {
+    animation: backInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-back-out-down {
+    animation: backOutDown 0.3s ease-in forwards;
+  }
+
+  /* Mobile Layout Utilities */
+  .mobile-container {
+    max-width: var(--mobile-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--mobile-spacing-md);
+    padding-right: var(--mobile-spacing-md);
+  }
+
+  .mobile-safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .mobile-safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-safe-area-pl {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .mobile-safe-area-pr {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Touch Target 최소 크기 보장 */
+  .touch-target {
+    min-height: var(--mobile-touch-target);
+    min-width: var(--mobile-touch-target);
+  }
+
+  /* 모바일 피드 카드 간격 */
+  .mobile-feed-gap {
+    gap: var(--mobile-spacing-md);
+  }
+
+  /* 하단 네비게이션 높이 보정 */
+  .mobile-content-padding {
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+}

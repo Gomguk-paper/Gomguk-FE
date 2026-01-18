@@ -1,0 +1,63 @@
+name: ArXiv Paper Pipeline
+
+on:
+  schedule:
+    # 매일 한국시간 오전 9시 (UTC 00:00)에 실행
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  crawl-and-summarize:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Initialize database
+      working-directory: ./backend
+      run: |
+        python -c "from database import init_db; init_db()"
+      env:
+        DATABASE_URL: sqlite:///./data/papers.db
+        
+    - name: Initialize demo data (if needed)
+      working-directory: ./backend
+      run: |
+        python init_demo_data.py
+      env:
+        DATABASE_URL: sqlite:///./data/papers.db
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      continue-on-error: true
+        
+    - name: Run pipeline
+      working-directory: ./backend
+      run: |
+        python pipeline.py
+      env:
+        DATABASE_URL: sqlite:///./data/papers.db
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        ARXIV_CATEGORIES: cs.AI,cs.LG,cs.CV,cs.CL
+        MAX_PAPERS_PER_CRAWL: 100
+        TOP_CITATIONS_COUNT: 5
+        
+    - name: Commit and push database
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add backend/data/papers.db || true
+        git diff --staged --quiet || git commit -m "Auto-update: ArXiv papers database [skip ci]"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

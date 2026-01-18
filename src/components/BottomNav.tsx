@@ -10,15 +10,15 @@ const navItems = [
 
 export function BottomNav() {
   const location = useLocation();
-  
+
   // Hide on login and onboarding pages
   if (location.pathname === "/login" || location.pathname === "/onboarding") {
     return null;
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t safe-area-pb">
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t mobile-safe-area-pb w-full max-w-[480px] mx-auto">
+      <div className="flex items-center justify-around h-16 max-w-[480px] mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {navItems.map(({ to, icon: Icon, label }) => {
           const isActive = location.pathname === to;
           return (
@@ -26,7 +26,7 @@ export function BottomNav() {
               key={to}
               to={to}
               className={cn(
-                "flex flex-col items-center gap-1 px-6 py-2 transition-colors",
+                "flex flex-col items-center justify-center gap-1 px-4 py-2 transition-colors touch-target",
                 isActive ? "text-primary" : "text-muted-foreground"
               )}
             >
