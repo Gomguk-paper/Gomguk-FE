@@ -26,10 +26,10 @@ export default function Home() {
 
       if (prefs?.tags) {
         prefs.tags.forEach(({ name, weight }) => {
-          if (a.tags.some(t => t.toLowerCase() === name.toLowerCase())) {
+          if (a.tags.some((t) => t.toLowerCase() === name.toLowerCase())) {
             scoreA += weight * 10;
           }
-          if (b.tags.some(t => t.toLowerCase() === name.toLowerCase())) {
+          if (b.tags.some((t) => t.toLowerCase() === name.toLowerCase())) {
             scoreB += weight * 10;
           }
         });
@@ -48,7 +48,7 @@ export default function Home() {
   };
 
   const openCarouselByPaperId = (paperId: string) => {
-    const index = sortedPapers.findIndex(p => p.id === paperId);
+    const index = sortedPapers.findIndex((p) => p.id === paperId);
     if (index !== -1) {
       openCarousel(index);
     }
@@ -59,7 +59,7 @@ export default function Home() {
     if (!user || !prefs) return;
 
     const existingNotifications = getNotifications();
-    const existingPaperIds = new Set(existingNotifications.map(n => n.paperId));
+    const existingPaperIds = new Set(existingNotifications.map((n) => n.paperId));
 
     // 관심 태그와 매칭되는 논문에 대한 알림 생성
     if (prefs.tags && prefs.tags.length > 0) {
@@ -68,8 +68,8 @@ export default function Home() {
         if (existingPaperIds.has(paper.id)) return;
 
         // 관심 태그와 매칭되는지 확인
-        const hasMatchingTag = prefs.tags!.some(prefTag =>
-          paper.tags.some(tag => tag.toLowerCase() === prefTag.name.toLowerCase())
+        const hasMatchingTag = prefs.tags!.some((prefTag) =>
+          paper.tags.some((tag) => tag.toLowerCase() === prefTag.name.toLowerCase())
         );
 
         if (hasMatchingTag) {
@@ -107,7 +107,7 @@ export default function Home() {
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt md:hidden">
-        <div className="flex items-center justify-between gap-3 p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
+        <div className="flex items-center justify-between gap-3 p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary-foreground" />
@@ -149,7 +149,7 @@ export default function Home() {
         <section className="p-4">
           <h2 className="font-display font-semibold text-lg mb-3">🔥 기술 리포트</h2>
           <div className="space-y-3">
-            {reports.slice(0, 2).map(report => (
+            {reports.slice(0, 2).map((report) => (
               <ReportCard key={report.id} report={report} />
             ))}
           </div>
@@ -160,11 +160,7 @@ export default function Home() {
           <h2 className="font-display font-semibold text-lg mb-3">📚 맞춤 논문 피드</h2>
           <div className="space-y-4">
             {sortedPapers.map((paper, index) => (
-              <PaperCard
-                key={paper.id}
-                paper={paper}
-                onOpenSummary={() => openCarousel(index)}
-              />
+              <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
             ))}
           </div>
         </section>
@@ -179,10 +175,7 @@ export default function Home() {
       />
 
       {/* Login Modal */}
-      <LoginModal
-        open={loginModalOpen}
-        onOpenChange={setLoginModalOpen}
-      />
+      <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
     </main>
   );
 }
