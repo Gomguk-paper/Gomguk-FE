@@ -193,24 +193,6 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         {/* Title */}
         <h2 className="font-display text-xl font-semibold mb-6 text-foreground">{paper.title}</h2>
 
-        {/* Step indicator */}
-        <div className="flex gap-2 mb-4">
-          {steps.map((step, i) => (
-            <button
-              key={step}
-              onClick={(e) => {
-                e.stopPropagation(); // 부모의 onClick(goNext) 방지
-                goToStep(step);
-              }}
-              className={cn(
-                "h-1 flex-1 rounded-full transition-all cursor-pointer hover:h-1.5",
-                i <= stepIndex ? "bg-primary" : "bg-muted"
-              )}
-              aria-label={`${step === "hook" ? "한줄 요약" : step === "keypoints" ? "핵심 포인트" : "상세 설명"} 단계로 이동`}
-            />
-          ))}
-        </div>
-
         {/* Summary content - all sections visible at once */}
         <div className="flex-1 overflow-y-auto space-y-6">
           {/* 한줄 요약 */}
