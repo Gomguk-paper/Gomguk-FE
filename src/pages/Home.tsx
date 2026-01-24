@@ -10,6 +10,7 @@ import { NotificationList } from "@/components/NotificationList";
 import { LoginModal } from "@/components/LoginModal";
 import { clearStoredUser } from "@/lib/authStorage";
 import { UI_CONSTANTS } from "@/core/config/constants";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ export default function Home() {
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  // Restore scroll position when navigating back to this page
+  useScrollRestoration('home');
 
   // Sort papers by personalized score
   const sortedPapers = useMemo(() => {
