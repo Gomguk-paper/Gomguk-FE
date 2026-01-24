@@ -172,20 +172,7 @@ export default function MyPage() {
       .slice(0, 5); // 상위 5개만 표시
   }, [readPapersWithDate]);
 
-  // 시간대별 읽기 통계
-  const hourlyStats = useMemo(() => {
-    const hourCounts: Record<number, number> = {};
 
-    readPapersWithDate.forEach(({ readDate }) => {
-      const hour = readDate.getHours();
-      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
-    });
-
-    return Array.from({ length: 24 }, (_, i) => ({
-      hour: i,
-      count: hourCounts[i] || 0,
-    }));
-  }, [readPapersWithDate]);
 
   const chartConfig = {
     count: {
@@ -464,36 +451,7 @@ export default function MyPage() {
                   </Card>
                 )}
 
-                {/* 시간대별 읽기 통계 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      시간대별 읽기 패턴
-                    </CardTitle>
-                    <CardDescription>언제 가장 많이 읽으시나요?</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ChartContainer config={chartConfig}>
-                      <BarChart data={hourlyStats}>
-                        <XAxis dataKey="hour" tickFormatter={(value) => `${value}시`} />
-                        <YAxis />
-                        <ChartTooltip
-                          content={<ChartTooltipContent />}
-                          labelFormatter={(value) => `${value}시`}
-                        />
-                        <Bar dataKey="count" radius={4}>
-                          {hourlyStats.map((entry, index) => {
-                            // 값이 있는 시간대는 primary 색상, 없는 시간대는 연한 회색
-                            const color =
-                              entry.count > 0 ? "hsl(220, 60%, 50%)" : "hsl(210, 15%, 85%)";
-                            return <Cell key={`cell-${index}`} fill={color} />;
-                          })}
-                        </Bar>
-                      </BarChart>
-                    </ChartContainer>
-                  </CardContent>
-                </Card>
+
 
                 {/* 읽기 습관 요약 */}
                 <Card>
@@ -511,20 +469,7 @@ export default function MyPage() {
                         <span className="text-lg font-bold">{tagDistribution[0].tag}</span>
                       </div>
                     )}
-                    {hourlyStats.some((h) => h.count > 0) && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">가장 많이 읽는 시간대</span>
-                        <span className="text-lg font-bold">
-                          {
-                            hourlyStats.reduce(
-                              (max, h) => (h.count > max.count ? h : max),
-                              hourlyStats[0]
-                            ).hour
-                          }
-                          시
-                        </span>
-                      </div>
-                    )}
+
                   </CardContent>
                 </Card>
               </>

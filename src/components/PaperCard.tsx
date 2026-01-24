@@ -1,7 +1,6 @@
 import {
   Heart,
   Bookmark,
-  Check,
   HelpCircle,
   FileText,
   ChevronUp,
@@ -24,7 +23,7 @@ interface PaperCardProps {
 }
 
 export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
-  const { user, getAction, toggleLike, toggleSave, markAsRead } = useStore();
+  const { user, getAction, toggleLike, toggleSave } = useStore();
   const [showWhyModal, setShowWhyModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAbstract, setShowAbstract] = useState(false);
@@ -33,9 +32,8 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const summary = summaries.find((s) => s.paperId === paper.id);
   const isLiked = action?.liked || false;
   const isSaved = action?.saved || false;
-  const isRead = !!action?.readAt;
   const canUseActions = Boolean(user);
-  const authMessage = !user ? "로그인 후 좋아요/저장/읽음 기능을 사용할 수 있어요." : null;
+  const authMessage = !user ? "로그인 후 좋아요/저장 기능을 사용할 수 있어요." : null;
 
   const abstractPreview =
     paper.abstract.length > UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH
@@ -68,17 +66,16 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
     <>
       <article
         className={cn(
-          "bg-card rounded-lg border shadow-card p-4 transition-all cursor-pointer",
+          "bg-card rounded-lg border shadow-card transition-all cursor-pointer overflow-hidden",
           // Responsive layout: flex-col on mobile, flex-row on desktop
-          "flex flex-col md:flex-row md:gap-5",
-          isRead && "opacity-75"
+          "flex flex-col md:flex-row md:gap-5 md:p-4"
         )}
         onClick={handleCardClick}
       >
         {/* Image Section */}
         {paper.imageUrl && (
-          <div className="w-full md:w-[40%] flex-shrink-0 mb-3 md:mb-0">
-            <div className="rounded-lg overflow-hidden bg-muted aspect-video md:aspect-[4/3] relative">
+          <div className="w-full md:w-[40%] flex-shrink-0">
+            <div className="bg-muted relative aspect-[3/2] md:aspect-[4/3] w-full md:rounded-lg overflow-hidden">
               <img
                 src={paper.imageUrl}
                 alt={`${paper.title} figure`}
@@ -103,7 +100,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
         )}
 
         {/* Content Section */}
-        <div className="flex-1 flex flex-col gap-3">
+        <div className="flex-1 flex flex-col gap-3 p-4 md:p-0">
           {/* Header: Tags & Why */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex flex-wrap gap-1.5">
@@ -195,19 +192,6 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               >
                 <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
                 <span className="text-xs hidden sm:inline">저장</span>
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("gap-1.5 min-h-touch", isRead && "text-accent")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleActionClick(() => markAsRead(paper.id));
-                }}
-              >
-                <Check className={cn("w-4 h-4", isRead && "stroke-[3]")} />
-                <span className="text-xs hidden sm:inline">읽음</span>
               </Button>
             </div>
 

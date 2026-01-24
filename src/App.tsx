@@ -12,6 +12,7 @@ import SearchPage from "./pages/Search";
 import MyPage from "./pages/MyPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import AuthorPage from "./pages/AuthorPage";
 import { getStoredPrefs, getStoredUser, clearStoredUser } from "@/lib/authStorage";
 import { useEffect, useState } from "react";
 
@@ -74,6 +75,7 @@ function AppRoutes() {
             )
           }
         />
+        <Route path="/author/:authorId" element={<AuthorPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
@@ -133,7 +135,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppLayout />
       </BrowserRouter>
     </TooltipProvider>

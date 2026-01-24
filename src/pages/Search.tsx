@@ -1,7 +1,10 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Search as SearchIcon, X, SlidersHorizontal } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useSearchParams } from "react-router-dom";
-import { Search as SearchIcon, SlidersHorizontal } from "lucide-react";
-import { papers, allTags } from "@/data/papers";
+import { useQuery } from "@tanstack/react-query";
+import { papersApi, tagsApi } from "@/api";
 import { PaperCard } from "@/components/PaperCard";
 import { TagChip } from "@/components/TagChip";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
@@ -21,6 +24,19 @@ export default function SearchPage() {
   const initialTag = searchParams.get("tag") || "";
 
   const [query, setQuery] = useState("");
+
+  // Fetch papers and tags from API
+  const { data: papers = [], isLoading: papersLoading } = useQuery({
+    queryKey: ['papers'],
+    queryFn: () => papersApi.getPapers(),
+  });
+
+  const { data: tagsData = [], isLoading: tagsLoading } = useQuery({
+    queryKey: ['tags'],
+    queryFn: () => tagsApi.getTags(),
+  });
+
+  const allTags = useMemo(() => tagsData.map(t => t.name), [tagsData]);
   const [selectedTag, setSelectedTag] = useState(initialTag);
   const [sortMode, setSortMode] = useState<SortMode>("trending");
   const [carouselOpen, setCarouselOpen] = useState(false);
@@ -31,6 +47,14 @@ export default function SearchPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Sync selectedTag with URL parameter
+  useEffect(() => {
+    const tagFromUrl = searchParams.get("tag") || "";
+    if (tagFromUrl !== selectedTag) {
+      setSelectedTag(tagFromUrl);
+    }
+  }, [searchParams, selectedTag]);
 
   const filteredPapers = useMemo(() => {
     let result = [...papers];

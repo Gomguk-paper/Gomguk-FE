@@ -3,6 +3,16 @@ import { Home, Search, User, Settings, LogOut, LogIn, BookOpen } from "lucide-re
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
 import { clearStoredUser } from "@/lib/authStorage";
+import { useState } from "react";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
     { to: "/", icon: Home, label: "홈" },
@@ -14,6 +24,7 @@ const navItems = [
 export function DesktopSidebar() {
     const location = useLocation();
     const { user, setUser } = useStore();
+    const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
     // Hide on login and onboarding pages
     if (location.pathname === "/login" || location.pathname === "/onboarding") {
@@ -23,18 +34,19 @@ export function DesktopSidebar() {
     const handleLogout = () => {
         clearStoredUser();
         setUser(null);
+        setShowLogoutDialog(false);
     };
 
     return (
         <aside className="hidden md:flex sticky top-0 h-screen w-64 shrink-0 flex-col border-r bg-card z-40">
             {/* Logo Area */}
             <div className="p-6">
-                <div className="flex items-center gap-3">
+                <NavLink to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                         <BookOpen className="w-5 h-5 text-primary-foreground" />
                     </div>
                     <span className="font-display font-bold text-xl">곰국</span>
-                </div>
+                </NavLink>
             </div>
 
             {/* Navigation Links */}
@@ -62,7 +74,10 @@ export function DesktopSidebar() {
             {/* User Area / Auth Actions */}
             <div className="p-4 border-t">
                 {user ? (
-                    <div className="flex items-center justify-between p-3 rounded-full hover:bg-secondary/30 cursor-pointer group">
+                    <NavLink
+                        to="/mypage"
+                        className="flex items-center justify-between p-3 rounded-full hover:bg-secondary/30 cursor-pointer group relative"
+                    >
                         <div className="flex items-center gap-3 overflow-hidden">
                             <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-lg font-bold shrink-0">
                                 {user.name?.[0] || "U"}
@@ -73,13 +88,17 @@ export function DesktopSidebar() {
                             </div>
                         </div>
                         <button
-                            onClick={handleLogout}
-                            className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setShowLogoutDialog(true);
+                            }}
+                            className="p-2 text-muted-foreground hover:text-destructive transition-colors z-10"
                             title="로그아웃"
                         >
                             <LogOut className="w-5 h-5" />
                         </button>
-                    </div>
+                    </NavLink>
                 ) : (
                     <NavLink
                         to="/login"
@@ -90,6 +109,26 @@ export function DesktopSidebar() {
                     </NavLink>
                 )}
             </div>
+
+            {/* Logout Confirmation Dialog */}
+            <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>로그아웃</DialogTitle>
+                        <DialogDescription>
+                            정말 로그아웃 하시겠습니까?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+                            취소
+                        </Button>
+                        <Button variant="destructive" onClick={handleLogout}>
+                            로그아웃
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </aside>
     );
 }
