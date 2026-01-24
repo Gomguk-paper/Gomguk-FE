@@ -82,10 +82,14 @@ function AppRoutes() {
 
 import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { RightSidebar } from "@/components/RightSidebar";
+import { useTheme } from "@/hooks/useTheme";
 
 const AppLayout = () => {
   const { prefs } = useStore();
   const layoutMode = prefs?.layoutMode || "auto";
+
+  // Apply theme using the hook
+  useTheme();
 
   // Determine visibility classes based on layout mode
   // Auto: default responsive behavior
