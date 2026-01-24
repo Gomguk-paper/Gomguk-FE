@@ -193,77 +193,56 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         {/* Title */}
         <h2 className="font-display text-xl font-semibold mb-6 text-foreground">{paper.title}</h2>
 
-        {/* Step indicator */}
-        <div className="flex gap-2 mb-4">
-          {steps.map((step, i) => (
-            <button
-              key={step}
-              onClick={(e) => {
-                e.stopPropagation(); // 부모의 onClick(goNext) 방지
-                goToStep(step);
-              }}
-              className={cn(
-                "h-1 flex-1 rounded-full transition-all cursor-pointer hover:h-1.5",
-                i <= stepIndex ? "bg-primary" : "bg-muted"
-              )}
-              aria-label={`${step === "hook" ? "한줄 요약" : step === "keypoints" ? "핵심 포인트" : "상세 설명"} 단계로 이동`}
-            />
-          ))}
-        </div>
+        {/* Summary content - all sections visible at once */}
+        <div className="flex-1 overflow-y-auto space-y-6">
+          {/* 한줄 요약 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              한줄 요약
+            </span>
+            <p className="text-2xl font-display font-medium mt-3 leading-relaxed">
+              💡 {summary.hookOneLiner}
+            </p>
+          </div>
 
-        {/* Summary content based on step */}
-        <div className="flex-1 overflow-y-auto">
-          {currentStep === "hook" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                한줄 요약
-              </span>
-              <p className="text-2xl font-display font-medium mt-3 leading-relaxed">
-                💡 {summary.hookOneLiner}
-              </p>
-            </div>
-          )}
+          {/* 핵심 포인트 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              핵심 포인트
+            </span>
+            <ul className="mt-4 space-y-3">
+              {summary.keyPoints.map((point, i) => (
+                <li
+                  key={i}
+                  className="flex gap-3 items-start text-lg"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <span className="text-primary font-bold">{i + 1}.</span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          {currentStep === "keypoints" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                핵심 포인트
+          {/* 상세 설명 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              상세 설명
+            </span>
+            <p className="mt-4 text-base leading-relaxed text-foreground/90">
+              {summary.detailed}
+            </p>
+            <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
+              <span className="text-xs text-muted-foreground">
+                📚 요약 근거:{" "}
+                {summary.evidenceScope === "full"
+                  ? "전체 논문"
+                  : summary.evidenceScope === "intro"
+                    ? "서론 기반"
+                    : "초록 기반"}
               </span>
-              <ul className="mt-4 space-y-3">
-                {summary.keyPoints.map((point, i) => (
-                  <li
-                    key={i}
-                    className="flex gap-3 items-start text-lg"
-                    style={{ animationDelay: `${i * 100}ms` }}
-                  >
-                    <span className="text-primary font-bold">{i + 1}.</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
-          )}
-
-          {currentStep === "detailed" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                상세 설명
-              </span>
-              <p className="mt-4 text-base leading-relaxed text-foreground/90">
-                {summary.detailed}
-              </p>
-              <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
-                <span className="text-xs text-muted-foreground">
-                  📚 요약 근거:{" "}
-                  {summary.evidenceScope === "full"
-                    ? "전체 논문"
-                    : summary.evidenceScope === "intro"
-                      ? "서론 기반"
-                      : "초록 기반"}
-                </span>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Navigation hint */}
