@@ -242,7 +242,3 @@
     padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
   }
 }
-
-.transition-colors {
-  transition: none !important;
-}
