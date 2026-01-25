@@ -8,6 +8,7 @@ import { papersApi, tagsApi } from "@/api";
 import { PaperCard } from "@/components/PaperCard";
 import { TagChip } from "@/components/TagChip";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
+import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
 import {
   Select,
   SelectContent,
@@ -188,10 +189,16 @@ export default function SearchPage() {
             <h2 className="font-display font-semibold text-sm text-muted-foreground">
               {query || selectedTag ? "검색 결과" : "전체 논문"}
             </h2>
-            <span className="text-xs text-muted-foreground">{filteredPapers.length}개</span>
+            <span className="text-xs text-muted-foreground">{papersLoading ? "..." : `${filteredPapers.length}개`}</span>
           </div>
 
-          {filteredPapers.length > 0 ? (
+          {papersLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <PaperCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filteredPapers.length > 0 ? (
             <div className="space-y-4">
               {filteredPapers.map((paper, index) => (
                 <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />

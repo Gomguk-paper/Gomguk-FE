@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, Globe, GraduationCap, Briefcase, FileText, TrendingUp, Award } from "lucide-react";
+import { ArrowLeft, Mail, Globe, GraduationCap, Briefcase, FileText, TrendingUp, Award, Building2, Bell, Check } from "lucide-react";
+import { useStore } from "@/store/useStore";
 import { useQuery } from "@tanstack/react-query";
 import { authorsApi } from "@/api";
 import { PaperCard } from "@/components/PaperCard";
@@ -14,6 +15,8 @@ import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 export default function AuthorPage() {
     const { authorId } = useParams<{ authorId: string }>();
     const navigate = useNavigate();
+    const { followedAuthors, toggleFollow } = useStore();
+    const isFollowing = authorId ? followedAuthors[authorId] : false;
     const [sortMode, setSortMode] = useState<"citations" | "recent">("citations");
 
     // Restore scroll position
@@ -94,37 +97,84 @@ export default function AuthorPage() {
 
             <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr p-4 space-y-6">
                 {/* Profile Section */}
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex flex-col md:flex-row gap-6">
-                            <Avatar className="w-24 h-24 shrink-0">
-                                <AvatarImage src={author.avatarUrl} alt={author.name} />
-                                <AvatarFallback className="text-2xl font-bold">
-                                    {author.name.split(" ").map(n => n[0]).join("")}
-                                </AvatarFallback>
-                            </Avatar>
+                {/* Profile Section */}
+                <Card className="overflow-hidden border-none shadow-lg">
+                    {/* Cover Gradient */}
+                    <div className="h-32 bg-gradient-to-r from-blue-600 to-teal-500 relative">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-4 left-4 text-white hover:bg-white/20 hover:text-white"
+                            onClick={() => navigate(-1)}
+                        >
+                            <ArrowLeft className="w-5 h-5 mr-1" />
+                            Back
+                        </Button>
+                    </div>
 
-                            <div className="flex-1 space-y-3">
-                                <div>
-                                    <h1 className="text-2xl font-bold">{author.name}</h1>
-                                    <p className="text-muted-foreground">{author.affiliations.join(" • ")}</p>
+                    <CardContent className="pt-0 relative px-6 pb-6">
+                        <div className="flex flex-col md:flex-row gap-6 items-start">
+                            {/* Avatar - Negative margin to overlap cover */}
+                            <div className="-mt-12 p-1 bg-background rounded-full">
+                                <Avatar className="w-32 h-32 border-4 border-background shadow-md">
+                                    <AvatarImage src={author.avatarUrl} alt={author.name} />
+                                    <AvatarFallback className="text-3xl font-bold bg-muted">
+                                        {author.name.split(" ").map(n => n[0]).join("")}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </div>
+
+                            <div className="flex-1 space-y-4 pt-4 md:pt-2">
+                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                                    <div>
+                                        <h1 className="text-3xl font-display font-bold text-foreground">
+                                            {author.name}
+                                        </h1>
+                                        <div className="flex items-center gap-2 text-muted-foreground mt-1 text-lg">
+                                            <Building2 className="w-4 h-4" />
+                                            <span>{author.affiliations.join(" • ")}</span>
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        onClick={() => authorId && toggleFollow(authorId)}
+                                        className={`gap-2 min-w-[140px] shadow-sm transition-all ${isFollowing
+                                                ? "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                                                : "bg-teal-600 hover:bg-teal-700 text-white"
+                                            }`}
+                                        size="lg"
+                                    >
+                                        {isFollowing ? (
+                                            <>
+                                                <Check className="w-4 h-4" />
+                                                팔로우 중
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Bell className="w-4 h-4" />
+                                                팔로우
+                                            </>
+                                        )}
+                                    </Button>
                                 </div>
 
                                 {author.bio && (
-                                    <p className="text-sm leading-relaxed">{author.bio}</p>
+                                    <p className="text-base text-muted-foreground leading-relaxed max-w-3xl">
+                                        {author.bio}
+                                    </p>
                                 )}
 
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2 pt-1">
                                     {author.email && (
-                                        <Badge variant="outline" className="gap-1">
-                                            <Mail className="w-3 h-3" />
+                                        <Badge variant="secondary" className="gap-1.5 px-3 py-1 text-sm font-normal">
+                                            <Mail className="w-3.5 h-3.5" />
                                             {author.email}
                                         </Badge>
                                     )}
                                     {author.website && (
                                         <a href={author.website} target="_blank" rel="noopener noreferrer">
-                                            <Badge variant="outline" className="gap-1">
-                                                <Globe className="w-3 h-3" />
+                                            <Badge variant="secondary" className="gap-1.5 px-3 py-1 text-sm font-normal hover:bg-secondary/80 cursor-pointer">
+                                                <Globe className="w-3.5 h-3.5" />
                                                 Website
                                             </Badge>
                                         </a>
@@ -139,33 +189,35 @@ export default function AuthorPage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <Card>
                         <CardContent className="pt-6 text-center">
-                            <FileText className="w-8 h-8 mx-auto mb-2 text-primary" />
-                            <div className="text-2xl font-bold">{author.stats.totalPapers}</div>
-                            <div className="text-xs text-muted-foreground">논문</div>
+                            <FileText className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                            <div className="text-3xl font-bold text-foreground">{author.stats.totalPapers}</div>
+                            <div className="text-sm text-muted-foreground font-medium">총 논문</div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-teal-100 dark:border-teal-900/50 bg-teal-50/30 dark:bg-teal-950/10">
+                        <CardContent className="pt-6 text-center">
+                            <TrendingUp className="w-8 h-8 mx-auto mb-2 text-teal-600 dark:text-teal-400" />
+                            <div className="text-3xl font-bold text-teal-700 dark:text-teal-300">
+                                {author.stats.totalCitations.toLocaleString()}
+                            </div>
+                            <div className="text-sm font-medium text-teal-600/80 dark:text-teal-400/80">총 인용 수</div>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardContent className="pt-6 text-center">
-                            <TrendingUp className="w-8 h-8 mx-auto mb-2 text-primary" />
-                            <div className="text-2xl font-bold">{author.stats.totalCitations.toLocaleString()}</div>
-                            <div className="text-xs text-muted-foreground">인용</div>
+                            <Award className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                            <div className="text-3xl font-bold text-foreground">{author.stats.hIndex}</div>
+                            <div className="text-sm text-muted-foreground font-medium">h-index</div>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardContent className="pt-6 text-center">
-                            <Award className="w-8 h-8 mx-auto mb-2 text-primary" />
-                            <div className="text-2xl font-bold">{author.stats.hIndex}</div>
-                            <div className="text-xs text-muted-foreground">h-index</div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardContent className="pt-6 text-center">
-                            <Award className="w-8 h-8 mx-auto mb-2 text-primary" />
-                            <div className="text-2xl font-bold">{author.stats.i10Index}</div>
-                            <div className="text-xs text-muted-foreground">i10-index</div>
+                            <Award className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                            <div className="text-3xl font-bold text-foreground">{author.stats.i10Index}</div>
+                            <div className="text-sm text-muted-foreground font-medium">i10-index</div>
                         </CardContent>
                     </Card>
                 </div>

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Bell, BookOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { papersApi, reportsApi } from "@/api";
-import { summaries } from "@/data/papers";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { ReportCard } from "@/components/ReportCard";
@@ -13,6 +12,7 @@ import { LoginModal } from "@/components/LoginModal";
 import { clearStoredUser } from "@/lib/authStorage";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -42,22 +42,30 @@ export default function Home() {
 
   // Sort papers by personalized score
   const sortedPapers = useMemo(() => {
-    return [...papers].sort((a, b) => {
-      let scoreA = a.metrics.trendingScore + a.metrics.recencyScore;
-      let scoreB = b.metrics.trendingScore + b.metrics.recencyScore;
+    // Defensive check: ensure papers have metrics
+    const validPapers = Array.isArray(papers)
+      ? papers.filter(p => p && p.metrics)
+      : [];
+
+    return [...validPapers].sort((a, b) => {
+      const scoreA = (a.metrics?.trendingScore || 0) + (a.metrics?.recencyScore || 0);
+      const scoreB = (b.metrics?.trendingScore || 0) + (b.metrics?.recencyScore || 0);
+
+      let weightedScoreA = scoreA;
+      let weightedScoreB = scoreB;
 
       if (prefs?.tags) {
         prefs.tags.forEach(({ name, weight }) => {
           if (a.tags.some((t) => t.toLowerCase() === name.toLowerCase())) {
-            scoreA += weight * 10;
+            weightedScoreA += weight * 10;
           }
           if (b.tags.some((t) => t.toLowerCase() === name.toLowerCase())) {
-            scoreB += weight * 10;
+            weightedScoreB += weight * 10;
           }
         });
       }
 
-      return scoreB - scoreA;
+      return weightedScoreB - weightedScoreA;
     });
   }, [papers, prefs]);
 
@@ -141,17 +149,6 @@ export default function Home() {
     setUser(null);
   };
 
-  // Show loading state
-  if (papersLoading || reportsLoading) {
-    return (
-      <main className="min-h-screen mobile-content-padding bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 text-lg font-semibold">로딩 중...</div>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className="min-h-screen mobile-content-padding bg-background">
       {/* Header */}
@@ -175,23 +172,6 @@ export default function Home() {
                 <Bell className="w-5 h-5" />
               </button>
             )}
-            {!user && (
-              <button
-                data-login-trigger
-                onClick={() => setLoginModalOpen(true)}
-                className="px-3 py-2 text-xs font-semibold rounded-full border border-input bg-background hover:bg-secondary transition-colors"
-              >
-                로그인
-              </button>
-            )}
-            {user && (
-              <button
-                onClick={handleLogout}
-                className="px-3 py-2 text-xs font-semibold rounded-full border border-input bg-background hover:bg-secondary transition-colors"
-              >
-                로그아웃
-              </button>
-            )}
           </div>
         </div>
       </header>
@@ -211,9 +191,15 @@ export default function Home() {
         <section className="p-4">
           <h2 className="font-display font-semibold text-lg mb-3">📚 맞춤 논문 피드</h2>
           <div className="space-y-4">
-            {displayedPapers.map((paper, index) => (
-              <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
-            ))}
+            {papersLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <PaperCardSkeleton key={i} />
+              ))
+            ) : (
+              displayedPapers.map((paper, index) => (
+                <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
+              ))
+            )}
           </div>
 
           {/* Infinite Scroll Trigger */}

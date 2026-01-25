@@ -137,7 +137,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
       >
         {/* Image Section */}
         {paper.imageUrl && (
-          <div className="w-full md:w-[40%] flex-shrink-0">
+          <div className="w-full md:w-[28%] flex-shrink-0">
             <div className="bg-muted relative aspect-[3/2] md:aspect-[4/3] w-full md:rounded-lg overflow-hidden">
               <img
                 src={paper.imageUrl}
@@ -175,8 +175,9 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                 {paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && " et al."}
                 <span className="mx-1.5">·</span>
                 {paper.year}
-                <span className="mx-1.5">·</span>
-                {paper.venue}
+                <Badge variant="secondary" className="ml-2 px-1.5 py-0 h-5 font-semibold text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-0 align-middle">
+                  {paper.venue}
+                </Badge>
               </div>
             </div>
 
@@ -271,7 +272,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             <div className="space-y-1">
               <p
                 className={cn(
-                  "text-xs text-muted-foreground leading-relaxed",
+                  "text-sm text-muted-foreground leading-relaxed",
                   !showAbstract && "line-clamp-2"
                 )}
               >
@@ -331,7 +332,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             {/* Secondary Actions (PDF/요약) */}
             <div className="flex items-center gap-2">
               {paper.pdfUrl && (
-                <Button variant="ghost" size="sm" className="text-xs min-h-touch text-muted-foreground hover:text-foreground" asChild>
+                <Button variant="ghost" size="sm" className="text-xs min-h-touch border border-input hover:bg-secondary text-muted-foreground hover:text-foreground" asChild>
                   <a
                     href={paper.pdfUrl}
                     target="_blank"

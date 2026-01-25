@@ -48,6 +48,10 @@ interface GomgukStore {
   excludeTag: (tag: string) => void;
   undoHidePaper: (paperId: string) => void;
 
+  // Following
+  followedAuthors: Record<string, boolean>;
+  toggleFollow: (authorId: string) => void;
+
   // Notifications
   notificationsByUser: Record<string, Notification[]>;
   addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => void;
@@ -102,6 +106,18 @@ export const useStore = create<GomgukStore>()(
       excludeTag: (tag) => set((state) => ({
         excludedTags: { ...state.excludedTags, [tag]: true }
       })),
+
+      // Following
+      followedAuthors: {},
+      toggleFollow: (authorId) => set((state) => {
+        const currentFollow = state.followedAuthors[authorId] || false;
+        return {
+          followedAuthors: {
+            ...state.followedAuthors,
+            [authorId]: !currentFollow,
+          }
+        };
+      }),
 
       toggleLike: (paperId) => set((state) => {
         const userKey = getUserActionKey(get().user);
@@ -281,6 +297,7 @@ export const useStore = create<GomgukStore>()(
         hiddenPapers: state.hiddenPapers,
         blockedAuthors: state.blockedAuthors,
         excludedTags: state.excludedTags,
+        followedAuthors: state.followedAuthors,
       }),
     }
   )

@@ -151,7 +151,7 @@ export function RightSidebar() {
             </div>
 
             {/* Footer */}
-            <div className="px-4 text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
+            <div className="px-4 text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-8">
                 <span
                     className="hover:underline cursor-pointer"
                     onClick={() => toast({ title: "이용약관", description: "준비 중입니다." })}

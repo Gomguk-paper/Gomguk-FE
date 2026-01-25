@@ -7,6 +7,12 @@ import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface SummaryCarouselProps {
   papers: Paper[];
@@ -204,42 +210,49 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
             <div className="flex-1 min-w-0 flex flex-wrap gap-2">
               {paper.authors.map((authorName, idx) => {
                 const author = getAuthorByName(authorName);
-                return (
-                  <div key={idx} className="relative group">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (author) {
-                          onClose(); // Close the carousel first
-                          navigate(`/author/${author.id}`);
-                        }
-                      }}
-                      className={cn(
-                        "text-sm px-2 py-0.5 rounded-full transition-colors",
-                        author
-                          ? "text-primary hover:bg-primary/10 cursor-pointer font-medium"
-                          : "text-foreground cursor-default"
-                      )}
-                    >
+                if (!author) {
+                  return (
+                    <span key={idx} className="text-sm px-2 py-0.5 text-foreground cursor-default">
                       {authorName}
-                    </button>
-                    {author && (
-                      <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block z-50 pointer-events-none">
-                        <div className="bg-popover text-popover-foreground p-3 rounded-lg border shadow-lg min-w-[200px] max-w-[300px]">
-                          <p className="font-semibold text-sm">{author.name}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                    </span>
+                  );
+                }
+                return (
+                  <HoverCard key={idx}>
+                    <HoverCardTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onClose();
+                          navigate(`/author/${author.id}`);
+                        }}
+                        className="text-sm px-2 py-0.5 rounded-full text-primary hover:bg-primary/10 cursor-pointer font-medium transition-colors"
+                      >
+                        {authorName}
+                      </button>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-80 z-[60]" align="start">
+                      <div className="flex justify-between space-x-4">
+                        <Avatar>
+                          <AvatarImage src={author.avatarUrl || undefined} />
+                          <AvatarFallback>{author.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-semibold">{author.name}</h4>
+                          <p className="text-sm text-muted-foreground">
                             {author.affiliations.join(" • ")}
                           </p>
                           {author.stats && (
-                            <div className="text-xs text-muted-foreground mt-2 space-y-0.5">
-                              <p>논문 {author.stats.totalPapers}개</p>
-                              <p>h-index: {author.stats.hIndex}</p>
+                            <div className="flex items-center pt-2">
+                              <span className="text-xs text-muted-foreground">
+                                논문 {author.stats.totalPapers}개 · 인용 {author.stats.totalCitations.toLocaleString()}회
+                              </span>
                             </div>
                           )}
                         </div>
                       </div>
-                    )}
-                  </div>
+                    </HoverCardContent>
+                  </HoverCard>
                 );
               })}
             </div>
