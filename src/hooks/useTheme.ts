@@ -5,6 +5,21 @@ export function useTheme() {
     const { theme, setTheme } = useStore();
 
     useEffect(() => {
+        // Disable transitions temporarily
+        const css = document.createElement('style');
+        css.appendChild(
+            document.createTextNode(
+                `* {
+                    -webkit-transition: none !important;
+                    -moz-transition: none !important;
+                    -o-transition: none !important;
+                    -ms-transition: none !important;
+                    transition: none !important;
+                }`
+            )
+        );
+        document.head.appendChild(css);
+
         const root = document.documentElement;
 
         // Remove both classes first
@@ -20,6 +35,14 @@ export function useTheme() {
             // Apply user's choice
             root.classList.add(theme);
         }
+
+        // Force reflow
+        (() => window.getComputedStyle(document.body))();
+
+        // Wait for next frame to re-enable transitions
+        setTimeout(() => {
+            document.head.removeChild(css);
+        }, 1);
     }, [theme]);
 
     // Listen for system theme changes when theme is set to 'system'
