@@ -39,6 +39,19 @@ interface GomgukStore {
   markAsRead: (paperId: string) => void;
   getAction: (paperId: string) => UserAction | undefined;
 
+  // Filtering
+  hiddenPapers: Record<string, boolean>;
+  blockedAuthors: Record<string, boolean>;
+  excludedTags: Record<string, boolean>;
+  hidePaper: (paperId: string) => void;
+  blockAuthor: (authorId: string) => void;
+  excludeTag: (tag: string) => void;
+  undoHidePaper: (paperId: string) => void;
+
+  // Following
+  followedAuthors: Record<string, boolean>;
+  toggleFollow: (authorId: string) => void;
+
   // Notifications
   notificationsByUser: Record<string, Notification[]>;
   addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => void;
@@ -75,6 +88,37 @@ export const useStore = create<GomgukStore>()(
 
       // Actions
       actionsByUser: {},
+
+      // Filtering
+      hiddenPapers: {},
+      blockedAuthors: {},
+      excludedTags: {},
+      hidePaper: (paperId) => set((state) => ({
+        hiddenPapers: { ...state.hiddenPapers, [paperId]: true }
+      })),
+      undoHidePaper: (paperId) => set((state) => {
+        const { [paperId]: _, ...rest } = state.hiddenPapers;
+        return { hiddenPapers: rest };
+      }),
+      blockAuthor: (authorId) => set((state) => ({
+        blockedAuthors: { ...state.blockedAuthors, [authorId]: true }
+      })),
+      excludeTag: (tag) => set((state) => ({
+        excludedTags: { ...state.excludedTags, [tag]: true }
+      })),
+
+      // Following
+      followedAuthors: {},
+      toggleFollow: (authorId) => set((state) => {
+        const currentFollow = state.followedAuthors[authorId] || false;
+        return {
+          followedAuthors: {
+            ...state.followedAuthors,
+            [authorId]: !currentFollow,
+          }
+        };
+      }),
+
       toggleLike: (paperId) => set((state) => {
         const userKey = getUserActionKey(get().user);
         if (!userKey) {
@@ -236,9 +280,7 @@ export const useStore = create<GomgukStore>()(
       }),
       migrate: (persistedState) => {
         if (persistedState && typeof persistedState === 'object') {
-          const { user: _user, actions: _actions, ...rest } = persistedState as GomgukStore & {
-            actions?: UserAction[];
-          };
+          const { user: _user, actions: _actions, ...rest } = persistedState as Record<string, any>;
           if (!('actionsByUser' in rest)) {
             return { ...rest, actionsByUser: {} } as GomgukStore;
           }
@@ -252,6 +294,10 @@ export const useStore = create<GomgukStore>()(
         notificationsByUser: state.notificationsByUser,
         currentSummaryIndex: state.currentSummaryIndex,
         theme: state.theme,
+        hiddenPapers: state.hiddenPapers,
+        blockedAuthors: state.blockedAuthors,
+        excludedTags: state.excludedTags,
+        followedAuthors: state.followedAuthors,
       }),
     }
   )

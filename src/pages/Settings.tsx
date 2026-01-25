@@ -83,6 +83,7 @@ export default function Settings() {
   const [showAvatarDialog, setShowAvatarDialog] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (prefs?.dailyCount) {
@@ -141,6 +142,20 @@ export default function Settings() {
   const handleLogout = () => {
     clearStoredUser();
     setUser(null);
+    navigate("/login");
+  };
+
+  const handleDeleteAccount = () => {
+    // Clear all user data
+    clearStoredUser();
+    setUser(null);
+    setPrefs(null);
+
+    // Clear localStorage and sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Redirect to login
     navigate("/login");
   };
 
@@ -436,8 +451,8 @@ export default function Settings() {
               <button
                 onClick={() => setTheme('light')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'light'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
                   }`}
               >
                 <Sun className={`w-5 h-5 ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -449,8 +464,8 @@ export default function Settings() {
               <button
                 onClick={() => setTheme('dark')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'dark'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
                   }`}
               >
                 <Moon className={`w-5 h-5 ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -462,8 +477,8 @@ export default function Settings() {
               <button
                 onClick={() => setTheme('system')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'system'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
                   }`}
               >
                 <Laptop className={`w-5 h-5 ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -543,6 +558,14 @@ export default function Settings() {
               <LogOut className="w-4 h-4 mr-2" />
               로그아웃
             </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <User className="w-4 h-4 mr-2" />
+              계정 삭제
+            </Button>
           </CardContent>
         </Card>
 
@@ -559,6 +582,43 @@ export default function Settings() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 계정 삭제 Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive">계정 삭제</DialogTitle>
+            <DialogDescription>
+              정말로 계정을 삭제하시겠습니까?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 space-y-2">
+              <p className="text-sm font-semibold text-destructive">⚠️ 주의사항</p>
+              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                <li>모든 사용자 데이터가 영구적으로 삭제됩니다</li>
+                <li>좋아요, 저장, 읽은 논문 기록이 모두 사라집니다</li>
+                <li>관심 분야 및 설정이 초기화됩니다</li>
+                <li>이 작업은 되돌릴 수 없습니다</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                handleDeleteAccount();
+                setShowDeleteDialog(false);
+              }}
+            >
+              계정 삭제
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

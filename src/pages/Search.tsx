@@ -1,10 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Search as SearchIcon, X, SlidersHorizontal } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useSearchParams } from "react-router-dom";
-import { Search as SearchIcon, SlidersHorizontal } from "lucide-react";
-import { papers, allTags } from "@/data/papers";
+import { useQuery } from "@tanstack/react-query";
+import { papersApi, tagsApi } from "@/api";
 import { PaperCard } from "@/components/PaperCard";
 import { TagChip } from "@/components/TagChip";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
+import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
 import {
   Select,
   SelectContent,
@@ -21,7 +25,19 @@ export default function SearchPage() {
   const initialTag = searchParams.get("tag") || "";
 
   const [query, setQuery] = useState("");
-  const selectedTag = searchParams.get("tag") || "";
+  // Fetch papers and tags from API
+  const { data: papers = [], isLoading: papersLoading } = useQuery({
+    queryKey: ['papers'],
+    queryFn: () => papersApi.getPapers(),
+  });
+
+  const { data: tagsData = [], isLoading: tagsLoading } = useQuery({
+    queryKey: ['tags'],
+    queryFn: () => tagsApi.getTags(),
+  });
+
+  const allTags = useMemo(() => tagsData.map(t => t.name), [tagsData]);
+  const [selectedTag, setSelectedTag] = useState(initialTag);
   const [sortMode, setSortMode] = useState<SortMode>("trending");
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
@@ -31,6 +47,14 @@ export default function SearchPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Sync selectedTag with URL parameter
+  useEffect(() => {
+    const tagFromUrl = searchParams.get("tag") || "";
+    if (tagFromUrl !== selectedTag) {
+      setSelectedTag(tagFromUrl);
+    }
+  }, [searchParams, selectedTag]);
 
   const filteredPapers = useMemo(() => {
     let result = [...papers];
@@ -165,10 +189,16 @@ export default function SearchPage() {
             <h2 className="font-display font-semibold text-sm text-muted-foreground">
               {query || selectedTag ? "검색 결과" : "전체 논문"}
             </h2>
-            <span className="text-xs text-muted-foreground">{filteredPapers.length}개</span>
+            <span className="text-xs text-muted-foreground">{papersLoading ? "..." : `${filteredPapers.length}개`}</span>
           </div>
 
-          {filteredPapers.length > 0 ? (
+          {papersLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <PaperCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filteredPapers.length > 0 ? (
             <div className="space-y-4">
               {filteredPapers.map((paper, index) => (
                 <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
