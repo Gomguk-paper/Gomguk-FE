@@ -25,7 +25,8 @@ export function RightSidebar() {
         queryFn: () => tagsApi.getTrendingTags({ limit: 20 }),
     });
 
-    const allTrendingTags = trendingTagsData.map(t => ({ tag: t.name, count: t.count || 0 }));
+    const safeTrendingTags = Array.isArray(trendingTagsData) ? trendingTagsData : [];
+    const allTrendingTags = safeTrendingTags.map(t => ({ tag: t.name, count: t.count || 0 }));
     const trendingTags = showAllTrends ? allTrendingTags : allTrendingTags.slice(0, 5);
 
     // Fetch recommended authors from API
@@ -35,7 +36,8 @@ export function RightSidebar() {
     });
 
     // Transform authors to match the component's expected format
-    const recommendedAuthors = authors.map(author => ({
+    const safeAuthors = Array.isArray(authors) ? authors : [];
+    const recommendedAuthors = safeAuthors.map(author => ({
         id: author.id,
         name: author.name,
         handle: `@${author.id}`,

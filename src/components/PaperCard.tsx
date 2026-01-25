@@ -4,7 +4,28 @@ import {
   HelpCircle,
   FileText,
   ChevronUp,
+  MoreVertical,
+  Ban,
+  EyeOff,
+  Hash,
+  Undo,
+  Sparkles,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
 import { Paper, summaries } from "@/data/papers";
 import { useStore } from "@/store/useStore";
 import { TagChip } from "./TagChip";
@@ -23,7 +44,21 @@ interface PaperCardProps {
 }
 
 export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
-  const { user, getAction, toggleLike, toggleSave } = useStore();
+  const {
+    user,
+    getAction,
+    toggleLike,
+    toggleSave,
+    hidePaper,
+    blockAuthor,
+    excludeTag,
+    hiddenPapers,
+    blockedAuthors,
+    excludedTags,
+    undoHidePaper
+  } = useStore();
+
+  const [showHideUndo, setShowHideUndo] = useState(false);
   const [showWhyModal, setShowWhyModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAbstract, setShowAbstract] = useState(false);
@@ -61,6 +96,34 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
       onOpenSummary();
     }
   };
+
+  const isHidden = hiddenPapers[paper.id];
+  const isBlockedAuthor = paper.authors.some(author => blockedAuthors[author]);
+  const isExcludedTag = paper.tags.some(tag => excludedTags[tag]);
+
+  if (isHidden) {
+    return (
+      <div className="bg-muted/50 rounded-lg border p-4 flex items-center justify-between animate-in fade-in duration-300">
+        <span className="text-sm text-muted-foreground">논문이 숨겨졌습니다.</span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            undoHidePaper(paper.id);
+          }}
+          className="gap-1 h-8"
+        >
+          <Undo className="w-3 h-3" />
+          실행 취소
+        </Button>
+      </div>
+    );
+  }
+
+  if (isBlockedAuthor || isExcludedTag) {
+    return null;
+  }
 
   return (
     <>
@@ -100,36 +163,106 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
         )}
 
         {/* Content Section */}
-        <div className="flex-1 flex flex-col gap-3 p-4 md:p-0">
-          {/* Header: Tags & Why */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-wrap gap-1.5">
-              {paper.tags.slice(0, UI_CONSTANTS.PAPER.MAX_DISPLAYED_TAGS).map((tag) => (
-                <TagChip key={tag} tag={tag} size="sm" />
-              ))}
+        <div className="flex-1 flex flex-col p-4 md:p-0">
+
+          {/* Header: Title & Actions & Why */}
+          <div className="flex justify-between items-start gap-2 mb-1">
+            <div className="flex-1">
+              <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors mb-1">
+                {paper.title}
+              </h3>
+              <div className="text-xs text-muted-foreground mb-2">
+                {paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && " et al."}
+                <span className="mx-1.5">·</span>
+                {paper.year}
+                <span className="mx-1.5">·</span>
+                {paper.venue}
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground text-xs gap-1 h-7"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowWhyModal(true);
-              }}
-            >
-              <HelpCircle className="w-3.5 h-3.5" />왜 추천?
-            </Button>
+
+            <div className="flex items-center gap-1 -mr-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-amber-500 hover:text-amber-600 hover:bg-amber-100/50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowWhyModal(true);
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4 fill-current" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="end" className="text-xs max-w-[200px]">
+                  <p>이 논문은 최근 읽은 Transformer 관련 논문들과 유사하여 추천되었습니다.</p>
+                  <p className="mt-1 text-[10px] text-muted-foreground font-semibold cursor-pointer underline">자세히 보기</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => e.stopPropagation()}>
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    hidePaper(paper.id);
+                  }}>
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    이 논문 숨기기
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Ban className="w-4 h-4 mr-2" />
+                      저자 차단
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {paper.authors.map(author => (
+                        <DropdownMenuItem key={author} onClick={(e) => {
+                          e.stopPropagation();
+                          blockAuthor(author);
+                        }}>
+                          {author}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Hash className="w-4 h-4 mr-2" />
+                      관심 없는 주제
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {paper.tags.map(tag => (
+                        <DropdownMenuItem key={tag} onClick={(e) => {
+                          e.stopPropagation();
+                          excludeTag(tag);
+                        }}>
+                          {tag}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
-          <div className="space-y-1">
-            {/* Title */}
-            <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors">
-              {paper.title}
-            </h3>
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {paper.tags.slice(0, UI_CONSTANTS.PAPER.MAX_DISPLAYED_TAGS).map((tag) => (
+              <TagChip key={tag} tag={tag} size="sm" />
+            ))}
+          </div>
 
+          <div className="space-y-1 mb-auto">
             {/* Hook summary */}
             {summary && (
-              <p className="text-sm text-muted-foreground leading-relaxed">💡 {summary.hookOneLiner}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-2">💡 {summary.hookOneLiner}</p>
             )}
           </div>
 
@@ -198,7 +331,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             {/* Secondary Actions (PDF/요약) */}
             <div className="flex items-center gap-2">
               {paper.pdfUrl && (
-                <Button variant="outline" size="sm" className="text-xs min-h-touch" asChild>
+                <Button variant="ghost" size="sm" className="text-xs min-h-touch text-muted-foreground hover:text-foreground" asChild>
                   <a
                     href={paper.pdfUrl}
                     target="_blank"
@@ -206,7 +339,6 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                     onClick={(e) => e.stopPropagation()}
                     aria-label="PDF 원문 보기 (새 탭에서 열림)"
                   >
-                    <FileText className="w-4 h-4 mr-1.5" />
                     PDF
                   </a>
                 </Button>
@@ -214,7 +346,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               <Button
                 variant="default"
                 size="sm"
-                className="text-xs min-h-touch"
+                className="text-xs min-h-touch bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (onOpenSummary) onOpenSummary();
@@ -225,7 +357,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             </div>
           </div>
           {!canUseActions && authMessage && (
-            <p className="text-xs text-muted-foreground">{authMessage}</p>
+            <p className="text-xs text-muted-foreground mt-2">{authMessage}</p>
           )}
         </div>
       </article>

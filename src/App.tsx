@@ -86,6 +86,8 @@ import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { RightSidebar } from "@/components/RightSidebar";
 import { useTheme } from "@/hooks/useTheme";
 
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+
 const AppLayout = () => {
   const { prefs } = useStore();
   const layoutMode = prefs?.layoutMode || "auto";
@@ -104,7 +106,11 @@ const AppLayout = () => {
   return (
     <div className="flex min-h-screen justify-center bg-background">
       {/* Left Sidebar */}
-      {!isMobileMode && <DesktopSidebar />}
+      {!isMobileMode && (
+        <ErrorBoundary>
+          <DesktopSidebar />
+        </ErrorBoundary>
+      )}
 
       {/* Main Content */}
       <div
@@ -112,20 +118,28 @@ const AppLayout = () => {
           ${isMobileMode ? "max-w-[480px] border-x-0" : "max-w-[672px] lg:max-w-4xl"}
         `}
       >
-        <AppRoutes />
+        <ErrorBoundary>
+          <AppRoutes />
+        </ErrorBoundary>
 
         {/* Bottom Nav: Visible on mobile OR if Mobile Mode is forced */}
         {/* If isMobileMode is true, we render BottomNav without md:hidden */}
         {/* If auto, we keep md:hidden. If desktop, we hide it completely */}
         {(!isDesktopMode) && (
           <div className={isMobileMode ? "block" : "md:hidden"}>
-            <BottomNav />
+            <ErrorBoundary>
+              <BottomNav />
+            </ErrorBoundary>
           </div>
         )}
       </div>
 
       {/* Right Sidebar */}
-      {!isMobileMode && <RightSidebar />}
+      {!isMobileMode && (
+        <ErrorBoundary>
+          <RightSidebar />
+        </ErrorBoundary>
+      )}
     </div>
   );
 };
@@ -136,7 +150,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AppLayout />
+        <ErrorBoundary>
+          <AppLayout />
+        </ErrorBoundary>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
