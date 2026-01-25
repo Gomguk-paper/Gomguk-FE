@@ -62,39 +62,25 @@ export function LoginForm({
   };
 
   const handleLogin = async (provider: AuthProvider) => {
-    if (authStatus === "loading") return;
-    setAuthStatus("loading");
-    setLoadingProvider(provider);
-    console.log(`login_click_${provider}`);
-    const attemptId = ++loginAttemptRef.current;
+    // HARDCODED LOGIN: 요청에 따라 강제 로그인 처리
+    console.log("Force logging in...");
+    const user = {
+      id: "test-user-id",
+      name: "테스트 유저",
+      provider: provider,
+      createdAt: new Date().toISOString(),
+    };
 
-    try {
-      // Simulate an auth round-trip so leaving mid-flow doesn't mark the user as logged in.
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      if (!isMountedRef.current || attemptId !== loginAttemptRef.current) {
-        return;
-      }
-      const user = createMockUser(provider);
-      if (rememberMe) {
-        setStoredUser(user);
-      } else {
-        clearStoredUser();
-      }
-      setUser(user);
-      setAuthStatus("authenticated");
-      onSuccess?.();
-    } catch (error) {
-      setAuthStatus("error");
-      toast({
-        title: "로그인에 실패했어요",
-        description: "잠시 후 다시 시도해주세요.",
-      });
-      onError?.();
-    } finally {
-      if (isMountedRef.current && attemptId === loginAttemptRef.current) {
-        setLoadingProvider(null);
-      }
+    // 상태 저장
+    if (rememberMe) {
+      setStoredUser(user);
+    } else {
+      clearStoredUser();
     }
+
+    // Store 업데이트 및 성공 콜백
+    setUser(user);
+    onSuccess?.();
   };
 
   const isLoading = authStatus === "loading";
