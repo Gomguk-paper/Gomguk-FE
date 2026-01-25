@@ -1,8 +1,17 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Search, User, Settings, LogOut, LogIn, BookOpen } from "lucide-react";
+import { Home, Search, User, Settings, LogOut, LogIn, BookOpen, Moon, Sun, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
 import { clearStoredUser } from "@/lib/authStorage";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
+import { useTheme } from "@/hooks/useTheme";
 
 const navItems = [
     { to: "/", icon: Home, label: "홈" },
@@ -14,6 +23,7 @@ const navItems = [
 export function DesktopSidebar() {
     const location = useLocation();
     const { user, setUser } = useStore();
+    const { resolvedTheme, toggleTheme } = useTheme();
 
     // Hide on login and onboarding pages
     if (location.pathname === "/login" || location.pathname === "/onboarding") {
@@ -46,7 +56,7 @@ export function DesktopSidebar() {
                             key={to}
                             to={to}
                             className={cn(
-                                "flex items-center gap-4 px-4 py-3 rounded-full transition-colors text-lg",
+                                "flex items-center gap-4 px-4 py-3 rounded-full text-lg",
                                 isActive
                                     ? "font-bold text-primary bg-secondary/50"
                                     : "text-foreground hover:bg-secondary/30"
@@ -62,24 +72,41 @@ export function DesktopSidebar() {
             {/* User Area / Auth Actions */}
             <div className="p-4 border-t">
                 {user ? (
-                    <div className="flex items-center justify-between p-3 rounded-full hover:bg-secondary/30 cursor-pointer group">
-                        <div className="flex items-center gap-3 overflow-hidden">
-                            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-lg font-bold shrink-0">
-                                {user.name?.[0] || "U"}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <div className="flex items-center justify-between p-3 rounded-full hover:bg-secondary/30 cursor-pointer group outline-none">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-lg font-bold shrink-0">
+                                        {user.name?.[0] || "U"}
+                                    </div>
+                                    <div className="flex flex-col truncate text-left">
+                                        <span className="font-bold text-sm truncate">{user.name || "사용자"}</span>
+                                        <span className="text-xs text-muted-foreground truncate capitalize">{user.provider} Account</span>
+                                    </div>
+                                </div>
+                                <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
                             </div>
-                            <div className="flex flex-col truncate">
-                                <span className="font-bold text-sm truncate">{user.name || "사용자"}</span>
-                                <span className="text-xs text-muted-foreground truncate capitalize">{user.provider} Account</span>
-                            </div>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                            title="로그아웃"
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </button>
-                    </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56 mb-2" side="top" align="center">
+                            <DropdownMenuItem className="focus:bg-transparent focus:text-foreground" onSelect={(e) => e.preventDefault()}>
+                                <div className="flex items-center justify-between w-full">
+                                    <span className="flex items-center gap-2 font-medium">
+                                        {resolvedTheme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                                        다크 모드
+                                    </span>
+                                    <Switch
+                                        checked={resolvedTheme === 'dark'}
+                                        onCheckedChange={toggleTheme}
+                                    />
+                                </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleLogout} className="focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                                <LogOut className="w-4 h-4 mr-2" />
+                                로그아웃
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 ) : (
                     <NavLink
                         to="/login"

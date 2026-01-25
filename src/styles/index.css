@@ -4,8 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Gomguk Design System - Academic/Professional Theme */
-
 @layer base {
   :root {
     /* Academic Navy Theme */
@@ -243,4 +241,8 @@
   .mobile-content-padding {
     padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
   }
+}
+
+.transition-colors {
+  transition: none !important;
 }
