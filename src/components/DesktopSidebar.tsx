@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Search, User, Settings, LogOut, LogIn, BookOpen } from "lucide-react";
+import { Home, Search, User, Settings, LogOut, LogIn, BookOpen, Moon, Sun, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
 import { clearStoredUser } from "@/lib/authStorage";
@@ -58,7 +58,7 @@ export function DesktopSidebar() {
                             key={to}
                             to={to}
                             className={cn(
-                                "flex items-center gap-4 px-4 py-3 rounded-full transition-colors text-lg",
+                                "flex items-center gap-4 px-4 py-3 rounded-full text-lg",
                                 isActive
                                     ? "font-bold text-primary bg-secondary/50"
                                     : "text-foreground hover:bg-secondary/30"

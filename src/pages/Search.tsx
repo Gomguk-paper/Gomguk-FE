@@ -24,7 +24,6 @@ export default function SearchPage() {
   const initialTag = searchParams.get("tag") || "";
 
   const [query, setQuery] = useState("");
-
   // Fetch papers and tags from API
   const { data: papers = [], isLoading: papersLoading } = useQuery({
     queryKey: ['papers'],
@@ -99,10 +98,8 @@ export default function SearchPage() {
 
   const handleTagClick = (tag: string) => {
     if (selectedTag === tag) {
-      setSelectedTag("");
       setSearchParams({});
     } else {
-      setSelectedTag(tag);
       setSearchParams({ tag });
     }
   };

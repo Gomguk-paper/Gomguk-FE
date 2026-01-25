@@ -298,7 +298,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           </Collapsible>
 
           {/* Actions */}
-          <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0">
+          <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}
             <div className="flex items-center gap-1 flex-1">
               <Button
