@@ -20,7 +20,7 @@ export default function SearchPage() {
   const initialTag = searchParams.get("tag") || "";
 
   const [query, setQuery] = useState("");
-  const [selectedTag, setSelectedTag] = useState(initialTag);
+  const selectedTag = searchParams.get("tag") || "";
   const [sortMode, setSortMode] = useState<SortMode>("trending");
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
@@ -68,10 +68,8 @@ export default function SearchPage() {
 
   const handleTagClick = (tag: string) => {
     if (selectedTag === tag) {
-      setSelectedTag("");
       setSearchParams({});
     } else {
-      setSelectedTag(tag);
       setSearchParams({ tag });
     }
   };
