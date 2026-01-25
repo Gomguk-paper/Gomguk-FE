@@ -1,10 +1,14 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Search as SearchIcon, X, SlidersHorizontal } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useSearchParams } from "react-router-dom";
-import { Search as SearchIcon, SlidersHorizontal } from "lucide-react";
-import { papers, allTags } from "@/data/papers";
+import { useQuery } from "@tanstack/react-query";
+import { papersApi, tagsApi } from "@/api";
 import { PaperCard } from "@/components/PaperCard";
 import { TagChip } from "@/components/TagChip";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
+import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
 import {
   Select,
   SelectContent,
@@ -12,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 type SortMode = "trending" | "recent" | "personalized";
 
@@ -20,10 +25,36 @@ export default function SearchPage() {
   const initialTag = searchParams.get("tag") || "";
 
   const [query, setQuery] = useState("");
+  // Fetch papers and tags from API
+  const { data: papers = [], isLoading: papersLoading } = useQuery({
+    queryKey: ['papers'],
+    queryFn: () => papersApi.getPapers(),
+  });
+
+  const { data: tagsData = [], isLoading: tagsLoading } = useQuery({
+    queryKey: ['tags'],
+    queryFn: () => tagsApi.getTags(),
+  });
+
+  const allTags = useMemo(() => tagsData.map(t => t.name), [tagsData]);
   const [selectedTag, setSelectedTag] = useState(initialTag);
   const [sortMode, setSortMode] = useState<SortMode>("trending");
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
+
+  // Always scroll to top for search page (disable restoration)
+  useScrollRestoration('search', false);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Sync selectedTag with URL parameter
+  useEffect(() => {
+    const tagFromUrl = searchParams.get("tag") || "";
+    if (tagFromUrl !== selectedTag) {
+      setSelectedTag(tagFromUrl);
+    }
+  }, [searchParams, selectedTag]);
 
   const filteredPapers = useMemo(() => {
     let result = [...papers];
@@ -31,17 +62,18 @@ export default function SearchPage() {
     // Filter by search query
     if (query) {
       const q = query.toLowerCase();
-      result = result.filter(p =>
-        p.title.toLowerCase().includes(q) ||
-        p.abstract.toLowerCase().includes(q) ||
-        p.tags.some(t => t.toLowerCase().includes(q))
+      result = result.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.abstract.toLowerCase().includes(q) ||
+          p.tags.some((t) => t.toLowerCase().includes(q))
       );
     }
 
     // Filter by selected tag
     if (selectedTag) {
-      result = result.filter(p =>
-        p.tags.some(t => t.toLowerCase() === selectedTag.toLowerCase())
+      result = result.filter((p) =>
+        p.tags.some((t) => t.toLowerCase() === selectedTag.toLowerCase())
       );
     }
 
@@ -51,8 +83,11 @@ export default function SearchPage() {
         case "recent":
           return b.metrics.recencyScore - a.metrics.recencyScore;
         case "personalized":
-          return (b.metrics.trendingScore + b.metrics.recencyScore) -
-            (a.metrics.trendingScore + a.metrics.recencyScore);
+          return (
+            b.metrics.trendingScore +
+            b.metrics.recencyScore -
+            (a.metrics.trendingScore + a.metrics.recencyScore)
+          );
         case "trending":
         default:
           return b.metrics.trendingScore - a.metrics.trendingScore;
@@ -64,10 +99,8 @@ export default function SearchPage() {
 
   const handleTagClick = (tag: string) => {
     if (selectedTag === tag) {
-      setSelectedTag("");
       setSearchParams({});
     } else {
-      setSelectedTag(tag);
       setSearchParams({ tag });
     }
   };
@@ -81,7 +114,7 @@ export default function SearchPage() {
   const trendingTags = allTags.slice(0, 8);
 
   const renderSearchHeader = () => (
-    <div className="space-y-3">
+    <div className="space-y-3 px-4">
       {/* Search Input */}
       <div className="relative">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -109,11 +142,7 @@ export default function SearchPage() {
         </Select>
 
         {selectedTag && (
-          <TagChip
-            tag={selectedTag}
-            selected
-            onClick={() => handleTagClick(selectedTag)}
-          />
+          <TagChip tag={selectedTag} selected onClick={() => handleTagClick(selectedTag)} />
         )}
       </div>
     </div>
@@ -131,18 +160,18 @@ export default function SearchPage() {
       <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Desktop Header Area - Hidden on Mobile */}
         <div className="hidden md:block p-4">
-          <h1 className="text-2xl font-bold mb-4 font-display">검색 및 탐색</h1>
+          <h1 className="text-2xl font-bold mb-4 font-display px-4">검색 및 탐색</h1>
           {renderSearchHeader()}
         </div>
 
         {/* Popular Tags */}
         {!query && !selectedTag && (
           <section className="p-4 pt-0">
-            <h2 className="font-display font-semibold text-sm text-muted-foreground mb-3">
+            <h2 className="font-display font-semibold text-sm text-muted-foreground mb-3 py-4 md:py-0">
               인기 태그
             </h2>
             <div className="flex flex-wrap gap-2">
-              {trendingTags.map(tag => (
+              {trendingTags.map((tag) => (
                 <TagChip
                   key={tag}
                   tag={tag}
@@ -160,19 +189,19 @@ export default function SearchPage() {
             <h2 className="font-display font-semibold text-sm text-muted-foreground">
               {query || selectedTag ? "검색 결과" : "전체 논문"}
             </h2>
-            <span className="text-xs text-muted-foreground">
-              {filteredPapers.length}개
-            </span>
+            <span className="text-xs text-muted-foreground">{papersLoading ? "..." : `${filteredPapers.length}개`}</span>
           </div>
 
-          {filteredPapers.length > 0 ? (
+          {papersLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <PaperCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filteredPapers.length > 0 ? (
             <div className="space-y-4">
               {filteredPapers.map((paper, index) => (
-                <PaperCard
-                  key={paper.id}
-                  paper={paper}
-                  onOpenSummary={() => openCarousel(index)}
-                />
+                <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
               ))}
             </div>
           ) : (

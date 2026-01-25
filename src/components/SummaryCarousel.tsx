@@ -1,10 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, X, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, TrendingUp, Award } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Paper, summaries } from "@/data/papers";
+import { getAuthorByName } from "@/data/authors";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface SummaryCarouselProps {
   papers: Paper[];
@@ -19,6 +27,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   const [currentPaperIndex, setCurrentPaperIndex] = useState(initialIndex);
   const [currentStep, setCurrentStep] = useState<SummaryStep>("hook");
   const { markAsRead } = useStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (open) {
@@ -191,79 +200,145 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         </div>
 
         {/* Title */}
-        <h2 className="font-display text-xl font-semibold mb-6 text-foreground">{paper.title}</h2>
+        <h2 className="font-display text-xl font-semibold mb-4 text-foreground">{paper.title}</h2>
 
-        {/* Step indicator */}
-        <div className="flex gap-2 mb-4">
-          {steps.map((step, i) => (
-            <button
-              key={step}
-              onClick={(e) => {
-                e.stopPropagation(); // 부모의 onClick(goNext) 방지
-                goToStep(step);
-              }}
-              className={cn(
-                "h-1 flex-1 rounded-full transition-all cursor-pointer hover:h-1.5",
-                i <= stepIndex ? "bg-primary" : "bg-muted"
-              )}
-              aria-label={`${step === "hook" ? "한줄 요약" : step === "keypoints" ? "핵심 포인트" : "상세 설명"} 단계로 이동`}
-            />
-          ))}
+        {/* Paper Metadata */}
+        <div className="space-y-3 mb-6 p-4 bg-secondary/30 rounded-lg border">
+          {/* Authors */}
+          <div className="flex items-start gap-2">
+            <Users className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0 flex flex-wrap gap-2">
+              {paper.authors.map((authorName, idx) => {
+                const author = getAuthorByName(authorName);
+                if (!author) {
+                  return (
+                    <span key={idx} className="text-sm px-2 py-0.5 text-foreground cursor-default">
+                      {authorName}
+                    </span>
+                  );
+                }
+                return (
+                  <HoverCard key={idx}>
+                    <HoverCardTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onClose();
+                          navigate(`/author/${author.id}`);
+                        }}
+                        className="text-sm px-2 py-0.5 rounded-full text-primary hover:bg-primary/10 cursor-pointer font-medium transition-colors"
+                      >
+                        {authorName}
+                      </button>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-80 z-[60]" align="start">
+                      <div className="flex justify-between space-x-4">
+                        <Avatar>
+                          <AvatarImage src={author.avatarUrl || undefined} />
+                          <AvatarFallback>{author.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-semibold">{author.name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {author.affiliations.join(" • ")}
+                          </p>
+                          {author.stats && (
+                            <div className="flex items-center pt-2">
+                              <span className="text-xs text-muted-foreground">
+                                논문 {author.stats.totalPapers}개 · 인용 {author.stats.totalCitations.toLocaleString()}회
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Publication Info */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{paper.year}</span>
+            </div>
+            {paper.venue && (
+              <div className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-medium">
+                {paper.venue}
+              </div>
+            )}
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                인용 {paper.metrics.citations.toLocaleString()}회
+              </span>
+            </div>
+          </div>
+
+          {/* Metrics */}
+          <div className="flex items-center gap-2">
+            <div className="px-2 py-1 bg-accent/10 text-accent text-xs rounded-full font-medium flex items-center gap-1">
+              <Award className="w-3 h-3" />
+              트렌딩 {paper.metrics.trendingScore.toFixed(1)}
+            </div>
+            <div className="px-2 py-1 bg-secondary text-muted-foreground text-xs rounded-full font-medium">
+              최신도 {paper.metrics.recencyScore.toFixed(1)}
+            </div>
+          </div>
         </div>
 
-        {/* Summary content based on step */}
-        <div className="flex-1 overflow-y-auto">
-          {currentStep === "hook" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                한줄 요약
-              </span>
-              <p className="text-2xl font-display font-medium mt-3 leading-relaxed">
-                💡 {summary.hookOneLiner}
-              </p>
-            </div>
-          )}
+        {/* Summary content - all sections visible at once */}
+        <div className="flex-1 overflow-y-auto space-y-6">
+          {/* 한줄 요약 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              한줄 요약
+            </span>
+            <p className="text-2xl font-display font-medium mt-3 leading-relaxed">
+              💡 {summary.hookOneLiner}
+            </p>
+          </div>
 
-          {currentStep === "keypoints" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                핵심 포인트
-              </span>
-              <ul className="mt-4 space-y-3">
-                {summary.keyPoints.map((point, i) => (
-                  <li
-                    key={i}
-                    className="flex gap-3 items-start text-lg"
-                    style={{ animationDelay: `${i * 100}ms` }}
-                  >
-                    <span className="text-primary font-bold">{i + 1}.</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {/* 핵심 포인트 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              핵심 포인트
+            </span>
+            <ul className="mt-4 space-y-3">
+              {summary.keyPoints.map((point, i) => (
+                <li
+                  key={i}
+                  className="flex gap-3 items-start text-lg"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <span className="text-primary font-bold">{i + 1}.</span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          {currentStep === "detailed" && (
-            <div className="animate-fade-in">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                상세 설명
+          {/* 상세 설명 */}
+          <div className="animate-fade-in">
+            <span className="text-xs font-medium text-primary uppercase tracking-wide">
+              상세 설명
+            </span>
+            <p className="mt-4 text-base leading-relaxed text-foreground/90">
+              {summary.detailed}
+            </p>
+            <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
+              <span className="text-xs text-muted-foreground">
+                📚 요약 근거:{" "}
+                {summary.evidenceScope === "full"
+                  ? "전체 논문"
+                  : summary.evidenceScope === "intro"
+                    ? "서론 기반"
+                    : "초록 기반"}
               </span>
-              <p className="mt-4 text-base leading-relaxed text-foreground/90">
-                {summary.detailed}
-              </p>
-              <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
-                <span className="text-xs text-muted-foreground">
-                  📚 요약 근거:{" "}
-                  {summary.evidenceScope === "full"
-                    ? "전체 논문"
-                    : summary.evidenceScope === "intro"
-                      ? "서론 기반"
-                      : "초록 기반"}
-                </span>
-              </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Navigation hint */}

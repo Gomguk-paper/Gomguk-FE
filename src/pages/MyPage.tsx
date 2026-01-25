@@ -1,6 +1,15 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Heart, Bookmark, History, ChevronRight, Calendar, BarChart3, TrendingUp } from "lucide-react";
+import {
+  Settings,
+  Heart,
+  Bookmark,
+  History,
+  ChevronRight,
+  Calendar,
+  BarChart3,
+  TrendingUp,
+} from "lucide-react";
 import { papers } from "@/data/papers";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
@@ -19,15 +28,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { clearStoredUser } from "@/lib/authStorage";
-import { format, isToday, isThisWeek, isThisMonth, parseISO, startOfDay, startOfWeek, startOfMonth, eachDayOfInterval, subDays, subWeeks, subMonths } from "date-fns";
+import {
+  format,
+  isToday,
+  isThisWeek,
+  isThisMonth,
+  parseISO,
+  startOfDay,
+  startOfWeek,
+  startOfMonth,
+  eachDayOfInterval,
+  subDays,
+  subWeeks,
+  subMonths,
+} from "date-fns";
 import { ko } from "date-fns/locale/ko";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 export default function MyPage() {
   const navigate = useNavigate();
   const { user, actionsByUser, prefs, setUser } = useStore();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const userKey = user?.provider ?? null;
-  const actions = userKey ? actionsByUser[userKey] ?? [] : [];
+  const actions = userKey ? (actionsByUser[userKey] ?? []) : [];
+
+  // Restore scroll position when navigating back to this page
+  useScrollRestoration('mypage');
 
   // 로그인하지 않은 사용자가 마이페이지에 접근하면 모달 표시
   useEffect(() => {
@@ -37,13 +63,13 @@ export default function MyPage() {
   }, [user]);
 
   const likedPapers = useMemo(() => {
-    const likedIds = actions.filter(a => a.liked).map(a => a.paperId);
-    return papers.filter(p => likedIds.includes(p.id));
+    const likedIds = actions.filter((a) => a.liked).map((a) => a.paperId);
+    return papers.filter((p) => likedIds.includes(p.id));
   }, [actions]);
 
   const savedPapers = useMemo(() => {
-    const savedIds = actions.filter(a => a.saved).map(a => a.paperId);
-    return papers.filter(p => savedIds.includes(p.id));
+    const savedIds = actions.filter((a) => a.saved).map((a) => a.paperId);
+    return papers.filter((p) => savedIds.includes(p.id));
   }, [actions]);
 
   type DateFilter = "all" | "today" | "week" | "month";
@@ -51,16 +77,21 @@ export default function MyPage() {
 
   // 읽은 논문을 날짜 정보와 함께 가져오기
   const readPapersWithDate = useMemo(() => {
-    const readActions = actions.filter(a => a.readAt);
-    return readActions.map(action => {
-      const paper = papers.find(p => p.id === action.paperId);
-      if (!paper) return null;
-      return {
-        paper,
-        readAt: action.readAt!,
-        readDate: parseISO(action.readAt!),
-      };
-    }).filter((item): item is { paper: typeof papers[0]; readAt: string; readDate: Date } => item !== null);
+    const readActions = actions.filter((a) => a.readAt);
+    return readActions
+      .map((action) => {
+        const paper = papers.find((p) => p.id === action.paperId);
+        if (!paper) return null;
+        return {
+          paper,
+          readAt: action.readAt!,
+          readDate: parseISO(action.readAt!),
+        };
+      })
+      .filter(
+        (item): item is { paper: (typeof papers)[0]; readAt: string; readDate: Date } =>
+          item !== null
+      );
   }, [actions]);
 
   // 날짜 필터 적용
@@ -68,11 +99,11 @@ export default function MyPage() {
     let filtered = [...readPapersWithDate];
 
     if (dateFilter === "today") {
-      filtered = filtered.filter(item => isToday(item.readDate));
+      filtered = filtered.filter((item) => isToday(item.readDate));
     } else if (dateFilter === "week") {
-      filtered = filtered.filter(item => isThisWeek(item.readDate));
+      filtered = filtered.filter((item) => isThisWeek(item.readDate));
     } else if (dateFilter === "month") {
-      filtered = filtered.filter(item => isThisMonth(item.readDate));
+      filtered = filtered.filter((item) => isThisMonth(item.readDate));
     }
 
     // 최신순 정렬
@@ -83,7 +114,7 @@ export default function MyPage() {
   const groupedReadPapers = useMemo(() => {
     const groups: Record<string, typeof filteredReadPapers> = {};
 
-    filteredReadPapers.forEach(item => {
+    filteredReadPapers.forEach((item) => {
       const dateKey = format(startOfDay(item.readDate), "yyyy-MM-dd");
       if (!groups[dateKey]) {
         groups[dateKey] = [];
@@ -96,8 +127,8 @@ export default function MyPage() {
   }, [filteredReadPapers]);
 
   const readPapers = useMemo(() => {
-    const readIds = actions.filter(a => a.readAt).map(a => a.paperId);
-    return papers.filter(p => readIds.includes(p.id));
+    const readIds = actions.filter((a) => a.readAt).map((a) => a.paperId);
+    return papers.filter((p) => readIds.includes(p.id));
   }, [actions]);
 
   // 주별 읽기 통계
@@ -111,7 +142,7 @@ export default function MyPage() {
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekEnd.getDate() + 6);
 
-      const count = readPapersWithDate.filter(item => {
+      const count = readPapersWithDate.filter((item) => {
         const readDate = item.readDate;
         return readDate >= weekStart && readDate <= weekEnd;
       }).length;
@@ -130,7 +161,7 @@ export default function MyPage() {
     const tagCounts: Record<string, number> = {};
 
     readPapersWithDate.forEach(({ paper }) => {
-      paper.tags.forEach(tag => {
+      paper.tags.forEach((tag) => {
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
       });
     });
@@ -141,20 +172,7 @@ export default function MyPage() {
       .slice(0, 5); // 상위 5개만 표시
   }, [readPapersWithDate]);
 
-  // 시간대별 읽기 통계
-  const hourlyStats = useMemo(() => {
-    const hourCounts: Record<number, number> = {};
 
-    readPapersWithDate.forEach(({ readDate }) => {
-      const hour = readDate.getHours();
-      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
-    });
-
-    return Array.from({ length: 24 }, (_, i) => ({
-      hour: i,
-      count: hourCounts[i] || 0,
-    }));
-  }, [readPapersWithDate]);
 
   const chartConfig = {
     count: {
@@ -165,11 +183,11 @@ export default function MyPage() {
 
   // 명확한 색상 팔레트
   const COLORS = [
-    "hsl(220, 60%, 50%)",  // 파란색 (primary)
-    "hsl(175, 60%, 45%)",  // 청록색 (accent)
-    "hsl(30, 80%, 55%)",   // 주황색
-    "hsl(340, 65%, 60%)",  // 분홍색
-    "hsl(200, 75%, 55%)",  // 하늘색
+    "hsl(220, 60%, 50%)", // 파란색 (primary)
+    "hsl(175, 60%, 45%)", // 청록색 (accent)
+    "hsl(30, 80%, 55%)", // 주황색
+    "hsl(340, 65%, 60%)", // 분홍색
+    "hsl(200, 75%, 55%)", // 하늘색
   ];
 
   // 주별 통계용 색상 (그라데이션 효과)
@@ -192,36 +210,37 @@ export default function MyPage() {
   const renderMyPageHeader = () => (
     <>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="font-display text-xl font-bold">마이페이지</h1>
+        <h1 className="font-display text-xl font-bold p-4">마이페이지</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleLogout}>
             로그아웃
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/settings")}
-          >
+          <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
             <Settings className="w-5 h-5" />
           </Button>
         </div>
       </div>
 
       {/* User Info */}
-      <div className="flex items-center gap-4">
-        <Avatar className="w-16 h-16">
-          {user?.avatarUrl ? (
-            <AvatarImage src={user.avatarUrl} alt={user.name} />
-          ) : null}
+      <div className="flex items-center gap-4 p-4">
+        <Avatar className="w-16 h-16 shrink-0">
+          {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={user.name} /> : null}
           <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
             {user?.name?.[0] || "G"}
           </AvatarFallback>
         </Avatar>
-        <div>
-          <h2 className="font-semibold">{user?.name || ""}</h2>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-semibold text-base truncate">{user?.name || ""}</h2>
           {prefs && (
             <p className="text-sm text-muted-foreground">
-              관심 분야 {prefs.tags.length}개 • {prefs.level === "undergraduate" ? "학부생" : prefs.level === "graduate" ? "대학원생" : prefs.level === "researcher" ? "연구자" : "실무자"}
+              관심 분야 {prefs.tags.length}개 •{" "}
+              {prefs.level === "undergraduate"
+                ? "학부생"
+                : prefs.level === "graduate"
+                  ? "대학원생"
+                  : prefs.level === "researcher"
+                    ? "연구자"
+                    : "실무자"}
             </p>
           )}
         </div>
@@ -256,9 +275,7 @@ export default function MyPage() {
 
       <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Desktop Header Area - Hidden on Mobile */}
-        <div className="hidden md:block p-4">
-          {renderMyPageHeader()}
-        </div>
+        <div className="hidden md:block p-4">{renderMyPageHeader()}</div>
         {/* Settings Link */}
         <button
           onClick={() => navigate("/onboarding")}
@@ -294,9 +311,7 @@ export default function MyPage() {
 
           <TabsContent value="saved" className="mt-4 space-y-4">
             {savedPapers.length > 0 ? (
-              savedPapers.map(paper => (
-                <PaperCard key={paper.id} paper={paper} />
-              ))
+              savedPapers.map((paper) => <PaperCard key={paper.id} paper={paper} />)
             ) : (
               <EmptyState icon={Bookmark} message="저장한 논문이 없어요" />
             )}
@@ -304,9 +319,7 @@ export default function MyPage() {
 
           <TabsContent value="liked" className="mt-4 space-y-4">
             {likedPapers.length > 0 ? (
-              likedPapers.map(paper => (
-                <PaperCard key={paper.id} paper={paper} />
-              ))
+              likedPapers.map((paper) => <PaperCard key={paper.id} paper={paper} />)
             ) : (
               <EmptyState icon={Heart} message="좋아요한 논문이 없어요" />
             )}
@@ -347,12 +360,8 @@ export default function MyPage() {
                       return (
                         <div key={dateKey} className="space-y-3">
                           <div className="flex items-center gap-2 pb-2 border-b">
-                            <h3 className="text-sm font-semibold text-foreground">
-                              {dateLabel}
-                            </h3>
-                            <span className="text-xs text-muted-foreground">
-                              {items.length}개
-                            </span>
+                            <h3 className="text-sm font-semibold text-foreground">{dateLabel}</h3>
+                            <span className="text-xs text-muted-foreground">{items.length}개</span>
                           </div>
                           {items.map(({ paper, readAt }) => (
                             <div key={paper.id} className="relative">
@@ -367,7 +376,10 @@ export default function MyPage() {
                     })}
                   </div>
                 ) : (
-                  <EmptyState icon={History} message={`${dateFilter === "all" ? "읽은" : dateFilter === "today" ? "오늘 읽은" : dateFilter === "week" ? "이번 주에 읽은" : "이번 달에 읽은"} 논문이 없어요`} />
+                  <EmptyState
+                    icon={History}
+                    message={`${dateFilter === "all" ? "읽은" : dateFilter === "today" ? "오늘 읽은" : dateFilter === "week" ? "이번 주에 읽은" : "이번 달에 읽은"} 논문이 없어요`}
+                  />
                 )}
               </>
             ) : (
@@ -395,7 +407,10 @@ export default function MyPage() {
                         <ChartTooltip content={<ChartTooltipContent />} />
                         <Bar dataKey="count" radius={4}>
                           {weeklyStats.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={getBarColor(index, weeklyStats.length)} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={getBarColor(index, weeklyStats.length)}
+                            />
                           ))}
                         </Bar>
                       </BarChart>
@@ -436,40 +451,7 @@ export default function MyPage() {
                   </Card>
                 )}
 
-                {/* 시간대별 읽기 통계 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      시간대별 읽기 패턴
-                    </CardTitle>
-                    <CardDescription>언제 가장 많이 읽으시나요?</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ChartContainer config={chartConfig}>
-                      <BarChart data={hourlyStats}>
-                        <XAxis
-                          dataKey="hour"
-                          tickFormatter={(value) => `${value}시`}
-                        />
-                        <YAxis />
-                        <ChartTooltip
-                          content={<ChartTooltipContent />}
-                          labelFormatter={(value) => `${value}시`}
-                        />
-                        <Bar dataKey="count" radius={4}>
-                          {hourlyStats.map((entry, index) => {
-                            // 값이 있는 시간대는 primary 색상, 없는 시간대는 연한 회색
-                            const color = entry.count > 0
-                              ? "hsl(220, 60%, 50%)"
-                              : "hsl(210, 15%, 85%)";
-                            return <Cell key={`cell-${index}`} fill={color} />;
-                          })}
-                        </Bar>
-                      </BarChart>
-                    </ChartContainer>
-                  </CardContent>
-                </Card>
+
 
                 {/* 읽기 습관 요약 */}
                 <Card>
@@ -487,14 +469,7 @@ export default function MyPage() {
                         <span className="text-lg font-bold">{tagDistribution[0].tag}</span>
                       </div>
                     )}
-                    {hourlyStats.some(h => h.count > 0) && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">가장 많이 읽는 시간대</span>
-                        <span className="text-lg font-bold">
-                          {hourlyStats.reduce((max, h) => h.count > max.count ? h : max, hourlyStats[0]).hour}시
-                        </span>
-                      </div>
-                    )}
+
                   </CardContent>
                 </Card>
               </>
@@ -506,11 +481,7 @@ export default function MyPage() {
       </div>
 
       {/* Login Modal */}
-      <LoginModal
-        open={loginModalOpen}
-        onOpenChange={setLoginModalOpen}
-        showNotice={true}
-      />
+      <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} showNotice={true} />
     </main>
   );
 }

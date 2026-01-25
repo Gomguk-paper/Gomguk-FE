@@ -11,9 +11,13 @@ import {
   Edit2,
   Camera,
   X,
-  Monitor
+  Monitor,
+  Sun,
+  Moon,
+  Laptop
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
+import { useTheme } from "@/hooks/useTheme";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -71,6 +75,7 @@ const saveNotificationSettings = (settings: NotificationSettings) => {
 export default function Settings() {
   const navigate = useNavigate();
   const { user, prefs, setUser, setPrefs } = useStore();
+  const { theme, setTheme } = useTheme();
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(getNotificationSettings());
   const [dailyCount, setDailyCount] = useState(prefs?.dailyCount || 10);
   const [autoMarkAsRead, setAutoMarkAsRead] = useState(true);
@@ -78,6 +83,7 @@ export default function Settings() {
   const [showAvatarDialog, setShowAvatarDialog] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (prefs?.dailyCount) {
@@ -136,6 +142,20 @@ export default function Settings() {
   const handleLogout = () => {
     clearStoredUser();
     setUser(null);
+    navigate("/login");
+  };
+
+  const handleDeleteAccount = () => {
+    // Clear all user data
+    clearStoredUser();
+    setUser(null);
+    setPrefs(null);
+
+    // Clear localStorage and sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Redirect to login
     navigate("/login");
   };
 
@@ -417,6 +437,62 @@ export default function Settings() {
           </CardContent>
         </Card>
 
+        {/* 테마 설정 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Sun className="w-4 h-4" />
+              테마
+            </CardTitle>
+            <CardDescription>앱의 밝기를 설정하세요</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => setTheme('light')}
+                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'light'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
+                  }`}
+              >
+                <Sun className={`w-5 h-5 ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-medium ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  라이트
+                </span>
+              </button>
+
+              <button
+                onClick={() => setTheme('dark')}
+                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'dark'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
+                  }`}
+              >
+                <Moon className={`w-5 h-5 ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-medium ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  다크
+                </span>
+              </button>
+
+              <button
+                onClick={() => setTheme('system')}
+                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'system'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
+                  }`}
+              >
+                <Laptop className={`w-5 h-5 ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-medium ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  시스템
+                </span>
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              시스템 설정을 따르면 기기의 테마에 맞춰 자동으로 변경됩니다
+            </p>
+          </CardContent>
+        </Card>
+
         {/* 읽기 설정 */}
         <Card>
           <CardHeader>
@@ -482,6 +558,14 @@ export default function Settings() {
               <LogOut className="w-4 h-4 mr-2" />
               로그아웃
             </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <User className="w-4 h-4 mr-2" />
+              계정 삭제
+            </Button>
           </CardContent>
         </Card>
 
@@ -498,6 +582,43 @@ export default function Settings() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 계정 삭제 Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive">계정 삭제</DialogTitle>
+            <DialogDescription>
+              정말로 계정을 삭제하시겠습니까?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 space-y-2">
+              <p className="text-sm font-semibold text-destructive">⚠️ 주의사항</p>
+              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                <li>모든 사용자 데이터가 영구적으로 삭제됩니다</li>
+                <li>좋아요, 저장, 읽은 논문 기록이 모두 사라집니다</li>
+                <li>관심 분야 및 설정이 초기화됩니다</li>
+                <li>이 작업은 되돌릴 수 없습니다</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                handleDeleteAccount();
+                setShowDeleteDialog(false);
+              }}
+            >
+              계정 삭제
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

@@ -163,7 +163,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
         className={cn(
           "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50",
           "bg-background border rounded-lg shadow-2xl",
-          "max-w-lg w-full mx-4",
+          "max-w-sm w-[90%] sm:w-full",
           "p-6",
           // prefers-reduced-motion 지원
           "motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:scale-100",

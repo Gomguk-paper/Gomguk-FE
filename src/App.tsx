@@ -12,6 +12,7 @@ import SearchPage from "./pages/Search";
 import MyPage from "./pages/MyPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import AuthorPage from "./pages/AuthorPage";
 import { getStoredPrefs, getStoredUser, clearStoredUser } from "@/lib/authStorage";
 import { useEffect, useState } from "react";
 
@@ -74,6 +75,7 @@ function AppRoutes() {
             )
           }
         />
+        <Route path="/author/:authorId" element={<AuthorPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
@@ -82,10 +84,16 @@ function AppRoutes() {
 
 import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { RightSidebar } from "@/components/RightSidebar";
+import { useTheme } from "@/hooks/useTheme";
+
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const AppLayout = () => {
   const { prefs } = useStore();
   const layoutMode = prefs?.layoutMode || "auto";
+
+  // Apply theme using the hook
+  useTheme();
 
   // Determine visibility classes based on layout mode
   // Auto: default responsive behavior
@@ -98,7 +106,11 @@ const AppLayout = () => {
   return (
     <div className="flex min-h-screen justify-center bg-background">
       {/* Left Sidebar */}
-      {!isMobileMode && <DesktopSidebar />}
+      {!isMobileMode && (
+        <ErrorBoundary>
+          <DesktopSidebar />
+        </ErrorBoundary>
+      )}
 
       {/* Main Content */}
       <div
@@ -106,20 +118,28 @@ const AppLayout = () => {
           ${isMobileMode ? "max-w-[480px] border-x-0" : "max-w-[672px] lg:max-w-4xl"}
         `}
       >
-        <AppRoutes />
+        <ErrorBoundary>
+          <AppRoutes />
+        </ErrorBoundary>
 
         {/* Bottom Nav: Visible on mobile OR if Mobile Mode is forced */}
         {/* If isMobileMode is true, we render BottomNav without md:hidden */}
         {/* If auto, we keep md:hidden. If desktop, we hide it completely */}
         {(!isDesktopMode) && (
           <div className={isMobileMode ? "block" : "md:hidden"}>
-            <BottomNav />
+            <ErrorBoundary>
+              <BottomNav />
+            </ErrorBoundary>
           </div>
         )}
       </div>
 
       {/* Right Sidebar */}
-      {!isMobileMode && <RightSidebar />}
+      {!isMobileMode && (
+        <ErrorBoundary>
+          <RightSidebar />
+        </ErrorBoundary>
+      )}
     </div>
   );
 };
@@ -129,8 +149,10 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <AppLayout />
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <ErrorBoundary>
+          <AppLayout />
+        </ErrorBoundary>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
