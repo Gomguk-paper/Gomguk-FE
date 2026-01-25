@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search as SearchIcon, SlidersHorizontal } from "lucide-react";
 import { papers, allTags } from "@/data/papers";
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 type SortMode = "trending" | "recent" | "personalized";
 
@@ -24,6 +25,12 @@ export default function SearchPage() {
   const [sortMode, setSortMode] = useState<SortMode>("trending");
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
+
+  // Always scroll to top for search page (disable restoration)
+  useScrollRestoration('search', false);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const filteredPapers = useMemo(() => {
     let result = [...papers];

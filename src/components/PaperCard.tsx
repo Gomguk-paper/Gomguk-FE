@@ -3,11 +3,7 @@ import {
   Bookmark,
   Check,
   HelpCircle,
-  Calendar,
-  Users,
-  TrendingUp,
   FileText,
-  ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import { Paper, summaries } from "@/data/papers";
@@ -32,7 +28,6 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const [showWhyModal, setShowWhyModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAbstract, setShowAbstract] = useState(false);
-  const [showAllAuthors, setShowAllAuthors] = useState(false);
 
   const action = getAction(paper.id);
   const summary = summaries.find((s) => s.paperId === paper.id);
@@ -42,18 +37,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const canUseActions = Boolean(user);
   const authMessage = !user ? "로그인 후 좋아요/저장/읽음 기능을 사용할 수 있어요." : null;
 
-  // 추상 미리보기 (2-3줄)
   const abstractPreview =
     paper.abstract.length > UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH
       ? paper.abstract.substring(0, UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH) + "..."
       : paper.abstract;
-
-  // 저자 표시 로직
-  const shouldCollapseAuthors = paper.authors.length > UI_CONSTANTS.PAPER.MAX_DISPLAYED_AUTHORS;
-  const displayedAuthors =
-    shouldCollapseAuthors && !showAllAuthors
-      ? paper.authors.slice(0, UI_CONSTANTS.PAPER.MAX_DISPLAYED_AUTHORS)
-      : paper.authors;
 
   const handleActionClick = (action: () => void) => {
     if (!user) {
@@ -179,74 +166,6 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               )}
             </div>
           </Collapsible>
-
-          {/* Authors */}
-          <div className="space-y-2 mt-auto">
-            <div className="flex items-start gap-2 text-xs">
-              <Users className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <div className="flex flex-wrap gap-x-2 gap-y-1">
-                  {displayedAuthors.map((author, idx) => (
-                    <span key={idx} className="text-muted-foreground">
-                      {author}
-                      {idx < displayedAuthors.length - 1 && ","}
-                    </span>
-                  ))}
-                  {shouldCollapseAuthors && !showAllAuthors && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAllAuthors(true);
-                      }}
-                      className="text-primary hover:underline flex items-center gap-1"
-                    >
-                      외 {paper.authors.length - UI_CONSTANTS.PAPER.MAX_DISPLAYED_AUTHORS}명
-                      <ChevronDown className="w-3 h-3" />
-                    </button>
-                  )}
-                  {shouldCollapseAuthors && showAllAuthors && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAllAuthors(false);
-                      }}
-                      className="text-primary hover:underline flex items-center gap-1"
-                    >
-                      접기
-                      <ChevronUp className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Meta Information */}
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{paper.year}</span>
-              </div>
-              <span className="text-muted-foreground">•</span>
-              <Badge variant="outline" className="text-xs py-0 px-2 h-5">
-                {paper.venue}
-              </Badge>
-              <span className="text-muted-foreground">•</span>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>인용 {paper.metrics.citations.toLocaleString()}</span>
-              </div>
-            </div>
-
-            {/* Metrics */}
-            <div className="flex items-center gap-2 pt-1">
-              <Badge variant="secondary" className="text-xs py-0 px-2 h-5">
-                트렌딩 {paper.metrics.trendingScore}
-              </Badge>
-              <Badge variant="secondary" className="text-xs py-0 px-2 h-5">
-                최신도 {paper.metrics.recencyScore}
-              </Badge>
-            </div>
-          </div>
 
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0">

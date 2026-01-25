@@ -43,6 +43,7 @@ import {
   subMonths,
 } from "date-fns";
 import { ko } from "date-fns/locale/ko";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -50,6 +51,9 @@ export default function MyPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const userKey = user?.provider ?? null;
   const actions = userKey ? (actionsByUser[userKey] ?? []) : [];
+
+  // Restore scroll position when navigating back to this page
+  useScrollRestoration('mypage');
 
   // 로그인하지 않은 사용자가 마이페이지에 접근하면 모달 표시
   useEffect(() => {

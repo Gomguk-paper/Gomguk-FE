@@ -11,9 +11,13 @@ import {
   Edit2,
   Camera,
   X,
-  Monitor
+  Monitor,
+  Sun,
+  Moon,
+  Laptop
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
+import { useTheme } from "@/hooks/useTheme";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -71,6 +75,7 @@ const saveNotificationSettings = (settings: NotificationSettings) => {
 export default function Settings() {
   const navigate = useNavigate();
   const { user, prefs, setUser, setPrefs } = useStore();
+  const { theme, setTheme } = useTheme();
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(getNotificationSettings());
   const [dailyCount, setDailyCount] = useState(prefs?.dailyCount || 10);
   const [autoMarkAsRead, setAutoMarkAsRead] = useState(true);
@@ -413,6 +418,62 @@ export default function Settings() {
             </div>
             <p className="text-xs text-muted-foreground">
               '모바일 전용'을 선택하면 PC에서도 모바일 화면처럼 좁게 표시됩니다.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* 테마 설정 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Sun className="w-4 h-4" />
+              테마
+            </CardTitle>
+            <CardDescription>앱의 밝기를 설정하세요</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => setTheme('light')}
+                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'light'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                  }`}
+              >
+                <Sun className={`w-5 h-5 ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-medium ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  라이트
+                </span>
+              </button>
+
+              <button
+                onClick={() => setTheme('dark')}
+                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'dark'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                  }`}
+              >
+                <Moon className={`w-5 h-5 ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-medium ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  다크
+                </span>
+              </button>
+
+              <button
+                onClick={() => setTheme('system')}
+                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'system'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                  }`}
+              >
+                <Laptop className={`w-5 h-5 ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-medium ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  시스템
+                </span>
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              시스템 설정을 따르면 기기의 테마에 맞춰 자동으로 변경됩니다
             </p>
           </CardContent>
         </Card>

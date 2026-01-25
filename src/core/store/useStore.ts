@@ -21,32 +21,38 @@ export interface Notification {
   read: boolean;
 }
 
+export type Theme = 'light' | 'dark' | 'system';
+
 interface GomgukStore {
   // User
   user: StoredUser | null;
   setUser: (user: StoredUser | null) => void;
-  
+
   // Preferences
   prefs: UserPrefs | null;
   setPrefs: (prefs: UserPrefs) => void;
-  
+
   // Actions (likes, saves, reads)
   actionsByUser: Record<string, UserAction[]>;
   toggleLike: (paperId: string) => void;
   toggleSave: (paperId: string) => void;
   markAsRead: (paperId: string) => void;
   getAction: (paperId: string) => UserAction | undefined;
-  
+
   // Notifications
   notificationsByUser: Record<string, Notification[]>;
   addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => void;
   markNotificationAsRead: (notificationId: string) => void;
   getNotifications: () => Notification[];
   getUnreadCount: () => number;
-  
+
   // UI State
   currentSummaryIndex: number;
   setCurrentSummaryIndex: (index: number) => void;
+
+  // Theme
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 }
 
 const getUserActionKey = (user: StoredUser | null) => {
@@ -62,11 +68,11 @@ export const useStore = create<GomgukStore>()(
       // User
       user: null,
       setUser: (user) => set({ user }),
-      
+
       // Preferences
       prefs: null,
       setPrefs: (prefs) => set({ prefs }),
-      
+
       // Actions
       actionsByUser: {},
       toggleLike: (paperId) => set((state) => {
@@ -81,7 +87,7 @@ export const useStore = create<GomgukStore>()(
             actionsByUser: {
               ...state.actionsByUser,
               [userKey]: currentActions.map(a =>
-              a.paperId === paperId ? { ...a, liked: !a.liked } : a
+                a.paperId === paperId ? { ...a, liked: !a.liked } : a
               ),
             },
           };
@@ -105,7 +111,7 @@ export const useStore = create<GomgukStore>()(
             actionsByUser: {
               ...state.actionsByUser,
               [userKey]: currentActions.map(a =>
-              a.paperId === paperId ? { ...a, saved: !a.saved } : a
+                a.paperId === paperId ? { ...a, saved: !a.saved } : a
               ),
             },
           };
@@ -129,7 +135,7 @@ export const useStore = create<GomgukStore>()(
             actionsByUser: {
               ...state.actionsByUser,
               [userKey]: currentActions.map(a =>
-              a.paperId === paperId ? { ...a, readAt: new Date().toISOString() } : a
+                a.paperId === paperId ? { ...a, readAt: new Date().toISOString() } : a
               ),
             },
           };
@@ -152,7 +158,7 @@ export const useStore = create<GomgukStore>()(
         const currentActions = get().actionsByUser[userKey] ?? [];
         return currentActions.find(a => a.paperId === paperId);
       },
-      
+
       // Notifications
       notificationsByUser: {},
       addNotification: (notification) => {
@@ -202,10 +208,14 @@ export const useStore = create<GomgukStore>()(
         const notifications = get().notificationsByUser[userKey] ?? [];
         return notifications.filter(n => !n.read).length;
       },
-      
+
       // UI State
       currentSummaryIndex: 0,
       setCurrentSummaryIndex: (index) => set({ currentSummaryIndex: index }),
+
+      // Theme
+      theme: 'system',
+      setTheme: (theme) => set({ theme }),
     }),
     {
       name: 'gomguk-storage',
@@ -219,8 +229,8 @@ export const useStore = create<GomgukStore>()(
         } catch {
           return {
             getItem: (key: string) => null,
-            setItem: () => {},
-            removeItem: () => {},
+            setItem: () => { },
+            removeItem: () => { },
           };
         }
       }),
@@ -241,6 +251,7 @@ export const useStore = create<GomgukStore>()(
         actionsByUser: state.actionsByUser,
         notificationsByUser: state.notificationsByUser,
         currentSummaryIndex: state.currentSummaryIndex,
+        theme: state.theme,
       }),
     }
   )
