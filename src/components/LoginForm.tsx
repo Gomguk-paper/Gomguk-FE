@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { AuthProvider, getStoredPrefs, setStoredUser, clearStoredUser } from "@/lib/authStorage";
-import { BookOpen, Sparkles, Loader2 } from "lucide-react";
+import { BookOpen, Loader2 } from "lucide-react";
 
 interface LoginFormProps {
   /** 로그인 성공 시 호출되는 콜백 */
@@ -52,7 +52,7 @@ export function LoginForm({
   }, [compact]);
 
   const createMockUser = (provider: AuthProvider) => {
-    const providerLabel = provider === "google" ? "Google" : "Kakao";
+    const providerLabel = provider === "google" ? "Google" : "GitHub";
     return {
       id: `${Date.now()}`,
       name: `${providerLabel} 사용자`,
@@ -90,7 +90,7 @@ export function LoginForm({
     return (
       <div className="w-full space-y-6 text-center">
         {showNotice && (
-          <div className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
+          <div className="px-4 py-3 text-sm text-primary">
             로그인이 필요합니다.
           </div>
         )}
@@ -121,7 +121,11 @@ export function LoginForm({
             disabled={isLoading}
             aria-label="Google로 시작하기"
           >
-            {loadingProvider === "google" && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {loadingProvider === "google" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <img src="/google.png" alt="" aria-hidden="true" className="h-5 w-5 object-contain" />
+            )}
             Google로 시작하기
           </Button>
           <Button
@@ -130,10 +134,19 @@ export function LoginForm({
             className="w-full h-12 text-base"
             onClick={() => handleLogin("kakao")}
             disabled={isLoading}
-            aria-label="Kakao로 시작하기"
+            aria-label="GitHub로 시작하기"
           >
-            {loadingProvider === "kakao" && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Kakao로 시작하기
+            {loadingProvider === "kakao" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <img
+                src="/github.png"
+                alt=""
+                aria-hidden="true"
+                className="h-5 w-5 object-contain dark:invert"
+              />
+            )}
+            GitHub로 시작하기
           </Button>
         </div>
 
@@ -157,7 +170,7 @@ export function LoginForm({
   return (
     <div className="w-full max-w-sm space-y-8 text-center">
       {showNotice && (
-        <div className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
+        <div className="px-4 py-3 text-sm text-primary">
           로그인이 필요합니다.
         </div>
       )}
@@ -177,15 +190,6 @@ export function LoginForm({
         </p>
       </div>
 
-      {/* Tagline */}
-      <div id="login_tagline" className="space-y-2 text-sm text-muted-foreground">
-        <p className="flex items-center justify-center gap-2">
-          <Sparkles className="w-4 h-4 text-accent" />
-          AI가 요약한 논문을 3단계로 빠르게
-        </p>
-        <p>어그로 한줄 → 핵심 포인트 → 상세 설명</p>
-      </div>
-
       {/* Buttons */}
       <div className="space-y-3 pt-4">
         <Button
@@ -195,7 +199,11 @@ export function LoginForm({
           disabled={isLoading}
           aria-label="Google로 시작하기"
         >
-          {loadingProvider === "google" && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          {loadingProvider === "google" ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <img src="/google.png" alt="" aria-hidden="true" className="h-5 w-5 object-contain" />
+          )}
           Google로 시작하기
         </Button>
         <Button
@@ -204,10 +212,14 @@ export function LoginForm({
           className="w-full h-12 text-base"
           onClick={() => handleLogin("kakao")}
           disabled={isLoading}
-          aria-label="Kakao로 시작하기"
+          aria-label="GitHub로 시작하기"
         >
-          {loadingProvider === "kakao" && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          Kakao로 시작하기
+          {loadingProvider === "kakao" ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <img src="/github.png" alt="" aria-hidden="true" className="h-5 w-5 object-contain dark:invert" />
+          )}
+          GitHub로 시작하기
         </Button>
       </div>
 
