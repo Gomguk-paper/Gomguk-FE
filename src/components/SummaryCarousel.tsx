@@ -2,17 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, TrendingUp, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Paper, summaries } from "@/data/papers";
-import { getAuthorByName } from "@/data/authors";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 
 interface SummaryCarouselProps {
   papers: Paper[];
@@ -22,6 +15,32 @@ interface SummaryCarouselProps {
 }
 
 type SummaryStep = "hook" | "keypoints" | "detailed";
+
+// Helper to clean abstract text
+const cleanAbstract = (text: string) => {
+  if (!text) return { cleaned: "", sentences: [] };
+
+  // Remove LaTeX preamble like $\renewcommand...$
+  let cleaned = text.replace(/\$\\renewcommand\{[^}]+\}\{[^}]+\}\$/g, "");
+
+  // Remove common LaTeX commands and delimiters
+  cleaned = cleaned.replace(/\\mathbb\{R\}/g, "R");
+  cleaned = cleaned.replace(/\\Re/g, "R");
+  cleaned = cleaned.replace(/\\varepsilon/g, "ε");
+  cleaned = cleaned.replace(/\$/g, ""); // Strip dollar signs
+
+  // Normalize whitespace
+  cleaned = cleaned.replace(/\s+/g, " ").trim();
+
+  // Split into sentences (simple approximation)
+  // Match sentences ending with ., ?, ! followed by space or end of string
+  const sentences = cleaned.match(/[^.?!]+[.?!]+(?=\s|$)|[^.?!]+$/g) || [cleaned];
+
+  return {
+    cleaned,
+    sentences: sentences.map(s => s.trim()).filter(s => s.length > 0)
+  };
+};
 
 export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: SummaryCarouselProps) {
   const [currentPaperIndex, setCurrentPaperIndex] = useState(initialIndex);
@@ -56,20 +75,6 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     });
   }, []);
 
-  // goPrev는 현재 사용하지 않음 (하단 네비게이션 버튼 제거로 인해)
-  // const goPrev = useCallback(() => {
-  //   setCurrentStep((step) => {
-  //     if (step === "detailed") {
-  //       return "keypoints";
-  //     } else if (step === "keypoints") {
-  //       return "hook";
-  //     } else {
-  //       return "hook";
-  //     }
-  //   });
-  // }, []);
-
-  // 다음 논문으로 이동
   const goNextPaper = useCallback(() => {
     if (currentPaperIndex < papers.length - 1) {
       setCurrentPaperIndex(currentPaperIndex + 1);
@@ -77,7 +82,6 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     }
   }, [currentPaperIndex, papers.length]);
 
-  // 이전 논문으로 이동
   const goPrevPaper = useCallback(() => {
     if (currentPaperIndex > 0) {
       setCurrentPaperIndex(currentPaperIndex - 1);
@@ -93,7 +97,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     (targetIndex: number) => {
       if (targetIndex >= 0 && targetIndex < papers.length) {
         setCurrentPaperIndex(targetIndex);
-        setCurrentStep("hook"); // 논문 변경 시 첫 단계로 리셋
+        setCurrentStep("hook");
       }
     },
     [papers.length]
@@ -104,12 +108,10 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     if (!open) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
-      // ESC 키는 모달 닫기
       if (e.key === "Escape") {
         onClose();
         return;
       }
-      // 화살표 키로 논문 이동
       if (e.key === "ArrowRight") {
         goNextPaper();
         return;
@@ -118,7 +120,6 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         goPrevPaper();
         return;
       }
-      // 나머지 키는 단계 이동
       if (e.key !== "Escape" && e.key !== "ArrowRight" && e.key !== "ArrowLeft") {
         goNext();
       }
@@ -134,9 +135,23 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   if (!open) return null;
 
   const paper = papers[currentPaperIndex];
-  const summary = summaries.find((s) => s.paperId === paper.id);
+  let summary = summaries.find((s) => s.paperId === paper.id);
 
-  if (!summary) return null;
+  // Fallback for papers without manual summary
+  if (!summary) {
+    const { cleaned, sentences } = cleanAbstract(paper.abstract || "");
+    summary = {
+      paperId: paper.id,
+      hookOneLiner: sentences.length > 0 ? sentences[0] : "요약 정보가 없습니다.",
+      keyPoints: sentences.length > 0 ? [
+        "자동 생성된 요약입니다.",
+        sentences[1] || "원문을 참고해주세요.",
+        sentences[2] || (sentences[1] ? "전체 내용은 원문을 참고해주세요." : "")
+      ].filter(Boolean) : ["요약 정보가 없습니다."],
+      detailed: cleaned || "요약 정보가 없습니다.",
+      evidenceScope: "abstract"
+    };
+  }
 
   const steps: SummaryStep[] = ["hook", "keypoints", "detailed"];
   const stepIndex = steps.indexOf(currentStep);
@@ -208,53 +223,11 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           <div className="flex items-start gap-2">
             <Users className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
             <div className="flex-1 min-w-0 flex flex-wrap gap-2">
-              {paper.authors.map((authorName, idx) => {
-                const author = getAuthorByName(authorName);
-                if (!author) {
-                  return (
-                    <span key={idx} className="text-sm px-2 py-0.5 text-foreground cursor-default">
-                      {authorName}
-                    </span>
-                  );
-                }
-                return (
-                  <HoverCard key={idx}>
-                    <HoverCardTrigger asChild>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onClose();
-                          navigate(`/author/${author.id}`);
-                        }}
-                        className="text-sm px-2 py-0.5 rounded-full text-primary hover:bg-primary/10 cursor-pointer font-medium transition-colors"
-                      >
-                        {authorName}
-                      </button>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80 z-[60]" align="start">
-                      <div className="flex justify-between space-x-4">
-                        <Avatar>
-                          <AvatarImage src={author.avatarUrl || undefined} />
-                          <AvatarFallback>{author.name[0]}</AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-1">
-                          <h4 className="text-sm font-semibold">{author.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {author.affiliations.join(" • ")}
-                          </p>
-                          {author.stats && (
-                            <div className="flex items-center pt-2">
-                              <span className="text-xs text-muted-foreground">
-                                논문 {author.stats.totalPapers}개 · 인용 {author.stats.totalCitations.toLocaleString()}회
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
-                );
-              })}
+              {paper.authors.map((authorName, idx) => (
+                <span key={idx} className="text-sm px-2 py-0.5 text-foreground cursor-default">
+                  {authorName}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -388,6 +361,69 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       >
         <ChevronRight className="w-8 h-8 text-foreground" />
       </button>
+
+      {/* Bottom navigation - 논문 이동 */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 pb-8">
+        <div className="max-w-lg mx-auto px-6">
+          <div className="bg-background/90 backdrop-blur-sm border rounded-lg shadow-lg p-4">
+            <div className="flex items-center justify-between gap-4">
+              {/* 이전 논문 */}
+              <button
+                className={cn(
+                  "flex-1 flex items-center gap-2 px-4 py-3 rounded-lg",
+                  "bg-secondary/50 hover:bg-secondary transition-colors",
+                  "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-secondary/50",
+                  "group"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goPrevPaper();
+                }}
+                disabled={currentPaperIndex === 0}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+              >
+                <ChevronLeft className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <div className="flex-1 text-left min-w-0">
+                  <div className="text-xs text-muted-foreground">이전 포스트</div>
+                  {currentPaperIndex > 0 && (
+                    <div className="text-sm font-medium truncate mt-0.5">
+                      {papers[currentPaperIndex - 1].title}
+                    </div>
+                  )}
+                </div>
+              </button>
+
+              {/* 다음 논문 */}
+              <button
+                className={cn(
+                  "flex-1 flex items-center gap-2 px-4 py-3 rounded-lg",
+                  "bg-secondary/50 hover:bg-secondary transition-colors",
+                  "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-secondary/50",
+                  "group"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goNextPaper();
+                }}
+                disabled={currentPaperIndex === papers.length - 1}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+              >
+                <div className="flex-1 text-right min-w-0">
+                  <div className="text-xs text-muted-foreground">다음 포스트</div>
+                  {currentPaperIndex < papers.length - 1 && (
+                    <div className="text-sm font-medium truncate mt-0.5">
+                      {papers[currentPaperIndex + 1].title}
+                    </div>
+                  )}
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

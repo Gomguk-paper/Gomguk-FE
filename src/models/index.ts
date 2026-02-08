@@ -25,11 +25,4 @@ export interface Summary {
   evidenceScope: "abstract" | "intro" | "full";
 }
 
-export interface Report {
-  id: string;
-  title: string;
-  summary: string;
-  tags: string[];
-  relatedPaperIds: string[];
-  imageUrl?: string; // 썸네일 이미지
-}
+

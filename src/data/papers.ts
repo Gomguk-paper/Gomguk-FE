@@ -1,3 +1,3 @@
 // Re-export from models for backward compatibility
-export type { Paper, Summary, Report } from "@/models";
-export { papers, summaries, reports, allTags } from "@/models/papers";
+export type { Paper, Summary } from "@/models";
+export { papers, summaries, allTags } from "@/models/papers";

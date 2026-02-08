@@ -2,10 +2,9 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, BookOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { papersApi, reportsApi } from "@/api";
+import { papersApi } from "@/api";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
-import { ReportCard } from "@/components/ReportCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { NotificationList } from "@/components/NotificationList";
 import { LoginModal } from "@/components/LoginModal";
@@ -17,6 +16,12 @@ import type { PaperOut } from "@/lib/apiTypes";
 
 // Helper function to convert backend PaperOut to frontend Paper format
 const convertPaperOutToPaper = (paperOut: PaperOut): any => {
+  let imageUrl = paperOut.image_url;
+  // Filter out s3:// URLs as they cause browser errors
+  if (imageUrl && imageUrl.startsWith('s3://')) {
+    imageUrl = undefined;
+  }
+
   return {
     id: String(paperOut.id),
     title: paperOut.title,
@@ -26,7 +31,7 @@ const convertPaperOutToPaper = (paperOut: PaperOut): any => {
     tags: paperOut.tags?.map(String) || [], // Convert number[] to string[]
     abstract: paperOut.short,
     pdfUrl: paperOut.raw_url,
-    imageUrl: paperOut.image_url,
+    imageUrl: imageUrl,
     metrics: {
       trendingScore: 0, // Not provided by backend
       recencyScore: paperOut.year >= new Date().getFullYear() - 1 ? 10 : 5,
@@ -73,22 +78,13 @@ export default function Home() {
     return converted;
   }, [papersResponse]);
 
-  // Fetch reports from API with error handling
-  const { data: reports = [] } = useQuery({
-    queryKey: ['reports'],
-    queryFn: () => reportsApi.getReports({ limit: 2 }),
-    retry: false, // Don't retry on 404
-    meta: {
-      // Suppress error notifications for expected 404s
-      suppressErrorToast: true,
-    },
-  });
+
 
   // Sort papers by personalized score
   const sortedPapers = useMemo(() => {
     // Defensive check: ensure papers have metrics
     const validPapers = Array.isArray(papers)
-      ? papers.filter(p => p && p.metrics)
+      ? papers.filter(p => p && p.metrics && !String(p.id).startsWith('p')) // Filter out mock papers (ID starts with 'p')
       : [];
 
     return [...validPapers].sort((a, b) => {
@@ -221,17 +217,7 @@ export default function Home() {
       </header>
 
       <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
-        {/* Tech Reports Section */}
-        {reports.length > 0 && (
-          <section className="p-4">
-            <h2 className="font-display font-semibold text-lg mb-3">🔥 기술 리포트</h2>
-            <div className="space-y-3">
-              {reports.slice(0, 2).map((report) => (
-                <ReportCard key={report.id} report={report} />
-              ))}
-            </div>
-          </section>
-        )}
+
 
         {/* Paper Feed */}
         <section className="p-4">

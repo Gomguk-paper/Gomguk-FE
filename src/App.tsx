@@ -12,7 +12,11 @@ import SearchPage from "./pages/Search";
 import MyPage from "./pages/MyPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import AuthorPage from "./pages/AuthorPage";
+import TermsOfService from "./pages/legal/TermsOfService";
+import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
+import CookiePolicy from "./pages/legal/CookiePolicy";
+import Accessibility from "./pages/legal/Accessibility";
+import AdvertisingInfo from "./pages/legal/AdvertisingInfo";
 import { getStoredPrefs, getStoredUser, clearStoredUser } from "@/lib/authStorage";
 import { useEffect, useState } from "react";
 
@@ -75,7 +79,11 @@ function AppRoutes() {
             )
           }
         />
-        <Route path="/author/:authorId" element={<AuthorPage />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/cookies" element={<CookiePolicy />} />
+        <Route path="/accessibility" element={<Accessibility />} />
+        <Route path="/advertising" element={<AdvertisingInfo />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

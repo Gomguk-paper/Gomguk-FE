@@ -11,6 +11,10 @@ export const authApi = {
         window.location.href = `/api/oauth/${provider}/login?${queryParams.toString()}`;
     },
 
+    getGoogleLoginUrl: (redirectUri: string): string => {
+        return `http://localhost:8000/api/oauth/google/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+    },
+
     // Refresh access token
     refreshAccessToken: async (): Promise<RefreshResponse> => {
         const response = await apiClient.post<RefreshResponse>('/auth/refresh');

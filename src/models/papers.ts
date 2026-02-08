@@ -1,4 +1,4 @@
-import type { Paper, Summary, Report } from "./index";
+import type { Paper, Summary } from "./index";
 
 export const papers: Paper[] = [
   {
@@ -294,35 +294,10 @@ export const summaries: Summary[] = [
   },
 ];
 
-export const reports: Report[] = [
-  {
-    id: "r1",
-    title: "2024년 LLM 트렌드: 멀티모달과 에이전트의 시대",
-    summary: "GPT-4V, Gemini 등 멀티모달 모델이 주류가 되고, AutoGPT 같은 에이전트 시스템이 부상하고 있습니다. 작은 모델의 효율성 연구도 활발합니다.",
-    tags: ["LLM", "Multimodal", "Agent"],
-    relatedPaperIds: ["p6", "p9"],
-    imageUrl: "/mockup_thumb.jpg",
-  },
-  {
-    id: "r2",
-    title: "Diffusion 모델의 진화: 이미지에서 비디오까지",
-    summary: "Stable Diffusion의 성공 이후, Sora 같은 비디오 생성 모델이 등장했습니다. 3D 생성과 컨트롤러블 생성이 차세대 연구 방향입니다.",
-    tags: ["Diffusion", "Vision", "Generative"],
-    relatedPaperIds: ["p3", "p8"],
-    imageUrl: "/mockup_thumb.jpg",
-  },
-  {
-    id: "r3",
-    title: "RL의 새로운 물결: RLHF에서 DPO까지",
-    summary: "LLM 정렬에서 RLHF가 표준이 되었지만, DPO 같은 더 단순한 방법들도 등장하고 있습니다. 인간 피드백 없는 정렬 연구도 진행 중입니다.",
-    tags: ["RL", "RLHF", "Alignment"],
-    relatedPaperIds: ["p4", "p7", "p11"],
-    imageUrl: "/mockup_thumb.jpg",
-  },
-];
+
 
 export const allTags = [
-  "Transformer", "NLP", "Vision", "RL", "Diffusion", 
+  "Transformer", "NLP", "Vision", "RL", "Diffusion",
   "LLM", "Generative", "Attention", "CNN", "RLHF",
   "Multimodal", "Prompting", "Safety", "Segmentation"
 ];

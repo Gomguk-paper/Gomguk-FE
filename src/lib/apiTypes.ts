@@ -212,4 +212,4 @@ export interface Report {
 }
 
 // Re-export Author types
-export type { Author, EducationEntry, PositionEntry } from '@/data/authors';
+

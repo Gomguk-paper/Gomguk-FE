@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { AuthProvider, getStoredPrefs, setStoredUser, clearStoredUser } from "@/lib/authStorage";
+import { authApi } from "@/api/auth";
 import { BookOpen, Loader2 } from "lucide-react";
 
 interface LoginFormProps {
@@ -62,6 +63,12 @@ export function LoginForm({
   };
 
   const handleLogin = async (provider: AuthProvider) => {
+    if (provider === "google") {
+      const redirectUri = window.location.origin;
+      window.location.href = authApi.getGoogleLoginUrl(redirectUri);
+      return;
+    }
+
     // HARDCODED LOGIN: 요청에 따라 강제 로그인 처리
     console.log("Force logging in...");
     const user = {
