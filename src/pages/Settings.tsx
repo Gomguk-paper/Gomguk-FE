@@ -22,7 +22,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -46,24 +45,23 @@ import { Label } from "@/components/ui/label";
 interface NotificationSettings {
   newRecommendation: boolean;
   tagMatch: boolean;
-  goalAchievement: boolean;
 }
 
 const NOTIFICATION_SETTINGS_KEY = "gomguk_notification_settings";
 
 const getNotificationSettings = (): NotificationSettings => {
   if (typeof window === "undefined") {
-    return { newRecommendation: true, tagMatch: true, goalAchievement: true };
+    return { newRecommendation: true, tagMatch: true };
   }
   const stored = localStorage.getItem(NOTIFICATION_SETTINGS_KEY);
   if (stored) {
     try {
       return JSON.parse(stored);
     } catch {
-      return { newRecommendation: true, tagMatch: true, goalAchievement: true };
+      return { newRecommendation: true, tagMatch: true };
     }
   }
-  return { newRecommendation: true, tagMatch: true, goalAchievement: true };
+  return { newRecommendation: true, tagMatch: true };
 };
 
 const saveNotificationSettings = (settings: NotificationSettings) => {
@@ -77,7 +75,7 @@ export default function Settings() {
   const { user, prefs, setUser, setPrefs } = useStore();
   const { theme, setTheme } = useTheme();
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(getNotificationSettings());
-  const [dailyCount, setDailyCount] = useState(prefs?.dailyCount || 10);
+  // dailyCount removed
   const [autoMarkAsRead, setAutoMarkAsRead] = useState(true);
   const [showNameDialog, setShowNameDialog] = useState(false);
   const [showAvatarDialog, setShowAvatarDialog] = useState(false);
@@ -85,11 +83,7 @@ export default function Settings() {
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  useEffect(() => {
-    if (prefs?.dailyCount) {
-      setDailyCount(prefs.dailyCount);
-    }
-  }, [prefs]);
+
 
   useEffect(() => {
     if (user) {
@@ -104,15 +98,7 @@ export default function Settings() {
     saveNotificationSettings(newSettings);
   };
 
-  const handleDailyCountChange = (value: number[]) => {
-    const newCount = value[0];
-    setDailyCount(newCount);
-    if (prefs) {
-      const updatedPrefs: UserPrefs = { ...prefs, dailyCount: newCount };
-      setPrefs(updatedPrefs);
-      setStoredPrefs(updatedPrefs);
-    }
-  };
+
 
   const handleNameSave = () => {
     if (!user || !editedName.trim()) return;
@@ -160,7 +146,7 @@ export default function Settings() {
   };
 
   return (
-    <main className="min-h-screen mobile-content-padding bg-background">
+    <main className="min-h-screen mobile-content-padding bg-muted/30">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt md:hidden">
         <div className="flex items-center gap-3 p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
@@ -175,7 +161,7 @@ export default function Settings() {
         </div>
       </header>
 
-      <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto p-4 mobile-safe-area-pl mobile-safe-area-pr space-y-4">
+      <div className="max-w-[480px] md:max-w-2xl mx-auto p-4 md:px-8 mobile-safe-area-pl mobile-safe-area-pr space-y-4">
         {/* 프로필 설정 */}
         <Card>
           <CardHeader>
@@ -353,22 +339,7 @@ export default function Settings() {
                 onCheckedChange={(checked) => handleNotificationChange("tagMatch", checked)}
               />
             </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="goal-achievement" className="text-sm font-medium">
-                  읽기 목표 달성 알림
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  일일 읽기 목표를 달성했을 때 알림을 받습니다
-                </p>
-              </div>
-              <Switch
-                id="goal-achievement"
-                checked={notificationSettings.goalAchievement}
-                onCheckedChange={(checked) => handleNotificationChange("goalAchievement", checked)}
-              />
-            </div>
+
           </CardContent>
         </Card>
 
@@ -502,27 +473,7 @@ export default function Settings() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="daily-count" className="text-sm font-medium">
-                  일일 읽기 목표
-                </Label>
-                <span className="text-sm font-semibold text-primary">{dailyCount}개</span>
-              </div>
-              <Slider
-                id="daily-count"
-                min={1}
-                max={50}
-                step={1}
-                value={[dailyCount]}
-                onValueChange={handleDailyCountChange}
-                className="w-full"
-              />
-              <p className="text-xs text-muted-foreground">
-                하루에 읽고 싶은 논문의 목표 개수를 설정하세요
-              </p>
-            </div>
-            <Separator />
+            {/* Daily count settings removed */}
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label htmlFor="auto-read" className="text-sm font-medium">

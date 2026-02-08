@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, TrendingUp, Award } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, TrendingUp, Award, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Paper, summaries } from "@/data/papers";
 import { TagChip } from "./TagChip";
@@ -20,8 +20,8 @@ type SummaryStep = "hook" | "keypoints" | "detailed";
 const cleanAbstract = (text: string) => {
   if (!text) return { cleaned: "", sentences: [] };
 
-  // Remove LaTeX preamble like $\renewcommand...$
-  let cleaned = text.replace(/\$\\renewcommand\{[^}]+\}\{[^}]+\}\$/g, "");
+  // Remove LaTeX preamble like $\renewcommand...$ or just \renewcommand... with optional spaces
+  let cleaned = text.replace(/(\$)?\\(re)?newcommand\s*\{[^}]+\}\s*\{[^}]+\}(\$)?/g, "");
 
   // Remove common LaTeX commands and delimiters
   cleaned = cleaned.replace(/\\mathbb\{R\}/g, "R");
@@ -45,6 +45,8 @@ const cleanAbstract = (text: string) => {
 export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: SummaryCarouselProps) {
   const [currentPaperIndex, setCurrentPaperIndex] = useState(initialIndex);
   const [currentStep, setCurrentStep] = useState<SummaryStep>("hook");
+  const [isAuthorsExpanded, setIsAuthorsExpanded] = useState(false);
+  const [language, setLanguage] = useState<"ko" | "en">("en");
   const { markAsRead } = useStore();
   const navigate = useNavigate();
 
@@ -52,8 +54,13 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     if (open) {
       setCurrentPaperIndex(initialIndex);
       setCurrentStep("hook");
+      setIsAuthorsExpanded(false);
     }
   }, [open, initialIndex]);
+
+  useEffect(() => {
+    setIsAuthorsExpanded(false);
+  }, [currentPaperIndex]);
 
   // 모달이 열리거나 논문이 변경될 때 자동으로 읽음 처리
   useEffect(() => {
@@ -135,23 +142,28 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   if (!open) return null;
 
   const paper = papers[currentPaperIndex];
-  let summary = summaries.find((s) => s.paperId === paper.id);
+  const manualSummary = summaries.find((s) => s.paperId === paper.id);
 
-  // Fallback for papers without manual summary
-  if (!summary) {
-    const { cleaned, sentences } = cleanAbstract(paper.abstract || "");
-    summary = {
-      paperId: paper.id,
-      hookOneLiner: sentences.length > 0 ? sentences[0] : "요약 정보가 없습니다.",
-      keyPoints: sentences.length > 0 ? [
-        "자동 생성된 요약입니다.",
-        sentences[1] || "원문을 참고해주세요.",
-        sentences[2] || (sentences[1] ? "전체 내용은 원문을 참고해주세요." : "")
-      ].filter(Boolean) : ["요약 정보가 없습니다."],
-      detailed: cleaned || "요약 정보가 없습니다.",
-      evidenceScope: "abstract"
-    };
-  }
+  // Generate English summary from abstract (always available)
+  const { cleaned, sentences } = cleanAbstract(paper.abstract || "");
+  const englishSummary = {
+    paperId: paper.id,
+    hookOneLiner: sentences.length > 0 ? sentences[0] : "No summary available.",
+    keyPoints: sentences.length > 1 ? sentences.slice(1, 4) : ["Please refer to the original text for details."],
+    detailed: cleaned || "No summary available.",
+    evidenceScope: "abstract" as const
+  };
+
+  // Decide which summary to use
+  // If language is 'ko' and manual summary exists, use it.
+  // Otherwise, use English generated summary.
+  const summary = (language === "ko" && manualSummary)
+    ? manualSummary
+    : englishSummary;
+
+  // If user wants Korean but none exists, strictly they get English fallback.
+  // We could add a visual indicator later.
+
 
   const steps: SummaryStep[] = ["hook", "keypoints", "detailed"];
   const stepIndex = steps.indexOf(currentStep);
@@ -182,6 +194,18 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           ))}
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLanguage(prev => prev === "en" ? "ko" : "en");
+            }}
+            className={cn("gap-1 font-medium", language === "ko" ? "text-primary bg-primary/10" : "text-muted-foreground")}
+          >
+            <Globe className="w-4 h-4" />
+            {language === "en" ? "EN" : "KO"}
+          </Button>
           {paper.pdfUrl && (
             <Button variant="ghost" size="icon" asChild onClick={(e) => e.stopPropagation()}>
               <a
@@ -202,7 +226,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
       {/* Content */}
       <div
-        className="absolute inset-0 overflow-y-auto no-scrollbar"
+        className="absolute inset-0 overflow-y-auto scrollbar-hide"
       >
         <div
           className="min-h-full flex flex-col justify-center px-6 pt-24 pb-36 max-w-lg mx-auto"
@@ -226,11 +250,33 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
             <div className="flex items-start gap-2">
               <Users className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0 flex flex-wrap gap-2">
-                {paper.authors.map((authorName, idx) => (
+                {(isAuthorsExpanded ? paper.authors : paper.authors.slice(0, 5)).map((authorName, idx) => (
                   <span key={idx} className="text-sm px-2 py-0.5 text-foreground cursor-default">
                     {authorName}
                   </span>
                 ))}
+                {!isAuthorsExpanded && paper.authors.length > 5 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsAuthorsExpanded(true);
+                    }}
+                    className="text-sm px-2 py-0.5 text-muted-foreground hover:text-primary font-medium transition-colors"
+                  >
+                    +{paper.authors.length - 5}명 더보기
+                  </button>
+                )}
+                {isAuthorsExpanded && paper.authors.length > 5 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsAuthorsExpanded(false);
+                    }}
+                    className="text-sm px-2 py-0.5 text-muted-foreground hover:text-primary font-medium transition-colors"
+                  >
+                    접기
+                  </button>
+                )}
               </div>
             </div>
 
@@ -426,6 +472,6 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

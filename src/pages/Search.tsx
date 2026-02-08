@@ -24,31 +24,16 @@ type SortMode = "trending" | "recent" | "personalized";
 
 // Helper to convert backend PaperOut to frontend Paper format
 const convertPaperOutToPaper = (paperOut: PaperOut): any => {
-  let imageUrl = paperOut.image_url;
-  // Filter out s3:// URLs as they cause browser errors
-  if (imageUrl && imageUrl.startsWith('s3://')) {
-    imageUrl = undefined;
-  }
-
   return {
     id: String(paperOut.id),
     title: paperOut.title,
     authors: paperOut.authors || [],
     year: paperOut.year,
-    venue: "", // Not provided by search API directly in same format sometimes? Check usage. 
-    // In SearchPage code it used item.paper.source for venue. PaperOut has source?
-    // Let's check apiTypes.
-    // Wait, in previous SearchPage code: venue: item.paper.source.
-    // In Home.tsx: venue: "".
-    // Let's use string "source" if it exists, or empty string.
-    // PaperOut interface usually has what's in apiTypes.
-    // I'll assume item.paper has source locally if typescript allows, but better be safe.
-    // Looking at previous code: venue: item.paper.source.
-    // I'll access it as (paperOut as any).source to be safe or just standard mapping.
+    venue: "",
     tags: paperOut.tags?.map(String) || [],
     abstract: paperOut.short,
     pdfUrl: paperOut.raw_url,
-    imageUrl: imageUrl,
+    imageUrl: paperOut.image_url, // PaperCard will resolve this using resolveImageUrl
     metrics: {
       trendingScore: 0,
       recencyScore: paperOut.year >= new Date().getFullYear() - 1 ? 10 : 5,

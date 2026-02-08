@@ -13,6 +13,11 @@ export default defineConfig({
         changeOrigin: true,
         //rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      '/api/s3-images': {
+        target: 'https://papers.s3.ap-northeast-2.amazonaws.com', // Assuming Seoul region based on user language
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/s3-images/, ''),
+      },
     },
   },
   plugins: [react()],

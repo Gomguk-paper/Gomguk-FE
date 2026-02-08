@@ -16,11 +16,14 @@ import type { PaperOut } from "@/lib/apiTypes";
 
 // Helper function to convert backend PaperOut to frontend Paper format
 const convertPaperOutToPaper = (paperOut: PaperOut): any => {
-  let imageUrl = paperOut.image_url;
-  // Filter out s3:// URLs as they cause browser errors
-  if (imageUrl && imageUrl.startsWith('s3://')) {
-    imageUrl = undefined;
-  }
+  // let imageUrl = paperOut.image_url;
+  // // Filter out s3:// URLs as they cause browser errors
+  // if (imageUrl && imageUrl.startsWith('s3://')) {
+  //   imageUrl = undefined;
+  // }
+
+  // We now handle s3:// URLs in PaperCard via resolveImageUrl
+  const imageUrl = paperOut.image_url;
 
   return {
     id: String(paperOut.id),
@@ -73,6 +76,7 @@ export default function Home() {
       console.log('[Home] No papers response or items:', papersResponse);
       return [];
     }
+    console.log('[Home] Raw API Response Items (first):', papersResponse.items[0]);
     const converted = papersResponse.items.map(item => convertPaperOutToPaper(item.paper));
     console.log('[Home] Converted papers:', converted.length, 'papers');
     return converted;
