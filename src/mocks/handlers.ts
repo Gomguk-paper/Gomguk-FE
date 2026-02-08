@@ -1,111 +1,106 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, passthrough } from 'msw';
 import {
-    mockPapers,
-    mockSummaries,
     mockReports,
     mockAuthors,
     mockTagDescriptions,
     mockAllTags,
+    mockPapers,
 } from './data/mockData';
-import type { GetPapersParams, GetAuthorsParams, GetTrendingTagsParams, GetReportsParams } from '@/lib/apiTypes';
+
+// MSW handlers - 백엔드에서 미구현된 API만 mock 처리
+// ✅ 구현된 API (실제 서버로 통과): /api/paper, /api/summary, /api/auth, /api/me, /api/oauth
+// ⚠️ 미구현 API (mock 처리): /api/authors, /api/reports, /api/tags
 
 export const handlers = [
-    // GET /api/papers - 논문 목록 조회
-    http.get('/api/papers', ({ request }) => {
+    // ============================================
+    // 미구현 API - Authors (Mock)
+    // ============================================
+
+    // GET /api/authors - 저자 목록 조회
+    http.get('/api/authors', ({ request }) => {
         try {
             const url = new URL(request.url);
-            const tag = url.searchParams.get('tag');
-            const sort = url.searchParams.get('sort') as 'trending' | 'recent' | 'citations' | null;
+            const recommended = url.searchParams.get('recommended');
             const limit = url.searchParams.get('limit');
 
-            // Check if mockPapers is defined
-            if (!mockPapers) {
-                console.error('mockPapers is undefined in handler');
-                throw new Error('Database initialization error');
-            }
+            if (!mockAuthors) throw new Error('mockAuthors not initialized');
 
-            let filtered = [...mockPapers];
+            let filtered = [...mockAuthors];
 
-            // Filter by tag
-            if (tag) {
-                filtered = filtered.filter(paper =>
-                    paper.tags.some(t => t.toLowerCase() === tag.toLowerCase())
-                );
-            }
-
-            // Sort papers
-            if (sort === 'trending') {
-                filtered.sort((a, b) => b.metrics.trendingScore - a.metrics.trendingScore);
-            } else if (sort === 'recent') {
-                filtered.sort((a, b) => b.metrics.recencyScore - a.metrics.recencyScore);
-            } else if (sort === 'citations') {
-                filtered.sort((a, b) => b.metrics.citations - a.metrics.citations);
-            } else {
-                // Default: combination of trending and recency
-                filtered.sort((a, b) =>
-                    (b.metrics.trendingScore + b.metrics.recencyScore) -
-                    (a.metrics.trendingScore + a.metrics.recencyScore)
-                );
-            }
-
-            // Limit results
-            if (limit) {
+            // Filter recommended authors
+            if (recommended === 'true') {
+                filtered = filtered
+                    .sort((a, b) => b.stats.totalCitations - a.stats.totalCitations)
+                    .slice(0, parseInt(limit || '5'));
+            } else if (limit) {
                 filtered = filtered.slice(0, parseInt(limit));
             }
 
             return HttpResponse.json(filtered);
         } catch (error) {
-            console.error('Error in GET /api/papers:', error);
-            return HttpResponse.json(
-                { error: 'Internal Server Error', details: String(error) },
-                { status: 500 }
-            );
+            console.error('[MSW] Error in GET /api/authors:', error);
+            return HttpResponse.json({ error: String(error) }, { status: 500 });
         }
     }),
 
-    // GET /api/papers/:id - 특정 논문 상세 조회
-    http.get('/api/papers/:id', ({ params }) => {
+    // GET /api/authors/:id - 특정 저자 정보 조회
+    http.get('/api/authors/:id', ({ params }) => {
         try {
             const { id } = params;
-            if (!mockPapers) throw new Error('mockPapers not initialized');
+            if (!mockAuthors) throw new Error('mockAuthors not initialized');
 
-            const paper = mockPapers.find(p => p.id === id);
+            const author = mockAuthors.find(a => a.id === id);
 
-            if (!paper) {
+            if (!author) {
                 return HttpResponse.json(
-                    { error: 'Paper not found' },
+                    { error: 'Author not found' },
                     { status: 404 }
                 );
             }
 
-            return HttpResponse.json(paper);
+            return HttpResponse.json(author);
         } catch (error) {
-            console.error('Error in GET /api/papers/:id:', error);
+            console.error('[MSW] Error in GET /api/authors/:id:', error);
             return HttpResponse.json({ error: String(error) }, { status: 500 });
         }
     }),
 
-    // GET /api/summaries/:paperId - 논문 요약 조회
-    http.get('/api/summaries/:paperId', ({ params }) => {
+    // GET /api/authors/:id/papers - 저자의 논문 목록
+    http.get('/api/authors/:id/papers', ({ params }) => {
         try {
-            const { paperId } = params;
-            if (!mockSummaries) throw new Error('mockSummaries not initialized');
+            const { id } = params;
+            if (!mockAuthors || !mockPapers) throw new Error('Data not initialized');
 
-            const summary = mockSummaries.find(s => s.paperId === paperId);
+            const author = mockAuthors.find(a => a.id === id);
 
-            if (!summary) {
+            if (!author) {
                 return HttpResponse.json(
-                    { error: 'Summary not found' },
+                    { error: 'Author not found' },
                     { status: 404 }
                 );
             }
 
-            return HttpResponse.json(summary);
+            // Filter papers that include the author's name
+            const authorLastName = author.name.split(' ')[1]?.toLowerCase();
+            const authorFullName = author.name.toLowerCase();
+
+            const authorPapers = mockPapers.filter(paper =>
+                paper.authors.some(a => {
+                    const aLower = a.toLowerCase();
+                    return aLower.includes(authorLastName || authorFullName) || aLower === authorFullName;
+                })
+            );
+
+            return HttpResponse.json(authorPapers);
         } catch (error) {
-            console.error('Error in GET /api/summaries/:paperId:', error);
+            console.error('[MSW] Error in GET /api/authors/:id/papers:', error);
             return HttpResponse.json({ error: String(error) }, { status: 500 });
         }
     }),
+
+    // ============================================
+    // 미구현 API - Reports (Mock)
+    // ============================================
 
     // GET /api/reports - 기술 리포트 목록
     http.get('/api/reports', ({ request }) => {
@@ -132,7 +127,7 @@ export const handlers = [
 
             return HttpResponse.json(filtered);
         } catch (error) {
-            console.error('Error in GET /api/reports:', error);
+            console.error('[MSW] Error in GET /api/reports:', error);
             return HttpResponse.json({ error: String(error) }, { status: 500 });
         }
     }),
@@ -154,109 +149,17 @@ export const handlers = [
 
             return HttpResponse.json(report);
         } catch (error) {
-            console.error('Error in GET /api/reports/:id:', error);
+            console.error('[MSW] Error in GET /api/reports/:id:', error);
             return HttpResponse.json({ error: String(error) }, { status: 500 });
         }
     }),
 
-    // GET /api/authors - 저자 목록 조회
-    http.get('/api/authors', ({ request }) => {
-        try {
-            const url = new URL(request.url);
-            const recommended = url.searchParams.get('recommended');
-            const limit = url.searchParams.get('limit');
+    // ============================================
+    // 미구현 API - Tags (Mock - 선택적)
+    // ============================================
 
-            if (!mockAuthors) throw new Error('mockAuthors not initialized');
-
-            let filtered = [...mockAuthors];
-
-            // Limit results
-            if (limit) {
-                filtered = filtered.slice(0, parseInt(limit));
-            }
-
-            return HttpResponse.json(filtered);
-        } catch (error) {
-            console.error('Error in GET /api/authors:', error);
-            return HttpResponse.json({ error: String(error) }, { status: 500 });
-        }
-    }),
-
-    // GET /api/authors/:id - 특정 저자 정보 조회
-    http.get('/api/authors/:id', ({ params }) => {
-        try {
-            const { id } = params;
-            if (!mockAuthors) throw new Error('mockAuthors not initialized');
-
-            const author = mockAuthors.find(a => a.id === id);
-
-            if (!author) {
-                return HttpResponse.json(
-                    { error: 'Author not found' },
-                    { status: 404 }
-                );
-            }
-
-            return HttpResponse.json(author);
-        } catch (error) {
-            console.error('Error in GET /api/authors/:id:', error);
-            return HttpResponse.json({ error: String(error) }, { status: 500 });
-        }
-    }),
-
-    // GET /api/authors/:id/papers - 저자의 논문 목록
-    http.get('/api/authors/:id/papers', ({ params }) => {
-        try {
-            const { id } = params;
-            if (!mockAuthors || !mockPapers) throw new Error('Data not initialized');
-
-            const author = mockAuthors.find(a => a.id === id);
-
-            if (!author) {
-                return HttpResponse.json(
-                    { error: 'Author not found' },
-                    { status: 404 }
-                );
-            }
-
-            // Filter papers that include the author's name
-            // Safe access to author name parts
-            const authorLastName = author.name.split(' ')[1]?.toLowerCase();
-            const authorFullName = author.name.toLowerCase();
-
-            const authorPapers = mockPapers.filter(paper =>
-                paper.authors.some(a => {
-                    const aLower = a.toLowerCase();
-                    return aLower.includes(authorLastName || authorFullName) || aLower === authorFullName;
-                })
-            );
-
-            return HttpResponse.json(authorPapers);
-        } catch (error) {
-            console.error('Error in GET /api/authors/:id/papers:', error);
-            return HttpResponse.json({ error: String(error) }, { status: 500 });
-        }
-    }),
-
-    // GET /api/tags - 태그 목록 및 설명
-    http.get('/api/tags', () => {
-        try {
-            if (!mockAllTags || !mockPapers) throw new Error('Data not initialized');
-
-            const tagsWithInfo = mockAllTags.map(tag => ({
-                name: tag,
-                description: mockTagDescriptions[tag] || `${tag} 관련 논문`,
-                count: mockPapers.filter(p => p.tags.includes(tag)).length,
-            }));
-
-            return HttpResponse.json(tagsWithInfo);
-        } catch (error) {
-            console.error('Error in GET /api/tags:', error);
-            return HttpResponse.json({ error: String(error) }, { status: 500 });
-        }
-    }),
-
-    // GET /api/tags/trending - 트렌딩 태그
+    // 백엔드에 GET /api/tags가 있다면 이 핸들러는 제거하세요
+    // 지금은 미구현으로 가정하고 mock 처리
     http.get('/api/tags/trending', ({ request }) => {
         try {
             const url = new URL(request.url);
@@ -288,8 +191,18 @@ export const handlers = [
 
             return HttpResponse.json(trending);
         } catch (error) {
-            console.error('Error in GET /api/tags/trending:', error);
+            console.error('[MSW] Error in GET /api/tags/trending:', error);
             return HttpResponse.json({ error: String(error) }, { status: 500 });
         }
     }),
+
+    // ============================================
+    // 구현된 API는 실제 백엔드로 통과
+    // ============================================
+    // /api/paper/* - 실제 백엔드
+    // /api/summary/* - 실제 백엔드
+    // /api/auth/* - 실제 백엔드
+    // /api/me/* - 실제 백엔드
+    // /api/oauth/* - 실제 백엔드
+    // /api/add/* - 실제 백엔드
 ];

@@ -342,8 +342,8 @@ export const mockReports: Report[] = [
     },
 ];
 
-// Re-export authors directly from source of truth
-export { authors as mockAuthors } from '@/data/authors';
+import { authors } from '@/data/authors';
+export const mockAuthors = authors;
 
 export const mockTagDescriptions: Record<string, string> = {
     "Transformer": "어텐션 메커니즘을 사용하는 딥러닝 아키텍처",

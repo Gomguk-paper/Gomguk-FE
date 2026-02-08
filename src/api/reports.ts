@@ -1,5 +1,10 @@
 import apiClient from '@/lib/apiClient';
-import type { Report, GetReportsParams } from '@/lib/apiTypes';
+import type { Report } from '@/lib/apiTypes';
+
+interface GetReportsParams {
+    limit?: number;
+    tag?: string;
+}
 
 export const reportsApi = {
     // Get all reports with optional filters

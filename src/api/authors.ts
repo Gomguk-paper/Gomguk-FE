@@ -1,5 +1,10 @@
 import apiClient from '@/lib/apiClient';
-import type { Author, Paper, GetAuthorsParams } from '@/lib/apiTypes';
+import type { Author, Paper } from '@/lib/apiTypes';
+
+interface GetAuthorsParams {
+    recommended?: boolean;
+    limit?: number;
+}
 
 export const authorsApi = {
     // Get all authors with optional filters

@@ -13,6 +13,27 @@ import { clearStoredUser } from "@/lib/authStorage";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
+import type { PaperOut } from "@/lib/apiTypes";
+
+// Helper function to convert backend PaperOut to frontend Paper format
+const convertPaperOutToPaper = (paperOut: PaperOut): any => {
+  return {
+    id: String(paperOut.id),
+    title: paperOut.title,
+    authors: paperOut.authors || [],
+    year: paperOut.year,
+    venue: "", // Not provided by backend
+    tags: paperOut.tags?.map(String) || [], // Convert number[] to string[]
+    abstract: paperOut.short,
+    pdfUrl: paperOut.raw_url,
+    imageUrl: paperOut.image_url,
+    metrics: {
+      trendingScore: 0, // Not provided by backend
+      recencyScore: paperOut.year >= new Date().getFullYear() - 1 ? 10 : 5,
+      citations: 0, // Not provided by backend
+    },
+  };
+};
 
 export default function Home() {
   const navigate = useNavigate();
@@ -28,16 +49,39 @@ export default function Home() {
   // Restore scroll position when navigating back to this page
   useScrollRestoration('home');
 
-  // Fetch papers from API
-  const { data: papers = [], isLoading: papersLoading } = useQuery({
+  // Fetch papers from API (updated to match backend spec)
+  const {
+    data: papersResponse,
+    isLoading: papersLoading,
+    isError: papersError,
+    error: papersErrorDetails,
+    refetch: refetchPapers
+  } = useQuery({
     queryKey: ['papers'],
-    queryFn: () => papersApi.getPapers(),
+    queryFn: () => papersApi.getPapers({ limit: 100, offset: 0 }),
+    retry: 1,
   });
 
-  // Fetch reports from API
-  const { data: reports = [], isLoading: reportsLoading } = useQuery({
+  // Extract and convert papers from the response
+  const papers = useMemo(() => {
+    if (!papersResponse?.items) {
+      console.log('[Home] No papers response or items:', papersResponse);
+      return [];
+    }
+    const converted = papersResponse.items.map(item => convertPaperOutToPaper(item.paper));
+    console.log('[Home] Converted papers:', converted.length, 'papers');
+    return converted;
+  }, [papersResponse]);
+
+  // Fetch reports from API with error handling
+  const { data: reports = [] } = useQuery({
     queryKey: ['reports'],
     queryFn: () => reportsApi.getReports({ limit: 2 }),
+    retry: false, // Don't retry on 404
+    meta: {
+      // Suppress error notifications for expected 404s
+      suppressErrorToast: true,
+    },
   });
 
   // Sort papers by personalized score
@@ -56,10 +100,10 @@ export default function Home() {
 
       if (prefs?.tags) {
         prefs.tags.forEach(({ name, weight }) => {
-          if (a.tags.some((t) => t.toLowerCase() === name.toLowerCase())) {
+          if (a.tags?.some((t) => t.toLowerCase() === name.toLowerCase())) {
             weightedScoreA += weight * 10;
           }
-          if (b.tags.some((t) => t.toLowerCase() === name.toLowerCase())) {
+          if (b.tags?.some((t) => t.toLowerCase() === name.toLowerCase())) {
             weightedScoreB += weight * 10;
           }
         });
@@ -115,7 +159,7 @@ export default function Home() {
 
         // 관심 태그와 매칭되는지 확인
         const hasMatchingTag = prefs.tags!.some((prefTag) =>
-          paper.tags.some((tag) => tag.toLowerCase() === prefTag.name.toLowerCase())
+          paper.tags?.some((tag) => tag.toLowerCase() === prefTag.name.toLowerCase())
         );
 
         if (hasMatchingTag) {
@@ -178,27 +222,61 @@ export default function Home() {
 
       <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr">
         {/* Tech Reports Section */}
-        <section className="p-4">
-          <h2 className="font-display font-semibold text-lg mb-3">🔥 기술 리포트</h2>
-          <div className="space-y-3">
-            {reports.slice(0, 2).map((report) => (
-              <ReportCard key={report.id} report={report} />
-            ))}
-          </div>
-        </section>
+        {reports.length > 0 && (
+          <section className="p-4">
+            <h2 className="font-display font-semibold text-lg mb-3">🔥 기술 리포트</h2>
+            <div className="space-y-3">
+              {reports.slice(0, 2).map((report) => (
+                <ReportCard key={report.id} report={report} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Paper Feed */}
         <section className="p-4">
           <h2 className="font-display font-semibold text-lg mb-3">📚 맞춤 논문 피드</h2>
           <div className="space-y-4">
             {papersLoading ? (
+              // Loading state - show skeletons
               Array.from({ length: 5 }).map((_, i) => (
                 <PaperCardSkeleton key={i} />
               ))
-            ) : (
+            ) : papersError ? (
+              // Error state - show error message with retry button
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">논문을 불러올 수 없습니다</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {papersErrorDetails instanceof Error ? papersErrorDetails.message : '서버에 연결할 수 없습니다'}
+                </p>
+                <button
+                  onClick={() => refetchPapers()}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  다시 시도
+                </button>
+              </div>
+            ) : displayedPapers.length > 0 ? (
+              // Success state - show papers
               displayedPapers.map((paper, index) => (
                 <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
               ))
+            ) : (
+              // Empty state - no papers available
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <BookOpen className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">논문이 없습니다</h3>
+                <p className="text-sm text-muted-foreground">
+                  아직 추천할 논문이 없습니다. 조금만 기다려주세요!
+                </p>
+              </div>
             )}
           </div>
 
