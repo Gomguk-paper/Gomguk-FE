@@ -12,7 +12,8 @@ export const authApi = {
     },
 
     getGoogleLoginUrl: (redirectUri: string): string => {
-        return `http://localhost:8000/api/oauth/google/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+        return `${backendUrl}/api/oauth/google/login?redirect_uri=${encodeURIComponent(redirectUri)}`;
     },
 
     // Refresh access token

@@ -64,8 +64,10 @@ export function LoginForm({
 
   const handleLogin = async (provider: AuthProvider) => {
     if (provider === "google") {
-      const redirectUri = window.location.origin;
-      window.location.href = authApi.getGoogleLoginUrl(redirectUri);
+      const redirectUri = `${window.location.origin}/login`;
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+      const loginUrl = `${backendUrl}/api/oauth/google/login?redirect_uri=${encodeURIComponent(redirectUri)}&remember=${rememberMe}`;
+      window.location.href = loginUrl;
       return;
     }
 
