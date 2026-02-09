@@ -1,7 +1,9 @@
 import axios from "axios";
 
-import { authClient, refreshAccessToken } from "@/lib/authClient";
+import apiClient from "@/lib/apiClient";
+import { refreshAccessToken } from "@/lib/authClient";
 import type { AuthProvider, StoredUser } from "@/lib/authStorage";
+import { useStore } from "@/store/useStore";
 
 export const POST_LOGIN_REDIRECT_KEY = "gomguk_post_login_redirect";
 
@@ -22,12 +24,10 @@ export const mapMeToStoredUser = (me: MeResponse): StoredUser => ({
   avatarUrl: me.profile_image ?? undefined,
 });
 
-const fetchMe = async (accessToken: string) => {
-  return authClient.get<MeResponse>("/me", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+const setAccessToken = (token: string | null) => useStore.getState().setAccessToken(token);
+
+const fetchMe = async () => {
+  return apiClient.get<MeResponse>("/me");
 };
 
 const isUnauthorized = (error: unknown) => {
@@ -39,13 +39,15 @@ export const bootstrapSession = async (): Promise<{
   user: StoredUser;
 }> => {
   let accessToken = await refreshAccessToken();
+  setAccessToken(accessToken);
   let meResponse;
   try {
-    meResponse = await fetchMe(accessToken);
+    meResponse = await fetchMe();
   } catch (error) {
     if (isUnauthorized(error)) {
       accessToken = await refreshAccessToken();
-      meResponse = await fetchMe(accessToken);
+      setAccessToken(accessToken);
+      meResponse = await fetchMe();
     } else {
       throw error;
     }
