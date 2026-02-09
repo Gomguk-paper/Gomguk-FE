@@ -9,6 +9,7 @@ import { ReportCard } from "@/components/ReportCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { NotificationList } from "@/components/NotificationList";
 import { LoginModal } from "@/components/LoginModal";
+import { logoutSession } from "@/lib/authClient";
 import { clearStoredUser } from "@/lib/authStorage";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
@@ -16,7 +17,7 @@ import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { prefs, user, setUser, addNotification, getNotifications } = useStore();
+  const { prefs, user, setUser, setAccessToken, addNotification, getNotifications } = useStore();
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -144,9 +145,16 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, prefs?.tags?.length]);
 
-  const handleLogout = () => {
-    clearStoredUser();
-    setUser(null);
+  const handleLogout = async () => {
+    try {
+      await logoutSession();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      clearStoredUser();
+      setAccessToken(null);
+      setUser(null);
+    }
   };
 
   return (

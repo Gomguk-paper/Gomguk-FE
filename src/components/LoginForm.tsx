@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import { AuthProvider, getStoredPrefs, setStoredUser, clearStoredUser } from "@/lib/authStorage";
+import { API_BASE_URL_NO_TRAILING } from "@/lib/apiBase";
+import { POST_LOGIN_REDIRECT_KEY } from "@/lib/authSession";
+import { AuthProvider } from "@/lib/authStorage";
 import { BookOpen, Loader2 } from "lucide-react";
 
 interface LoginFormProps {
@@ -15,16 +15,16 @@ interface LoginFormProps {
   showNotice?: boolean;
   /** 컴팩트 모드 (모달용) */
   compact?: boolean;
+  /** 로그인 완료 후 돌아갈 경로 */
+  returnTo?: string;
 }
 
 export function LoginForm({
-  onSuccess,
   onError,
   showNotice = false,
   compact = false,
+  returnTo,
 }: LoginFormProps) {
-  const { setUser } = useStore();
-  const { toast } = useToast();
   const [authStatus, setAuthStatus] = useState<"idle" | "loading" | "authenticated" | "error">(
     "idle"
   );
@@ -51,36 +51,29 @@ export function LoginForm({
     }
   }, [compact]);
 
-  const createMockUser = (provider: AuthProvider) => {
-    const providerLabel = provider === "google" ? "Google" : "GitHub";
-    return {
-      id: `${Date.now()}`,
-      name: `${providerLabel} 사용자`,
-      provider,
-      createdAt: new Date().toISOString(),
-    };
-  };
-
   const handleLogin = async (provider: AuthProvider) => {
-    // HARDCODED LOGIN: 요청에 따라 강제 로그인 처리
-    console.log("Force logging in...");
-    const user = {
-      id: "test-user-id",
-      name: "테스트 유저",
-      provider: provider,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      setAuthStatus("loading");
+      setLoadingProvider(provider);
 
-    // 상태 저장
-    if (rememberMe) {
-      setStoredUser(user);
-    } else {
-      clearStoredUser();
+      const redirectUri = `${window.location.origin}/oauth/callback`;
+      const target = returnTo || `${window.location.pathname}${window.location.search}`;
+      if (target && !target.startsWith("/oauth/callback")) {
+        sessionStorage.setItem(POST_LOGIN_REDIRECT_KEY, target);
+      }
+
+      const params = new URLSearchParams({
+        redirect_uri: redirectUri,
+        remember: rememberMe ? "true" : "false",
+      });
+
+      window.location.href = `${API_BASE_URL_NO_TRAILING}/oauth/${provider}/login?${params.toString()}`;
+    } catch (error) {
+      setAuthStatus("error");
+      setLoadingProvider(null);
+      onError?.();
+      console.error("Login redirect failed:", error);
     }
-
-    // Store 업데이트 및 성공 콜백
-    setUser(user);
-    onSuccess?.();
   };
 
   const isLoading = authStatus === "loading";
@@ -129,14 +122,14 @@ export function LoginForm({
             Google로 시작하기
           </Button>
           <Button
-            id="btn_login_kakao"
+            id="btn_login_github"
             variant="outline"
             className="w-full h-12 text-base"
-            onClick={() => handleLogin("kakao")}
+            onClick={() => handleLogin("github")}
             disabled={isLoading}
             aria-label="GitHub로 시작하기"
           >
-            {loadingProvider === "kakao" ? (
+            {loadingProvider === "github" ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <img
@@ -207,14 +200,14 @@ export function LoginForm({
           Google로 시작하기
         </Button>
         <Button
-          id="btn_login_kakao"
+          id="btn_login_github"
           variant="outline"
           className="w-full h-12 text-base"
-          onClick={() => handleLogin("kakao")}
+          onClick={() => handleLogin("github")}
           disabled={isLoading}
           aria-label="GitHub로 시작하기"
         >
-          {loadingProvider === "kakao" ? (
+          {loadingProvider === "github" ? (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           ) : (
             <img src="/github.png" alt="" aria-hidden="true" className="h-5 w-5 object-contain dark:invert" />

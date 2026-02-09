@@ -1,15 +1,10 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 import { API_BASE_URL } from "@/lib/apiBase";
-import { refreshAccessToken } from "@/lib/authClient";
 import { clearStoredUser } from "@/lib/authStorage";
 import { useStore } from "@/store/useStore";
 
-interface RetriableRequestConfig extends InternalAxiosRequestConfig {
-  _retry?: boolean;
-}
-
-const apiClient = axios.create({
+export const authClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   withCredentials: true,
@@ -18,6 +13,25 @@ const apiClient = axios.create({
   },
 });
 
+export interface RefreshResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+export async function refreshAccessToken(): Promise<string> {
+  const response = await authClient.post<RefreshResponse>("/auth/refresh");
+  return response.data.access_token;
+}
+
+export async function logoutSession(): Promise<void> {
+  await authClient.post("/auth/logout");
+}
+
+interface RetriableRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
 const shouldSkipRefresh = (url?: string) => {
   if (!url) return false;
   return url.includes("/auth/refresh") || url.includes("/auth/logout") || url.includes("/oauth/");
@@ -25,7 +39,6 @@ const shouldSkipRefresh = (url?: string) => {
 
 let refreshPromise: Promise<string | null> | null = null;
 
-const getAccessToken = () => useStore.getState().accessToken;
 const setAccessToken = (token: string | null) => useStore.getState().setAccessToken(token);
 const clearUser = () => useStore.getState().setUser(null);
 
@@ -49,19 +62,7 @@ const refreshTokenOnce = async (): Promise<string | null> => {
   return refreshPromise;
 };
 
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken();
-    if (token) {
-      config.headers = config.headers ?? {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-apiClient.interceptors.response.use(
+authClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const responseStatus = error.response?.status;
@@ -78,13 +79,10 @@ apiClient.interceptors.response.use(
       if (newToken) {
         originalConfig.headers = originalConfig.headers ?? {};
         originalConfig.headers.Authorization = `Bearer ${newToken}`;
-        return apiClient(originalConfig);
+        return authClient(originalConfig);
       }
     }
 
-    console.error("API Error:", error);
     return Promise.reject(error);
   }
 );
-
-export default apiClient;

@@ -2,6 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Home, Search, User, Settings, LogOut, LogIn, BookOpen, Moon, Sun, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
+import { logoutSession } from "@/lib/authClient";
 import { clearStoredUser } from "@/lib/authStorage";
 import { useState } from "react";
 import {
@@ -23,18 +24,25 @@ const navItems = [
 
 export function DesktopSidebar() {
     const location = useLocation();
-    const { user, setUser } = useStore();
+    const { user, setUser, setAccessToken } = useStore();
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
     // Hide on login and onboarding pages
-    if (location.pathname === "/login" || location.pathname === "/onboarding") {
+    if (location.pathname === "/login" || location.pathname === "/onboarding" || location.pathname === "/oauth/callback") {
         return null;
     }
 
-    const handleLogout = () => {
-        clearStoredUser();
-        setUser(null);
-        setShowLogoutDialog(false);
+    const handleLogout = async () => {
+        try {
+            await logoutSession();
+        } catch (error) {
+            console.error("Logout failed:", error);
+        } finally {
+            clearStoredUser();
+            setAccessToken(null);
+            setUser(null);
+            setShowLogoutDialog(false);
+        }
     };
 
     return (

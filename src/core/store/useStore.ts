@@ -27,6 +27,8 @@ interface GomgukStore {
   // User
   user: StoredUser | null;
   setUser: (user: StoredUser | null) => void;
+  accessToken: string | null;
+  setAccessToken: (token: string | null) => void;
 
   // Preferences
   prefs: UserPrefs | null;
@@ -81,6 +83,8 @@ export const useStore = create<GomgukStore>()(
       // User
       user: null,
       setUser: (user) => set({ user }),
+      accessToken: null,
+      setAccessToken: (token) => set({ accessToken: token }),
 
       // Preferences
       prefs: null,

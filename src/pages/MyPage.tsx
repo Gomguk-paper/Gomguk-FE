@@ -27,6 +27,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { logoutSession } from "@/lib/authClient";
 import { clearStoredUser } from "@/lib/authStorage";
 import {
   format,
@@ -47,7 +48,7 @@ import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 export default function MyPage() {
   const navigate = useNavigate();
-  const { user, actionsByUser, prefs, setUser } = useStore();
+  const { user, actionsByUser, prefs, setUser, setAccessToken } = useStore();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const userKey = user?.provider ?? null;
   const actions = userKey ? (actionsByUser[userKey] ?? []) : [];
@@ -201,10 +202,17 @@ export default function MyPage() {
     return colors[index % colors.length];
   };
 
-  const handleLogout = () => {
-    clearStoredUser();
-    setUser(null);
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logoutSession();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      clearStoredUser();
+      setAccessToken(null);
+      setUser(null);
+      navigate("/login");
+    }
   };
 
   const renderMyPageHeader = () => (

@@ -1,4 +1,4 @@
-export type AuthProvider = "google" | "kakao";
+export type AuthProvider = "google" | "github";
 
 export interface TagPreference {
   name: string;

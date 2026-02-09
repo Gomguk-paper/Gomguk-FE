@@ -183,7 +183,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
 
         {/* Content */}
         <div id="login-modal-description" className="sr-only">
-          로그인 모달입니다. Google 또는 Kakao 계정으로 로그인할 수 있습니다.
+          로그인 모달입니다. Google 또는 GitHub 계정으로 로그인할 수 있습니다.
         </div>
         <h2 id="login-modal-title" className="sr-only">
           로그인

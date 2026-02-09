@@ -40,6 +40,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { logoutSession } from "@/lib/authClient";
 import { clearStoredUser, setStoredPrefs, setStoredUser, type UserPrefs, type StoredUser } from "@/lib/authStorage";
 import { Label } from "@/components/ui/label";
 
@@ -74,7 +75,7 @@ const saveNotificationSettings = (settings: NotificationSettings) => {
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { user, prefs, setUser, setPrefs } = useStore();
+  const { user, prefs, setUser, setPrefs, setAccessToken } = useStore();
   const { theme, setTheme } = useTheme();
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(getNotificationSettings());
   const [dailyCount, setDailyCount] = useState(prefs?.dailyCount || 10);
@@ -139,15 +140,28 @@ export default function Settings() {
     setAvatarUrl("");
   };
 
-  const handleLogout = () => {
-    clearStoredUser();
-    setUser(null);
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logoutSession();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      clearStoredUser();
+      setAccessToken(null);
+      setUser(null);
+      navigate("/login");
+    }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
+    try {
+      await logoutSession();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
     // Clear all user data
     clearStoredUser();
+    setAccessToken(null);
     setUser(null);
     setPrefs(null);
 
@@ -218,7 +232,7 @@ export default function Settings() {
                 </div>
                 <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                   <Mail className="w-3.5 h-3.5" />
-                  {user?.provider === "google" ? "Google 계정" : "Kakao 계정"}
+                  {user?.provider === "google" ? "Google 계정" : "GitHub 계정"}
                 </div>
               </div>
             </div>
@@ -622,4 +636,3 @@ export default function Settings() {
     </main>
   );
 }
-

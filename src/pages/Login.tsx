@@ -9,6 +9,7 @@ export default function Login() {
     (location.state as { reason?: string } | null)?.reason === "auth"
       ? "로그인이 필요합니다."
       : null;
+  const returnTo = (location.state as { from?: string } | null)?.from || "/";
 
   const handleLoginSuccess = () => {
     const storedPrefs = getStoredPrefs();
@@ -21,6 +22,7 @@ export default function Login() {
         onSuccess={handleLoginSuccess}
         showNotice={!!loginNotice}
         compact={false}
+        returnTo={returnTo}
       />
     </main>
   );

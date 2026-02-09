@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { BottomNav } from "@/components/BottomNav";
 import Login from "./pages/Login";
@@ -13,30 +13,50 @@ import MyPage from "./pages/MyPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AuthorPage from "./pages/AuthorPage";
-import { getStoredPrefs, getStoredUser, clearStoredUser } from "@/lib/authStorage";
+import OAuthCallback from "./pages/OAuthCallback";
+import { bootstrapSession } from "@/lib/authSession";
+import { clearStoredUser, getStoredPrefs } from "@/lib/authStorage";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
 function AppRoutes() {
-  const { user, prefs, setUser, setPrefs } = useStore();
+  const { user, prefs, setUser, setPrefs, setAccessToken } = useStore();
   const [hydrated, setHydrated] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
-    const storedUser = getStoredUser();
-    const storedPrefs = getStoredPrefs();
+    let cancelled = false;
 
-    // 기존 게스트 사용자 자동 로그아웃
-    if ((storedUser?.provider as string) === "guest") {
-      clearStoredUser();
-    } else if (!user && storedUser) {
-      setUser(storedUser);
-    }
+    const hydrate = async () => {
+      const storedPrefs = getStoredPrefs();
+      if (!prefs && storedPrefs) {
+        setPrefs(storedPrefs);
+      }
 
-    if (!prefs && storedPrefs) {
-      setPrefs(storedPrefs);
-    }
-    setHydrated(true);
+      if (location.pathname.startsWith("/oauth/callback")) {
+        setHydrated(true);
+        return;
+      }
+
+      try {
+        const { accessToken, user: me } = await bootstrapSession();
+        if (cancelled) return;
+        setAccessToken(accessToken);
+        setUser(me);
+      } catch (error) {
+        if (cancelled) return;
+        setAccessToken(null);
+        setUser(null);
+        clearStoredUser();
+      } finally {
+        if (!cancelled) {
+          setHydrated(true);
+        }
+      }
+    };
+
+    hydrate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 초기 마운트 시에만 실행
 
@@ -57,6 +77,7 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/mypage" element={<MyPage />} />
+        <Route path="/oauth/callback" element={<OAuthCallback />} />
         <Route
           path="/login"
           element={user ? <Navigate to={hasPrefs ? "/" : "/onboarding"} replace /> : <Login />}

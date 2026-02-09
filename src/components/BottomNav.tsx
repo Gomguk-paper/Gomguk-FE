@@ -12,7 +12,7 @@ export function BottomNav() {
   const location = useLocation();
 
   // Hide on login and onboarding pages
-  if (location.pathname === "/login" || location.pathname === "/onboarding") {
+  if (location.pathname === "/login" || location.pathname === "/onboarding" || location.pathname === "/oauth/callback") {
     return null;
   }
 
