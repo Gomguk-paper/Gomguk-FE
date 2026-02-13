@@ -24,6 +24,11 @@ export default function Login() {
     if (isNewUser !== null && !isProcessingCallback) {
       setIsProcessingCallback(true);
 
+      const accessToken = searchParams.get("access_token");
+      if (accessToken) {
+        localStorage.setItem("access_token", accessToken);
+      }
+
       // Fetch user info from backend
       meApi
         .getMe()
