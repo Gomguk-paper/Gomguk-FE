@@ -21,6 +21,12 @@ export function RightSidebar() {
 
     const isLoggedIn = Boolean(user);
 
+    // Fetch trending tags from API (Hook must be called before any early return)
+    const { data: trendingTagsResponse } = useQuery({
+        queryKey: ['tags', 'trending'],
+        queryFn: () => tagsApi.getTags({ limit: 20 }),
+    });
+
     const handleLegalClick = (type: "terms" | "privacy" | "cookies" | "accessibility" | "advertising") => {
         setLegalContentType(type);
         setLegalModalOpen(true);
@@ -30,12 +36,6 @@ export function RightSidebar() {
     if (location.pathname === "/login" || location.pathname === "/onboarding") {
         return null;
     }
-
-    // Fetch trending tags from API
-    const { data: trendingTagsResponse } = useQuery({
-        queryKey: ['tags', 'trending'],
-        queryFn: () => tagsApi.getTags({ limit: 20 }),
-    });
 
     const trendingTagsData = trendingTagsResponse?.items || [];
     const allTrendingTags = trendingTagsData.map(item => ({ tag: item.tag.name, count: item.tag.count || 0 }));
