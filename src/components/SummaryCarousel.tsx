@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, TrendingUp, Award, Globe } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, TrendingUp, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Paper, summaries } from "@/data/papers";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
 
 interface SummaryCarouselProps {
   papers: Paper[];
@@ -16,29 +20,47 @@ interface SummaryCarouselProps {
 
 type SummaryStep = "hook" | "keypoints" | "detailed";
 
-// Helper to clean abstract text
+// Helper to clean abstract text - preserves $...$ math delimiters for KaTeX rendering
 const cleanAbstract = (text: string) => {
   if (!text) return { cleaned: "", sentences: [] };
 
-  // Remove LaTeX preamble like $\renewcommand...$ or just \renewcommand... with optional spaces
-  let cleaned = text.replace(/(\$)?\\(re)?newcommand\s*\{[^}]+\}\s*\{[^}]+\}(\$)?/g, "");
+  let cleaned = text;
 
-  // Remove common LaTeX commands and delimiters
-  cleaned = cleaned.replace(/\\mathbb\{R\}/g, "R");
-  cleaned = cleaned.replace(/\\Re/g, "R");
-  cleaned = cleaned.replace(/\\varepsilon/g, "ε");
-  cleaned = cleaned.replace(/\$/g, ""); // Strip dollar signs
+  // 1) Remove $\renewcommand...$  or $\newcommand...$ preambles
+  //    Match from $\ (re)newcommand all the way to the closing $
+  //    This handles nested braces like $\renewcommand{\Re}{\mathbb{R}}$
+  cleaned = cleaned.replace(/\$\\(?:re)?newcommand[^$]*\$/g, "");
+
+  // 2) Also handle \renewcommand / \newcommand without $ wrapping (nested braces)
+  cleaned = cleaned.replace(/\\(?:re)?newcommand\s*\{(?:[^{}]|\{[^{}]*\})*\}\s*(?:\[[^\]]*\])?\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, "");
 
   // Normalize whitespace
   cleaned = cleaned.replace(/\s+/g, " ").trim();
 
-  // Split into sentences (simple approximation)
-  // Match sentences ending with ., ?, ! followed by space or end of string
-  const sentences = cleaned.match(/[^.?!]+[.?!]+(?=\s|$)|[^.?!]+$/g) || [cleaned];
+  // Split into sentences while respecting $...$ math blocks
+  // Temporarily replace math blocks to avoid splitting inside them
+  const mathBlocks: string[] = [];
+  const withPlaceholders = cleaned.replace(/\$\$[\s\S]*?\$\$|\$[^$]+?\$/g, (match) => {
+    mathBlocks.push(match);
+    return `__MATH_${mathBlocks.length - 1}__`;
+  });
+
+  const rawSentences = withPlaceholders.match(/[^.?!]+[.?!]+(?=\s|$)|[^.?!]+$/g) || [withPlaceholders];
+
+  // Restore math blocks in sentences
+  const sentences = rawSentences.map(s => {
+    let restored = s.trim();
+    restored = restored.replace(/__MATH_(\d+)__/g, (_, idx) => mathBlocks[parseInt(idx)]);
+    return restored;
+  }).filter(s => s.length > 0);
+
+  // Restore math blocks in cleaned text
+  let restoredCleaned = withPlaceholders;
+  restoredCleaned = restoredCleaned.replace(/__MATH_(\d+)__/g, (_, idx) => mathBlocks[parseInt(idx)]);
 
   return {
-    cleaned,
-    sentences: sentences.map(s => s.trim()).filter(s => s.length > 0)
+    cleaned: restoredCleaned,
+    sentences
   };
 };
 
@@ -46,16 +68,28 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   const [currentPaperIndex, setCurrentPaperIndex] = useState(initialIndex);
   const [currentStep, setCurrentStep] = useState<SummaryStep>("hook");
   const [isAuthorsExpanded, setIsAuthorsExpanded] = useState(false);
-  const [language, setLanguage] = useState<"ko" | "en">("en");
-  const { markAsRead } = useStore();
+  const { markAsRead, prefs } = useStore();
   const navigate = useNavigate();
+  const layoutMode = prefs?.layoutMode || "auto";
+  const isMobileMode = layoutMode === "mobile";
+  const isDesktopMode = layoutMode === "desktop";
 
   useEffect(() => {
     if (open) {
       setCurrentPaperIndex(initialIndex);
       setCurrentStep("hook");
       setIsAuthorsExpanded(false);
+      // 모달이 열릴 때 body 스크롤 막기
+      document.body.style.overflow = 'hidden';
+    } else {
+      // 모달이 닫힐 때 body 스크롤 복원
+      document.body.style.overflow = '';
     }
+    
+    // cleanup function
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [open, initialIndex]);
 
   useEffect(() => {
@@ -155,11 +189,8 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   };
 
   // Decide which summary to use
-  // If language is 'ko' and manual summary exists, use it.
-  // Otherwise, use English generated summary.
-  const summary = (language === "ko" && manualSummary)
-    ? manualSummary
-    : englishSummary;
+  // If manual Korean summary exists, prefer it. Otherwise use English (abstract-based).
+  const summary = manualSummary || englishSummary;
 
   // If user wants Korean but none exists, strictly they get English fallback.
   // We could add a visual indicator later.
@@ -175,53 +206,32 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
     >
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10">
-        <div className="flex items-center gap-2">
-          {papers.map((paper, i) => (
-            <button
-              key={i}
-              onClick={(e) => {
-                e.stopPropagation();
-                goToPaper(i);
-              }}
-              className={cn(
-                "h-1 rounded-full transition-all cursor-pointer hover:h-1.5",
-                i === currentPaperIndex ? "w-8 bg-primary" : "w-4 bg-muted"
-              )}
-              aria-label={`${i + 1}번째 논문으로 이동: ${paper.title}`}
-            />
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLanguage(prev => prev === "en" ? "ko" : "en");
-            }}
-            className={cn("gap-1 font-medium", language === "ko" ? "text-primary bg-primary/10" : "text-muted-foreground")}
-          >
-            <Globe className="w-4 h-4" />
-            {language === "en" ? "EN" : "KO"}
+      {/* Close button & controls - 최상위 z-index */}
+      <div className="absolute top-4 right-4 z-[60] flex items-center gap-2">
+        {paper.pdfUrl && (
+          <Button variant="ghost" size="icon" asChild onClick={(e) => e.stopPropagation()}>
+            <a
+              href={paper.pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="PDF 원문 보기 (새 탭에서 열림)"
+            >
+              <FileText className="w-5 h-5" />
+            </a>
           </Button>
-          {paper.pdfUrl && (
-            <Button variant="ghost" size="icon" asChild onClick={(e) => e.stopPropagation()}>
-              <a
-                href={paper.pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="PDF 원문 보기 (새 탭에서 열림)"
-              >
-                <FileText className="w-5 h-5" />
-              </a>
-            </Button>
-          )}
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
+        )}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onClose();
+          }}
+          className="h-9 w-9 rounded-full border-2 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </Button>
       </div>
 
       {/* Content */}
@@ -318,9 +328,14 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
               <span className="text-xs font-medium text-primary uppercase tracking-wide">
                 한줄 요약
               </span>
-              <p className="text-2xl font-display font-medium mt-3 leading-relaxed">
-                💡 {summary.hookOneLiner}
-              </p>
+              <div className="text-2xl font-display font-medium mt-3 leading-relaxed prose prose-lg max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath, remarkGfm]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {`💡 ${summary.hookOneLiner}`}
+                </ReactMarkdown>
+              </div>
             </div>
 
             {/* 핵심 포인트 */}
@@ -336,7 +351,14 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
                     style={{ animationDelay: `${i * 100}ms` }}
                   >
                     <span className="text-primary font-bold">{i + 1}.</span>
-                    <span>{point}</span>
+                    <div className="flex-1 prose prose-base max-w-none">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkMath, remarkGfm]}
+                        rehypePlugins={[rehypeKatex]}
+                      >
+                        {point}
+                      </ReactMarkdown>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -347,9 +369,14 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
               <span className="text-xs font-medium text-primary uppercase tracking-wide">
                 상세 설명
               </span>
-              <p className="mt-4 text-base leading-relaxed text-foreground/90">
-                {summary.detailed}
-              </p>
+              <div className="mt-4 text-base leading-relaxed text-foreground/90 prose prose-base max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath, remarkGfm]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {summary.detailed}
+                </ReactMarkdown>
+              </div>
               <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
                 <span className="text-xs text-muted-foreground">
                   📚 요약 근거:{" "}
@@ -370,50 +397,57 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
         </div>
       </div>
 
-      {/* Side navigation buttons - 논문 이동 (크게) */}
-      <button
-        className={cn(
-          "absolute left-4 top-1/2 -translate-y-1/2 z-20",
-          "p-4 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
-          "hover:bg-background hover:scale-110 transition-all min-h-touch min-w-touch",
-          "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100",
-          "flex items-center justify-center",
-          currentPaperIndex === 0 && "opacity-50"
-        )}
-        onClick={(e) => {
-          e.stopPropagation();
-          goPrevPaper();
-        }}
-        disabled={currentPaperIndex === 0}
-        aria-label="이전 논문"
-        onMouseDown={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-      >
-        <ChevronLeft className="w-8 h-8 text-foreground" />
-      </button>
-      <button
-        className={cn(
-          "absolute right-4 top-1/2 -translate-y-1/2 z-20",
-          "p-4 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
-          "hover:bg-background hover:scale-110 transition-all min-h-touch min-w-touch",
-          "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100",
-          "flex items-center justify-center",
-          currentPaperIndex === papers.length - 1 && "opacity-50"
-        )}
-        onClick={(e) => {
-          e.stopPropagation();
-          goNextPaper();
-        }}
-        disabled={currentPaperIndex === papers.length - 1}
-        aria-label="다음 논문"
-        onMouseDown={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-      >
-        <ChevronRight className="w-8 h-8 text-foreground" />
-      </button>
+      {/* Side navigation buttons - 데스크탑 전용 (모바일 모드일 때 숨김) */}
+      {!isMobileMode && (
+        <>
+          <button
+            className={cn(
+              "absolute left-4 top-1/2 -translate-y-1/2 z-20",
+              "p-4 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
+              "hover:bg-background hover:scale-110 transition-all min-h-touch min-w-touch",
+              "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100",
+              "hidden md:flex items-center justify-center",
+              currentPaperIndex === 0 && "opacity-50"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              goPrevPaper();
+            }}
+            disabled={currentPaperIndex === 0}
+            aria-label="이전 논문"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <ChevronLeft className="w-8 h-8 text-foreground" />
+          </button>
+          <button
+            className={cn(
+              "absolute right-4 top-1/2 -translate-y-1/2 z-20",
+              "p-4 rounded-full bg-background/90 backdrop-blur-sm border shadow-lg",
+              "hover:bg-background hover:scale-110 transition-all min-h-touch min-w-touch",
+              "disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100",
+              "hidden md:flex items-center justify-center",
+              currentPaperIndex === papers.length - 1 && "opacity-50"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              goNextPaper();
+            }}
+            disabled={currentPaperIndex === papers.length - 1}
+            aria-label="다음 논문"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
+            <ChevronRight className="w-8 h-8 text-foreground" />
+          </button>
+        </>
+      )}
 
-      {/* Bottom navigation - 논문 이동 */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 pb-8 pointer-events-none">
+      {/* Bottom navigation - 모바일 전용 (모바일 모드이거나 화면이 작을 때) */}
+      <div className={cn(
+        "absolute bottom-0 left-0 right-0 z-20 pb-8 pointer-events-none",
+        isMobileMode ? "block" : isDesktopMode ? "hidden" : "md:hidden"
+      )}>
         <div className="max-w-md mx-auto px-4 pointer-events-auto">
           <div className="bg-background/95 backdrop-blur-sm border rounded-2xl shadow-lg p-2">
             <div className="flex items-center justify-between gap-2">

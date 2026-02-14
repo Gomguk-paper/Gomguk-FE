@@ -23,14 +23,14 @@ import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 type SortMode = "trending" | "recent" | "personalized";
 
 // Helper to convert backend PaperOut to frontend Paper format
-const convertPaperOutToPaper = (paperOut: PaperOut): any => {
+const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number, string>): any => {
   return {
     id: String(paperOut.id),
     title: paperOut.title,
     authors: paperOut.authors || [],
     year: paperOut.year,
     venue: "",
-    tags: paperOut.tags?.map(String) || [],
+    tags: paperOut.tags?.map(tagId => tagMap[tagId] || String(tagId)) || [],
     abstract: paperOut.short,
     pdfUrl: paperOut.raw_url,
     imageUrl: paperOut.image_url, // PaperCard will resolve this using resolveImageUrl
@@ -54,22 +54,44 @@ export default function SearchPage() {
   });
   const papers = papersData?.items || [];
 
-  const { data: tagsResponse, isLoading: tagsLoading } = useQuery({
-    queryKey: ['tags'],
-    queryFn: () => tagsApi.getTags(),
+  const { data: tagsData, isLoading: tagsLoading } = useQuery({
+    queryKey: ['all-tags'],
+    queryFn: async () => {
+      const allItems: { tag: { id: number; name: string; description: string | null; count: number } }[] = [];
+      let offset = 0;
+      const limit = 500;
+      while (true) {
+        const res = await tagsApi.getTags({ limit, offset });
+        allItems.push(...res.items);
+        if (allItems.length >= res.count || res.items.length < limit) break;
+        offset += limit;
+      }
+      return allItems;
+    },
+    staleTime: 5 * 60 * 1000,
   });
-  const tagsData = tagsResponse?.items || [];
 
-  const allTags = useMemo(() => tagsData.map(t => t.tag.name), [tagsData]);
+  const tagItems = tagsData || [];
+
+  const allTags = useMemo(() => tagItems.map(t => t.tag.name), [tagItems]);
 
   // Create a map from tag name to tag ID for filtering
   const tagNameToId = useMemo(() => {
     const map = new Map<string, number>();
-    tagsData.forEach(item => {
+    tagItems.forEach(item => {
       map.set(item.tag.name, item.tag.id);
     });
     return map;
-  }, [tagsData]);
+  }, [tagItems]);
+
+  // Create a map from tag ID to tag name for display
+  const tagIdToName = useMemo(() => {
+    const map: Record<number, string> = {};
+    tagItems.forEach(item => {
+      map[item.tag.id] = item.tag.name;
+    });
+    return map;
+  }, [tagItems]);
 
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
   const [sortMode, setSortMode] = useState<SortMode>("trending");
@@ -159,14 +181,14 @@ export default function SearchPage() {
   // Convert papers for display and carousel (memoized to prevent infinite loops)
   const carouselPapers = useMemo(() => {
     return filteredPapers.map(item => {
-      const paper = convertPaperOutToPaper(item.paper);
+      const paper = convertPaperOutToPaper(item.paper, tagIdToName);
       // Ensure venue is mapped from source if available
       if ((item.paper as any).source) {
         paper.venue = (item.paper as any).source;
       }
       return paper;
     });
-  }, [filteredPapers]);
+  }, [filteredPapers, tagIdToName]);
 
   const openCarousel = (index: number) => {
     setSelectedPaperIndex(index);

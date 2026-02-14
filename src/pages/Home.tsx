@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, BookOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { papersApi } from "@/api";
+import { papersApi, tagsApi } from "@/api";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
@@ -15,13 +15,7 @@ import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
 import type { PaperOut } from "@/lib/apiTypes";
 
 // Helper function to convert backend PaperOut to frontend Paper format
-const convertPaperOutToPaper = (paperOut: PaperOut): any => {
-  // let imageUrl = paperOut.image_url;
-  // // Filter out s3:// URLs as they cause browser errors
-  // if (imageUrl && imageUrl.startsWith('s3://')) {
-  //   imageUrl = undefined;
-  // }
-
+const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number, string>): any => {
   // We now handle s3:// URLs in PaperCard via resolveImageUrl
   const imageUrl = paperOut.image_url;
 
@@ -31,7 +25,7 @@ const convertPaperOutToPaper = (paperOut: PaperOut): any => {
     authors: paperOut.authors || [],
     year: paperOut.year,
     venue: "", // Not provided by backend
-    tags: paperOut.tags?.map(String) || [], // Convert number[] to string[]
+    tags: paperOut.tags?.map(tagId => tagMap[tagId] || String(tagId)) || [],
     abstract: paperOut.short,
     pdfUrl: paperOut.raw_url,
     imageUrl: imageUrl,
@@ -57,6 +51,36 @@ export default function Home() {
   // Restore scroll position when navigating back to this page
   useScrollRestoration('home');
 
+  // Fetch all tags with pagination (API max limit is 500)
+  const { data: tagsResponse } = useQuery({
+    queryKey: ['all-tags'],
+    queryFn: async () => {
+      const allItems: { tag: { id: number; name: string; description: string | null; count: number } }[] = [];
+      let offset = 0;
+      const limit = 500;
+      while (true) {
+        const res = await tagsApi.getTags({ limit, offset });
+        allItems.push(...res.items);
+        if (allItems.length >= res.count || res.items.length < limit) break;
+        offset += limit;
+      }
+      return allItems;
+    },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5분 캐시
+  });
+
+  // Build tag ID -> name mapping
+  const tagMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    if (tagsResponse) {
+      tagsResponse.forEach(item => {
+        map[item.tag.id] = item.tag.name;
+      });
+    }
+    return map;
+  }, [tagsResponse]);
+
   // Fetch papers from API (updated to match backend spec)
   const {
     data: papersResponse,
@@ -77,10 +101,10 @@ export default function Home() {
       return [];
     }
     console.log('[Home] Raw API Response Items (first):', papersResponse.items[0]);
-    const converted = papersResponse.items.map(item => convertPaperOutToPaper(item.paper));
+    const converted = papersResponse.items.map(item => convertPaperOutToPaper(item.paper, tagMap));
     console.log('[Home] Converted papers:', converted.length, 'papers');
     return converted;
-  }, [papersResponse]);
+  }, [papersResponse, tagMap]);
 
 
 

@@ -38,6 +38,10 @@ import { LoginModal } from "./LoginModal";
 import { cn } from "@/lib/utils";
 import { UI_CONSTANTS } from "@/core/config/constants";
 import { resolveImageUrl } from "@/lib/imageUtils";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
 
 interface PaperCardProps {
   paper: Paper;
@@ -250,21 +254,33 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           <div className="space-y-1 mb-auto">
             {/* Hook summary */}
             {summary && (
-              <p className="text-sm text-muted-foreground leading-relaxed mb-2">💡 {summary.hookOneLiner}</p>
+              <div className="text-sm text-muted-foreground leading-relaxed mb-2 prose prose-sm max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath, remarkGfm]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {`💡 ${summary.hookOneLiner}`}
+                </ReactMarkdown>
+              </div>
             )}
           </div>
 
           {/* Abstract Preview */}
           <Collapsible open={showAbstract} onOpenChange={setShowAbstract}>
             <div className="space-y-1">
-              <p
+              <div
                 className={cn(
-                  "text-sm text-muted-foreground leading-relaxed",
+                  "text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none",
                   !showAbstract && "line-clamp-2"
                 )}
               >
-                {showAbstract ? paper.abstract : abstractPreview}
-              </p>
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath, remarkGfm]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {showAbstract ? paper.abstract : abstractPreview}
+                </ReactMarkdown>
+              </div>
               {paper.abstract.length > UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH && (
                 <CollapsibleTrigger asChild>
                   <button className="text-xs text-primary hover:underline flex items-center gap-1">
