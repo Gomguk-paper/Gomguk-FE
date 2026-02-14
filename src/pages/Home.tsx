@@ -112,7 +112,7 @@ export default function Home() {
   const sortedPapers = useMemo(() => {
     // Defensive check: ensure papers have metrics
     const validPapers = Array.isArray(papers)
-      ? papers.filter(p => p && p.metrics && !String(p.id).startsWith('p')) // Filter out mock papers (ID starts with 'p')
+      ? papers.filter(p => p && p.metrics)
       : [];
 
     return [...validPapers].sort((a, b) => {

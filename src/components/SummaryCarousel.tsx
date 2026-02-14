@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, TrendingUp, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Paper, summaries } from "@/data/papers";
+import type { Paper } from "@/models";
+import { useSummary } from "@/hooks/useSummary";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -173,10 +174,14 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     };
   }, [open, goNext, goNextPaper, goPrevPaper, onClose]);
 
+  // 훅은 조건부 return 전에 호출해야 함 (React 훅 규칙)
+  const currentPaper = papers[currentPaperIndex];
+  const { summary: apiSummary, isLoading: summaryLoading } = useSummary(currentPaper?.id);
+
   if (!open) return null;
 
-  const paper = papers[currentPaperIndex];
-  const manualSummary = summaries.find((s) => s.paperId === paper.id);
+  const paper = currentPaper;
+  const manualSummary = apiSummary;
 
   // Generate English summary from abstract (always available)
   const { cleaned, sentences } = cleanAbstract(paper.abstract || "");

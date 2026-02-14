@@ -26,8 +26,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { Paper, summaries } from "@/data/papers";
+import type { Paper } from "@/models";
 import { useStore } from "@/store/useStore";
+import { useSummary } from "@/hooks/useSummary";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,7 +70,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const [showAbstract, setShowAbstract] = useState(false);
 
   const action = getAction(paper.id);
-  const summary = summaries.find((s) => s.paperId === paper.id);
+  const { summary } = useSummary(paper.id);
   const isLiked = action?.liked || false;
   const isSaved = action?.saved || false;
   const canUseActions = Boolean(user);

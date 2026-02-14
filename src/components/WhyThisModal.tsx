@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Paper } from "@/data/papers";
+import type { Paper } from "@/models";
 import { useStore } from "@/store/useStore";
 import { TagChip } from "./TagChip";
 import { TrendingUp, Clock, Star } from "lucide-react";
