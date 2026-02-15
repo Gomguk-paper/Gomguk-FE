@@ -168,9 +168,11 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                 {paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && " et al."}
                 <span className="mx-1.5">·</span>
                 {paper.year}
-                <Badge variant="secondary" className="ml-2 px-1.5 py-0 h-5 font-semibold text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-0 align-middle">
-                  {paper.venue}
-                </Badge>
+                {paper.venue && (
+                  <Badge variant="secondary" className="ml-2 px-1.5 py-0 h-5 font-semibold text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-0 align-middle">
+                    {paper.venue}
+                  </Badge>
+                )}
               </div>
             </div>
 

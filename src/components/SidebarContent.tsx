@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
     { to: "/", icon: Home, label: "홈" },
-    { to: "/search", icon: Search, label: "탐색" },
+    { to: "/search", icon: Search, label: "검색" },
     { to: "/mypage", icon: User, label: "마이페이지" },
     { to: "/settings", icon: Settings, label: "설정" },
 ];

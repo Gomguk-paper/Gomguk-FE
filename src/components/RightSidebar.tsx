@@ -55,7 +55,7 @@ export function RightSidebar() {
 
             {/* Trends Section */}
             <div className="bg-card rounded-xl border p-4 relative">
-                <h2 className="font-display font-bold text-lg mb-4">나를 위한 트렌드</h2>
+                <h2 className="font-display font-bold text-lg mb-4">Trending Topics</h2>
                 <div className={`space-y-4 transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
                     {trendingTags.map(({ tag, count }, index) => (
                         <div
@@ -98,7 +98,7 @@ export function RightSidebar() {
                         className="absolute inset-0 cursor-pointer rounded-xl flex items-center justify-center bg-background/30 backdrop-blur-sm"
                         onClick={() => setLoginModalOpen(true)}
                         role="button"
-                        aria-label="로그인하여 나를 위한 트렌드 보기"
+                        aria-label="로그인하여 Trending Topics 보기"
                     >
                         <div className="text-center p-4">
                             <p className="font-semibold text-lg mb-2">🔒 로그인이 필요합니다</p>

@@ -107,15 +107,12 @@ export function HistoryTab({ readPapersWithDate, onOpenSummary }: HistoryTabProp
                                     <h3 className="text-sm font-semibold text-foreground">{dateLabel}</h3>
                                     <span className="text-xs text-muted-foreground">{items.length}개</span>
                                 </div>
-                                {items.map(({ paper, readAt }) => (
-                                    <div key={paper.id} className="relative">
+                                {items.map(({ paper }) => (
+                                    <div key={paper.id}>
                                         <PaperCard
                                             paper={paper}
                                             onOpenSummary={() => onOpenSummary?.(paper)}
                                         />
-                                        <div className="absolute top-4 right-16 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
-                                            {format(parseISO(readAt), "HH:mm")}
-                                        </div>
                                     </div>
                                 ))}
                             </div>
