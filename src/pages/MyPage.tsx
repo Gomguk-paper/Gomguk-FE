@@ -347,16 +347,7 @@ export default function MyPage() {
         {/* Desktop Header Area - Hidden on Mobile */}
         <div className="hidden md:block p-4">{renderMyPageHeader()}</div>
         {/* Settings Link */}
-        <button
-          onClick={() => navigate("/onboarding")}
-          className="w-full flex items-center justify-between p-4 bg-card border-b hover:bg-secondary/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <Settings className="w-5 h-5 text-muted-foreground" />
-            <span>관심 분야 다시 설정하기</span>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
+
 
         {/* Tabs */}
         <Tabs defaultValue="saved" className="p-4">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { setStoredPrefs } from "@/lib/authStorage";
 import { allTags } from "@/data/papers";
@@ -19,13 +19,15 @@ const levels = [
 ] as const;
 
 export default function Onboarding() {
-  const navigate = useNavigate();
-  const { setPrefs } = useStore();
+  const nav = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { setPrefs, prefs } = useStore();
+  const fromSettings = searchParams.get("reset") === "true";
 
   const [step, setStep] = useState<Step>("tags");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagWeights, setTagWeights] = useState<Record<string, number>>({});
-  const [level, setLevel] = useState<typeof levels[number]["value"]>("undergraduate");
+  const [level, setLevel] = useState<typeof levels[number]["value"]>(prefs?.level || "undergraduate");
 
   const toggleTag = (tag: string) => {
     if (selectedTags.includes(tag)) {
@@ -54,7 +56,7 @@ export default function Onboarding() {
     };
     setPrefs(nextPrefs);
     setStoredPrefs(nextPrefs);
-    navigate(ROUTES.HOME);
+    nav(ROUTES.HOME);
   };
 
   const handleSkip = () => {
@@ -66,12 +68,18 @@ export default function Onboarding() {
     };
     setPrefs(defaultPrefs);
     setStoredPrefs(defaultPrefs);
-    navigate(ROUTES.HOME);
+    nav(ROUTES.HOME);
   };
 
   const nextStep = () => {
     if (step === "tags") setStep("weights");
-    else if (step === "weights") setStep("level");
+    else if (step === "weights") {
+      if (fromSettings) {
+        handleComplete();
+      } else {
+        setStep("level");
+      }
+    }
     else handleComplete();
   };
 
@@ -103,7 +111,7 @@ export default function Onboarding() {
 
       {/* Progress */}
       <div className="flex gap-2 mb-8">
-        {["tags", "weights", "level"].map((s, i) => (
+        {(fromSettings ? ["tags", "weights"] : ["tags", "weights", "level"]).map((s, i) => (
           <div
             key={s}
             className={cn(
@@ -225,7 +233,7 @@ export default function Onboarding() {
           onClick={nextStep}
           disabled={!canProceed()}
         >
-          {step === "level" ? "완료" : "다음"}
+          {step === "level" || (fromSettings && step === "weights") ? "완료" : "다음"}
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>

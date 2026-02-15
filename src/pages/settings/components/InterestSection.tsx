@@ -24,7 +24,7 @@ export function InterestSection({ prefs }: InterestSectionProps) {
                 <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() => navigate("/onboarding")}
+                    onClick={() => navigate("/onboarding?reset=true")}
                 >
                     관심 분야 다시 설정하기
                 </Button>
