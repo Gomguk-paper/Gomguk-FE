@@ -85,7 +85,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       // 모달이 닫힐 때 body 스크롤 복원
       document.body.style.overflow = '';
     }
-    
+
     // cleanup function
     return () => {
       document.body.style.overflow = '';
@@ -255,7 +255,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           <h2 className="font-display text-xl font-semibold mb-4 text-foreground">{paper.title}</h2>
 
           {/* Paper Metadata */}
-          <div className="space-y-3 mb-6 p-4 bg-secondary/30 rounded-lg border">
+          <div className="space-y-3 mb-10 p-4 bg-secondary/30 rounded-lg border">
             {/* Authors */}
             <div className="flex items-start gap-2">
               <Users className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
@@ -322,7 +322,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           </div>
 
           {/* Summary content - all sections visible at once */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* 한줄 요약 */}
             <div className="animate-fade-in">
               <span className="text-xs font-medium text-primary uppercase tracking-wide">

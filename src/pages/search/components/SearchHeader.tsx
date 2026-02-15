@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { TagChip } from "@/components/TagChip";
 import { SortMode } from "@/hooks/usePaperSearch";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 
 interface SearchHeaderProps {
     query: string;
@@ -17,6 +18,7 @@ interface SearchHeaderProps {
     setSortMode: (mode: SortMode) => void;
     selectedTags: string[];
     handleTagClick: (tag: string) => void;
+    showMenuTrigger?: boolean;
 }
 
 export function SearchHeader({
@@ -27,6 +29,7 @@ export function SearchHeader({
     setSortMode,
     selectedTags,
     handleTagClick,
+    showMenuTrigger = false,
 }: SearchHeaderProps) {
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -37,16 +40,19 @@ export function SearchHeader({
     return (
         <div className="space-y-3 px-4">
             {/* Search Input */}
-            <div className="relative">
-                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                    type="text"
-                    placeholder="논문 제목, 키워드로 검색..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full pl-10 pr-4 py-3 bg-secondary rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+            <div className="flex items-center gap-2">
+                {showMenuTrigger && <HamburgerMenu />}
+                <div className="relative flex-1">
+                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                        type="text"
+                        placeholder="논문 제목, 키워드로 검색..."
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        className="w-full pl-10 pr-4 py-3 bg-secondary rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                </div>
             </div>
 
             {/* Sort & Filter */}

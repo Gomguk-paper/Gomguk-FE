@@ -45,6 +45,7 @@ export default function SearchPage() {
             setSortMode={setSortMode}
             selectedTags={selectedTags}
             handleTagClick={handleTagClick}
+            showMenuTrigger={true}
           />
         </div>
       </header>

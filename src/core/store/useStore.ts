@@ -66,6 +66,10 @@ interface GomgukStore {
   // Theme
   theme: Theme;
   setTheme: (theme: Theme) => void;
+
+  // Mobile Menu
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: (open: boolean) => void;
 }
 
 const getUserActionKey = (user: StoredUser | null) => {
@@ -260,6 +264,10 @@ export const useStore = create<GomgukStore>()(
       // Theme
       theme: 'system',
       setTheme: (theme) => set({ theme }),
+
+      // Mobile Menu
+      mobileMenuOpen: false,
+      setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
     }),
     {
       name: 'gomguk-storage',

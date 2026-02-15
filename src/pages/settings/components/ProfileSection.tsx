@@ -101,7 +101,7 @@ export function ProfileSection({ user, setUser }: ProfileSectionProps) {
                             </div>
                             <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                                 <Mail className="w-3.5 h-3.5" />
-                                {user?.provider === "google" ? "Google 계정" : "Kakao 계정"}
+                                {user?.provider === "google" ? "Google 계정" : user?.provider === "kakao" ? "Kakao 계정" : "GitHub 계정"}
                             </div>
                         </div>
                     </div>
