@@ -49,10 +49,14 @@ import {
 import { ko } from "date-fns/locale/ko";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
+import { SummaryCarousel } from "@/components/SummaryCarousel";
+
 export default function MyPage() {
   const navigate = useNavigate();
   const { user, actionsByUser, prefs, setUser } = useStore();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [carouselOpen, setCarouselOpen] = useState(false);
+  const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
   const userKey = user?.id ?? null;
   const actions = useMemo(() => userKey ? (actionsByUser[userKey] ?? []) : [], [userKey, actionsByUser]);
 
@@ -383,7 +387,20 @@ export default function MyPage() {
             {papersLoading ? (
               <div className="text-center py-12 text-muted-foreground">로딩 중...</div>
             ) : savedPapers.length > 0 ? (
-              savedPapers.map((paper) => <PaperCard key={paper.id} paper={paper} />)
+              savedPapers.map((paper, index) => (
+                <PaperCard
+                  key={paper.id}
+                  paper={paper}
+                  onOpenSummary={() => {
+                    // Find index in allPapers to open correct slide
+                    const idx = allPapers.findIndex(p => p.id === paper.id);
+                    if (idx !== -1) {
+                      setSelectedPaperIndex(idx);
+                      setCarouselOpen(true);
+                    }
+                  }}
+                />
+              ))
             ) : (
               <EmptyState icon={Bookmark} message="저장한 논문이 없어요" />
             )}
@@ -393,7 +410,19 @@ export default function MyPage() {
             {papersLoading ? (
               <div className="text-center py-12 text-muted-foreground">로딩 중...</div>
             ) : likedPapers.length > 0 ? (
-              likedPapers.map((paper) => <PaperCard key={paper.id} paper={paper} />)
+              likedPapers.map((paper) => (
+                <PaperCard
+                  key={paper.id}
+                  paper={paper}
+                  onOpenSummary={() => {
+                    const idx = allPapers.findIndex(p => p.id === paper.id);
+                    if (idx !== -1) {
+                      setSelectedPaperIndex(idx);
+                      setCarouselOpen(true);
+                    }
+                  }}
+                />
+              ))
             ) : (
               <EmptyState icon={Heart} message="좋아요한 논문이 없어요" />
             )}
@@ -439,10 +468,17 @@ export default function MyPage() {
                           </div>
                           {items.map(({ paper, readAt }) => (
                             <div key={paper.id} className="relative">
-                              <PaperCard paper={paper} />
-                              <div className="absolute top-4 right-16 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
-                                {format(parseISO(readAt), "HH:mm")}
-                              </div>
+                              <PaperCard
+                                paper={paper}
+                                onOpenSummary={() => {
+                                  const idx = allPapers.findIndex(p => p.id === paper.id);
+                                  if (idx !== -1) {
+                                    setSelectedPaperIndex(idx);
+                                    setCarouselOpen(true);
+                                  }
+                                }}
+                              />
+
                             </div>
                           ))}
                         </div>
@@ -556,6 +592,14 @@ export default function MyPage() {
 
       {/* Login Modal */}
       <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} showNotice={true} />
+
+      {/* Summary Carousel */}
+      <SummaryCarousel
+        papers={allPapers}
+        initialIndex={selectedPaperIndex}
+        open={carouselOpen}
+        onClose={() => setCarouselOpen(false)}
+      />
     </main>
   );
 }

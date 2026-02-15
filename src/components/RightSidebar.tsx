@@ -142,7 +142,7 @@ export function RightSidebar() {
                     광고 정보
                 </span>
                 <div className="w-full mt-1">
-                    © 2024 Gomguk Corp.
+                    © 2026 Gomguk Corp.
                 </div>
             </div>
 

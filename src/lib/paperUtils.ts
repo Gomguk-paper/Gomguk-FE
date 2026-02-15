@@ -11,7 +11,7 @@ export const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number
         venue: "",
         tags: paperOut.tags?.map(tagId => tagMap[tagId] || String(tagId)) || [],
         abstract: paperOut.short,
-        pdfUrl: paperOut.raw_url,
+        pdfUrl: paperOut.raw_url ? paperOut.raw_url.replace("arxiv.org/pdf/", "arxiv.org/abs/").replace(".pdf", "") : paperOut.raw_url,
         imageUrl: paperOut.image_url, // PaperCard will resolve this using resolveImageUrl
         metrics: {
             trendingScore: 0,

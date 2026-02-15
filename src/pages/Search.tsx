@@ -220,9 +220,9 @@ export default function SearchPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="trending">🔥 트렌딩</SelectItem>
+            <SelectItem value="trending">🔥 인기순</SelectItem>
             <SelectItem value="recent">🕐 최신순</SelectItem>
-            <SelectItem value="personalized">✨ 개인화</SelectItem>
+            <SelectItem value="personalized">✨ 추천순</SelectItem>
           </SelectContent>
         </Select>
 
