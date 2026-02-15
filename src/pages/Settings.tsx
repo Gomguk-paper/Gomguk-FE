@@ -1,149 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
-  User,
-  Bell,
-  BookOpen,
-  LogOut,
-  Mail,
-  Target,
-  Edit2,
-  Camera,
-  X,
-  Monitor,
-  Sun,
-  Moon,
-  Laptop
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
-import { useTheme } from "@/hooks/useTheme";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { clearStoredUser, setStoredPrefs, setStoredUser, type UserPrefs, type StoredUser } from "@/lib/authStorage";
-import { Label } from "@/components/ui/label";
 
-interface NotificationSettings {
-  newRecommendation: boolean;
-  tagMatch: boolean;
-}
-
-const NOTIFICATION_SETTINGS_KEY = "gomguk_notification_settings";
-
-const getNotificationSettings = (): NotificationSettings => {
-  if (typeof window === "undefined") {
-    return { newRecommendation: true, tagMatch: true };
-  }
-  const stored = localStorage.getItem(NOTIFICATION_SETTINGS_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return { newRecommendation: true, tagMatch: true };
-    }
-  }
-  return { newRecommendation: true, tagMatch: true };
-};
-
-const saveNotificationSettings = (settings: NotificationSettings) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings));
-  }
-};
+import { ProfileSection } from "./settings/components/ProfileSection";
+import { NotificationSection } from "./settings/components/NotificationSection";
+import { InterestSection } from "./settings/components/InterestSection";
+import { ScreenSection } from "./settings/components/ScreenSection";
+import { ThemeSection } from "./settings/components/ThemeSection";
+import { ReadingSection } from "./settings/components/ReadingSection";
+import { AccountSection } from "./settings/components/AccountSection";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { user, prefs, setUser, setPrefs } = useStore();
-  const { theme, setTheme } = useTheme();
-  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(getNotificationSettings());
-  // dailyCount removed
   const [autoMarkAsRead, setAutoMarkAsRead] = useState(true);
-  const [showNameDialog, setShowNameDialog] = useState(false);
-  const [showAvatarDialog, setShowAvatarDialog] = useState(false);
-  const [editedName, setEditedName] = useState(user?.name || "");
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-
-
-  useEffect(() => {
-    if (user) {
-      setEditedName(user.name);
-      setAvatarUrl(user.avatarUrl || "");
-    }
-  }, [user]);
-
-  const handleNotificationChange = (key: keyof NotificationSettings, value: boolean) => {
-    const newSettings = { ...notificationSettings, [key]: value };
-    setNotificationSettings(newSettings);
-    saveNotificationSettings(newSettings);
-  };
-
-
-
-  const handleNameSave = () => {
-    if (!user || !editedName.trim()) return;
-    const updatedUser: StoredUser = { ...user, name: editedName.trim() };
-    setUser(updatedUser);
-    setStoredUser(updatedUser);
-    setShowNameDialog(false);
-  };
-
-  const handleAvatarSave = () => {
-    if (!user) return;
-    const updatedUser: StoredUser = { ...user, avatarUrl: avatarUrl.trim() || undefined };
-    setUser(updatedUser);
-    setStoredUser(updatedUser);
-    setShowAvatarDialog(false);
-  };
-
-  const handleAvatarRemove = () => {
-    if (!user) return;
-    const updatedUser: StoredUser = { ...user };
-    delete updatedUser.avatarUrl;
-    setUser(updatedUser);
-    setStoredUser(updatedUser);
-    setAvatarUrl("");
-  };
-
-  const handleLogout = () => {
-    clearStoredUser();
-    setUser(null);
-    navigate("/login");
-  };
-
-  const handleDeleteAccount = () => {
-    // Clear all user data
-    clearStoredUser();
-    setUser(null);
-    setPrefs(null);
-
-    // Clear localStorage and sessionStorage
-    localStorage.clear();
-    sessionStorage.clear();
-
-    // Redirect to login
-    navigate("/login");
-  };
 
   return (
     <main className="min-h-screen mobile-content-padding bg-muted/30">
@@ -163,362 +38,25 @@ export default function Settings() {
 
       <div className="max-w-[480px] md:max-w-2xl mx-auto p-4 md:px-8 mobile-safe-area-pl mobile-safe-area-pr space-y-4">
         {/* 프로필 설정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <User className="w-4 h-4" />
-              프로필
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="w-16 h-16">
-                  {user?.avatarUrl ? (
-                    <AvatarImage src={user.avatarUrl} alt={user.name} />
-                  ) : null}
-                  <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
-                    {user?.name?.[0] || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute bottom-0 right-0 h-6 w-6 rounded-full"
-                  onClick={() => setShowAvatarDialog(true)}
-                >
-                  <Camera className="w-3 h-3" />
-                </Button>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <div className="font-semibold">{user?.name || "사용자"}</div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() => setShowNameDialog(true)}
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-                <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                  <Mail className="w-3.5 h-3.5" />
-                  {user?.provider === "google" ? "Google 계정" : "Kakao 계정"}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 이름 변경 Dialog */}
-        <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>이름 변경</DialogTitle>
-              <DialogDescription>
-                표시될 이름을 입력하세요
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">이름</Label>
-                <Input
-                  id="name"
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                  placeholder="이름을 입력하세요"
-                  maxLength={20}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowNameDialog(false)}>
-                취소
-              </Button>
-              <Button onClick={handleNameSave} disabled={!editedName.trim()}>
-                저장
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* 프로필 사진 변경 Dialog */}
-        <Dialog open={showAvatarDialog} onOpenChange={setShowAvatarDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>프로필 사진 변경</DialogTitle>
-              <DialogDescription>
-                프로필 사진 URL을 입력하거나 제거할 수 있습니다
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="flex justify-center">
-                <Avatar className="w-24 h-24">
-                  {avatarUrl ? (
-                    <AvatarImage src={avatarUrl} alt="프로필" />
-                  ) : null}
-                  <AvatarFallback className="bg-primary/10 text-primary text-3xl font-bold">
-                    {user?.name?.[0] || "U"}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="avatar-url">이미지 URL</Label>
-                <Input
-                  id="avatar-url"
-                  type="url"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                />
-                <p className="text-xs text-muted-foreground">
-                  프로필 사진으로 사용할 이미지의 URL을 입력하세요
-                </p>
-              </div>
-              {user?.avatarUrl && (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleAvatarRemove}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  프로필 사진 제거
-                </Button>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAvatarDialog(false)}>
-                취소
-              </Button>
-              <Button onClick={handleAvatarSave}>
-                저장
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ProfileSection user={user} setUser={setUser} />
 
         {/* 알림 설정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Bell className="w-4 h-4" />
-              알림 설정
-            </CardTitle>
-            <CardDescription>받고 싶은 알림을 선택하세요</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="new-recommendation" className="text-sm font-medium">
-                  새 추천 논문 알림
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  새로운 추천 논문이 있을 때 알림을 받습니다
-                </p>
-              </div>
-              <Switch
-                id="new-recommendation"
-                checked={notificationSettings.newRecommendation}
-                onCheckedChange={(checked) => handleNotificationChange("newRecommendation", checked)}
-              />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="tag-match" className="text-sm font-medium">
-                  태그 매칭 알림
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  관심 태그와 매칭되는 논문이 있을 때 알림을 받습니다
-                </p>
-              </div>
-              <Switch
-                id="tag-match"
-                checked={notificationSettings.tagMatch}
-                onCheckedChange={(checked) => handleNotificationChange("tagMatch", checked)}
-              />
-            </div>
-
-          </CardContent>
-        </Card>
+        <NotificationSection />
 
         {/* 관심 분야 설정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              관심 분야
-            </CardTitle>
-            <CardDescription>추천 논문의 기준이 됩니다</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => navigate("/onboarding")}
-            >
-              관심 분야 다시 설정하기
-            </Button>
-            {prefs && (
-              <p className="text-xs text-muted-foreground mt-3 text-center">
-                현재 {prefs.tags.length}개의 관심 분야가 설정되어 있습니다
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <InterestSection prefs={prefs} />
 
         {/* 화면 설정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <BookOpen className="w-4 h-4" /> {/* Reuse icon or import Monitor/Smartphone */}
-              화면 설정
-            </CardTitle>
-            <CardDescription>화면 레이아웃 방식을 선택하세요</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="layout-mode" className="text-sm font-medium">
-                레이아웃 모드
-              </Label>
-              <Select
-                value={prefs?.layoutMode || "auto"}
-                onValueChange={(v) => {
-                  if (prefs) {
-                    const updatedPrefs: UserPrefs = { ...prefs, layoutMode: v as "auto" | "mobile" | "desktop" };
-                    setPrefs(updatedPrefs);
-                    setStoredPrefs(updatedPrefs);
-                  }
-                }}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">자동 (기본)</SelectItem>
-                  <SelectItem value="mobile">모바일 전용</SelectItem>
-                  <SelectItem value="desktop">데스크탑 전용</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              '모바일 전용'을 선택하면 PC에서도 모바일 화면처럼 좁게 표시됩니다.
-            </p>
-          </CardContent>
-        </Card>
+        <ScreenSection prefs={prefs} setPrefs={setPrefs} />
 
         {/* 테마 설정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Sun className="w-4 h-4" />
-              테마
-            </CardTitle>
-            <CardDescription>앱의 밝기를 설정하세요</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                onClick={() => setTheme('light')}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'light'
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/50'
-                  }`}
-              >
-                <Sun className={`w-5 h-5 ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className={`text-xs font-medium ${theme === 'light' ? 'text-primary' : 'text-muted-foreground'}`}>
-                  라이트
-                </span>
-              </button>
-
-              <button
-                onClick={() => setTheme('dark')}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'dark'
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/50'
-                  }`}
-              >
-                <Moon className={`w-5 h-5 ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className={`text-xs font-medium ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground'}`}>
-                  다크
-                </span>
-              </button>
-
-              <button
-                onClick={() => setTheme('system')}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${theme === 'system'
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/50'
-                  }`}
-              >
-                <Laptop className={`w-5 h-5 ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span className={`text-xs font-medium ${theme === 'system' ? 'text-primary' : 'text-muted-foreground'}`}>
-                  시스템
-                </span>
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground text-center">
-              시스템 설정을 따르면 기기의 테마에 맞춰 자동으로 변경됩니다
-            </p>
-          </CardContent>
-        </Card>
+        <ThemeSection />
 
         {/* 읽기 설정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              읽기 설정
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Daily count settings removed */}
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="auto-read" className="text-sm font-medium">
-                  자동 읽음 처리
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  요약보기를 통해 본 논문을 자동으로 읽음 처리합니다
-                </p>
-              </div>
-              <Switch
-                id="auto-read"
-                checked={autoMarkAsRead}
-                onCheckedChange={setAutoMarkAsRead}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <ReadingSection autoMarkAsRead={autoMarkAsRead} setAutoMarkAsRead={setAutoMarkAsRead} />
 
         {/* 계정 설정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <User className="w-4 h-4" />
-              계정
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={handleLogout}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              로그아웃
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-              onClick={() => setShowDeleteDialog(true)}
-            >
-              <User className="w-4 h-4 mr-2" />
-              계정 삭제
-            </Button>
-          </CardContent>
-        </Card>
+        <AccountSection setUser={setUser} setPrefs={setPrefs} />
 
         {/* 기타 */}
         <Card>
@@ -533,44 +71,6 @@ export default function Settings() {
           </CardContent>
         </Card>
       </div>
-
-      {/* 계정 삭제 Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-destructive">계정 삭제</DialogTitle>
-            <DialogDescription>
-              정말로 계정을 삭제하시겠습니까?
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-4">
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 space-y-2">
-              <p className="text-sm font-semibold text-destructive">⚠️ 주의사항</p>
-              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                <li>모든 사용자 데이터가 영구적으로 삭제됩니다</li>
-                <li>좋아요, 저장, 읽은 논문 기록이 모두 사라집니다</li>
-                <li>관심 분야 및 설정이 초기화됩니다</li>
-                <li>이 작업은 되돌릴 수 없습니다</li>
-              </ul>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-              취소
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                handleDeleteAccount();
-                setShowDeleteDialog(false);
-              }}
-            >
-              계정 삭제
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </main>
   );
 }
-
