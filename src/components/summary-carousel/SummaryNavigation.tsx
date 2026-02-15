@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Paper } from "@/data/papers";
+import { Paper } from "@/models";
 
 interface SummaryNavigationProps {
     currentPaperIndex: number;

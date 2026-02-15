@@ -16,9 +16,10 @@ export const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number
         pdfUrl: paperOut.raw_url ? paperOut.raw_url.replace("arxiv.org/pdf/", "arxiv.org/abs/").replace(".pdf", "") : paperOut.raw_url,
         imageUrl: paperOut.image_url, // PaperCard will resolve this using resolveImageUrl
         metrics: {
-            trendingScore: 0, // Not provided by backend
-            recencyScore: paperOut.year >= new Date().getFullYear() - 1 ? 10 : 5,
-            citations: 0, // Not provided by backend
+            trendingScore: paperOut.trending_score ?? 0,
+            recencyScore: paperOut.freshness_score ?? 0,
+            recommendScore: paperOut.recommend_score ?? 0,
+            citations: 0,
         },
     };
 };

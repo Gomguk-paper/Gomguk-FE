@@ -13,6 +13,7 @@ export interface Paper {
   metrics: {
     trendingScore: number;
     recencyScore: number;
+    recommendScore: number;
     citations: number;
   };
 }

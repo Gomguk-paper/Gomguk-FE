@@ -1,6 +1,7 @@
-import { allTags } from "@/data/papers";
+import { useMemo } from "react";
 import { TagChip } from "@/components/TagChip";
 import { UI_CONSTANTS } from "@/core/config/constants";
+import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
 
 interface OnboardingTagsProps {
     selectedTags: string[];
@@ -8,6 +9,13 @@ interface OnboardingTagsProps {
 }
 
 export function OnboardingTags({ selectedTags, onToggle }: OnboardingTagsProps) {
+    const { tagsResponse, isLoading } = useTagsQuery();
+
+    const allTags = useMemo(() => {
+        if (!tagsResponse) return [];
+        return tagsResponse.map(item => item.tag.name);
+    }, [tagsResponse]);
+
     return (
         <div className="space-y-6 animate-fade-in">
             <div>
@@ -17,16 +25,24 @@ export function OnboardingTags({ selectedTags, onToggle }: OnboardingTagsProps) 
                 </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-                {allTags.map((tag) => (
-                    <TagChip
-                        key={tag}
-                        tag={tag}
-                        selected={selectedTags.includes(tag)}
-                        onClick={() => onToggle(tag)}
-                    />
-                ))}
-            </div>
+            {isLoading ? (
+                <div className="flex flex-wrap gap-2">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} className="h-8 w-20 bg-secondary rounded-full animate-pulse" />
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-wrap gap-2">
+                    {allTags.map((tag) => (
+                        <TagChip
+                            key={tag}
+                            tag={tag}
+                            selected={selectedTags.includes(tag)}
+                            onClick={() => onToggle(tag)}
+                        />
+                    ))}
+                </div>
+            )}
 
             <p className="text-sm text-muted-foreground">
                 선택됨: {selectedTags.length}개

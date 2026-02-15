@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { papersApi, tagsApi } from "@/api";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import { convertPaperOutToPaper } from "@/lib/paperUtils";
-import { Paper } from "@/data/papers";
+import { Paper } from "@/models";
 
 
-export type SortMode = "trending" | "recent" | "personalized";
+export type SortMode = "trending" | "recent" | "recommended";
 
 export function usePaperSearch() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -22,10 +22,16 @@ export function usePaperSearch() {
     // Search History
     const { history, addHistory, removeHistory } = useSearchHistory();
 
-    // Fetch papers
+    // Fetch papers based on sortMode
     const { data: papersData, isLoading: papersLoading } = useQuery({
-        queryKey: ['papers'],
-        queryFn: () => papersApi.getPapers(),
+        queryKey: ['papers', sortMode],
+        queryFn: () => {
+            if (sortMode === 'recommended') {
+                return papersApi.getPaperFeed({ limit: 50, offset: 0 });
+            }
+            const backendSort = sortMode === 'trending' ? 'popular' : 'recent';
+            return papersApi.getPapers({ sort: backendSort, limit: 50, offset: 0 });
+        },
     });
     const papers = papersData?.items || [];
 
@@ -105,23 +111,9 @@ export function usePaperSearch() {
             }
         }
 
-        // Sort
-        result.sort((a, b) => {
-            const scoreA = (a.paper.year || 0) * 1000;
-            const scoreB = (b.paper.year || 0) * 1000;
-
-            switch (sortMode) {
-                case "recent":
-                    return (b.paper.year || 0) - (a.paper.year || 0);
-                case "personalized":
-                case "trending":
-                default:
-                    return scoreB - scoreA;
-            }
-        });
-
+        // No frontend sorting - trust backend order
         return result;
-    }, [papers, query, selectedTags, sortMode, tagNameToId]);
+    }, [papers, query, selectedTags, tagNameToId]);
 
     // Convert for display
     const carouselPapers = useMemo(() => {

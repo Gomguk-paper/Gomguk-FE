@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { X, FileText } from "lucide-react";
-import { Paper } from "@/data/papers";
+import { Paper } from "@/models";
 import { TagChip } from "@/components/TagChip";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/store/useStore";

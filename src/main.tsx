@@ -3,21 +3,6 @@ import { createRoot } from "react-dom/client";
 import "./styles/index.css";
 import App from "./App.tsx";
 
-async function enableMocking() {
-    // Enable MSW only in development mode
-    if (process.env.NODE_ENV !== 'development') {
-        return;
-    }
-
-    const { worker } = await import('./mocks/browser');
-
-    // `worker.start()` returns a Promise that resolves
-    // once the Service Worker is up and ready to intercept requests.
-    return worker.start({
-        onUnhandledRequest: 'bypass', // Don't warn about unhandled requests
-    });
-}
-
 // Set up dev environment
 function setupDevEnvironment() {
     if (process.env.NODE_ENV === 'development') {
@@ -29,12 +14,10 @@ function setupDevEnvironment() {
     }
 }
 
-enableMocking().then(() => {
-    setupDevEnvironment();
+setupDevEnvironment();
 
-    createRoot(document.getElementById("root")!).render(
-        <StrictMode>
-            <App />
-        </StrictMode>
-    );
-});
+createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+        <App />
+    </StrictMode>
+);

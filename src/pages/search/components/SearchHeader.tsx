@@ -65,7 +65,7 @@ export function SearchHeader({
                     <SelectContent>
                         <SelectItem value="trending">🔥 트렌딩</SelectItem>
                         <SelectItem value="recent">🕐 최신순</SelectItem>
-                        <SelectItem value="personalized">✨ 개인화</SelectItem>
+                        <SelectItem value="recommended">⭐ 추천순</SelectItem>
                     </SelectContent>
                 </Select>
 

@@ -1,6 +1,6 @@
 import { PaperCard } from "@/components/PaperCard";
 import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
-import { Paper } from "@/data/papers";
+import { Paper } from "@/models";
 
 interface SearchResultsProps {
     isLoading: boolean;

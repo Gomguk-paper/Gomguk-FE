@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Paper } from "@/data/papers";
+import { Paper } from "@/models";
 
 export type SummaryStep = "hook" | "keypoints" | "detailed";
 

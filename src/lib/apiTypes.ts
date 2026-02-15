@@ -34,6 +34,11 @@ export interface PaperOut {
     tags?: number[];
     is_liked?: boolean;
     is_scrapped?: boolean;
+    like_count?: number;
+    scrap_count?: number;
+    recommend_score?: number;
+    trending_score?: number;
+    freshness_score?: number;
 }
 
 export interface PaperItem {
@@ -49,7 +54,7 @@ export interface GetPapersParams {
     q?: string; // 제목 검색 (부분 일치)
     tag?: number; // 태그 id 필터
     source?: Site; // 출처 필터
-    sort?: 'trending' | 'recent' | 'citations';
+    sort?: 'popular' | 'recent';
     limit?: number;
     offset?: number;
 }
@@ -190,6 +195,7 @@ export interface Paper {
     metrics: {
         trendingScore: number;
         recencyScore: number;
+        recommendScore: number;
         citations: number;
     };
 }
