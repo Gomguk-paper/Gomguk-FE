@@ -72,7 +72,7 @@ const getUserActionKey = (user: StoredUser | null) => {
   if (!user) {
     return null;
   }
-  return user.provider;
+  return user.id;
 };
 
 export const useStore = create<GomgukStore>()(

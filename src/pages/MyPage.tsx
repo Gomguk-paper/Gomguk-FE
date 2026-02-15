@@ -27,6 +27,10 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { papersApi, tagsApi } from "@/api";
+import { type PaperOut } from "@/lib/apiTypes";
+import { convertPaperOutToPaper } from "@/lib/paperUtils";
 import { clearStoredUser } from "@/lib/authStorage";
 import {
   format,
@@ -49,8 +53,8 @@ export default function MyPage() {
   const navigate = useNavigate();
   const { user, actionsByUser, prefs, setUser } = useStore();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const userKey = user?.provider ?? null;
-  const actions = userKey ? (actionsByUser[userKey] ?? []) : [];
+  const userKey = user?.id ?? null;
+  const actions = useMemo(() => userKey ? (actionsByUser[userKey] ?? []) : [], [userKey, actionsByUser]);
 
   // Restore scroll position when navigating back to this page
   useScrollRestoration('mypage');
@@ -62,15 +66,81 @@ export default function MyPage() {
     }
   }, [user]);
 
+  // 1. 태그 정보 가져오기 (ID -> Name 매핑용)
+  const { data: tagsData } = useQuery({
+    queryKey: ['all-tags'],
+    queryFn: async () => {
+      const allItems: { tag: { id: number; name: string } }[] = [];
+      let offset = 0;
+      const limit = 500;
+      while (true) {
+        const res = await tagsApi.getTags({ limit, offset });
+        allItems.push(...res.items);
+        if (allItems.length >= res.count || res.items.length < limit) break;
+        offset += limit;
+      }
+      return allItems;
+    },
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const tagIdToName = useMemo(() => {
+    const map: Record<number, string> = {};
+    if (tagsData) {
+      tagsData.forEach(item => {
+        map[item.tag.id] = item.tag.name;
+      });
+    }
+    return map;
+  }, [tagsData]);
+
+  // 2. 관련된 모든 논문 ID 추출 (좋아요/저장/읽음)
+  const allRelatedPaperIds = useMemo(() => {
+    const ids = new Set<string>();
+    actions.forEach(a => ids.add(a.paperId));
+    return Array.from(ids);
+  }, [actions]);
+
+  // 3. 논문 상세 정보 가져오기
+  const { data: fetchedPapers, isLoading: papersLoading } = useQuery({
+    queryKey: ['papers-details', allRelatedPaperIds],
+    queryFn: async () => {
+      // 숫자 ID인 것만 필터링 (기존 p1, p2 등은 무시하거나 별도 처리 필요하지만, 여기서는 실제 API 호출)
+      // 만약 p1, p2가 섞여있다면 에러가 날 수 있으므로 숫자만 필터링
+      const numericIds = allRelatedPaperIds.filter(id => !isNaN(Number(id)));
+
+      if (numericIds.length === 0) return [];
+
+      const promises = numericIds.map(id =>
+        papersApi.getPaperById(Number(id))
+          .catch(() => null) // 에러 발생 시 null 반환 (삭제된 논문 등)
+      );
+
+      const results = await Promise.all(promises);
+      return results.filter((p): p is PaperOut => p !== null);
+    },
+    enabled: allRelatedPaperIds.length > 0,
+  });
+
+  // 4. PaperOut -> Frontend Paper 변환 (Mock 데이터와 병합)
+  const allPapers = useMemo(() => {
+    const realPapers = (fetchedPapers || []).map(p => convertPaperOutToPaper(p, tagIdToName));
+    // 기존 mock papers와 병합 (p1, p2 등 하드코딩된 데이터도 계속 지원하려면)
+    // 하지만 사용자가 실제 DB를 쓰고 있다면 mock 데이터는 불필요할 수 있음.
+    // 여기서는 병합하여 표시
+    return [...papers, ...realPapers];
+  }, [fetchedPapers, tagIdToName]);
+
+
   const likedPapers = useMemo(() => {
     const likedIds = actions.filter((a) => a.liked).map((a) => a.paperId);
-    return papers.filter((p) => likedIds.includes(p.id));
-  }, [actions]);
+    return allPapers.filter((p) => likedIds.includes(p.id));
+  }, [actions, allPapers]);
 
   const savedPapers = useMemo(() => {
     const savedIds = actions.filter((a) => a.saved).map((a) => a.paperId);
-    return papers.filter((p) => savedIds.includes(p.id));
-  }, [actions]);
+    return allPapers.filter((p) => savedIds.includes(p.id));
+  }, [actions, allPapers]);
 
   type DateFilter = "all" | "today" | "week" | "month";
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
@@ -80,7 +150,7 @@ export default function MyPage() {
     const readActions = actions.filter((a) => a.readAt);
     return readActions
       .map((action) => {
-        const paper = papers.find((p) => p.id === action.paperId);
+        const paper = allPapers.find((p) => p.id === action.paperId);
         if (!paper) return null;
         return {
           paper,
@@ -92,7 +162,7 @@ export default function MyPage() {
         (item): item is { paper: (typeof papers)[0]; readAt: string; readDate: Date } =>
           item !== null
       );
-  }, [actions]);
+  }, [actions, allPapers]);
 
   // 날짜 필터 적용
   const filteredReadPapers = useMemo(() => {
@@ -128,8 +198,8 @@ export default function MyPage() {
 
   const readPapers = useMemo(() => {
     const readIds = actions.filter((a) => a.readAt).map((a) => a.paperId);
-    return papers.filter((p) => readIds.includes(p.id));
-  }, [actions]);
+    return allPapers.filter((p) => readIds.includes(p.id));
+  }, [actions, allPapers]);
 
   // 주별 읽기 통계
   const weeklyStats = useMemo(() => {
@@ -310,7 +380,9 @@ export default function MyPage() {
           </TabsList>
 
           <TabsContent value="saved" className="mt-4 space-y-4">
-            {savedPapers.length > 0 ? (
+            {papersLoading ? (
+              <div className="text-center py-12 text-muted-foreground">로딩 중...</div>
+            ) : savedPapers.length > 0 ? (
               savedPapers.map((paper) => <PaperCard key={paper.id} paper={paper} />)
             ) : (
               <EmptyState icon={Bookmark} message="저장한 논문이 없어요" />
@@ -318,7 +390,9 @@ export default function MyPage() {
           </TabsContent>
 
           <TabsContent value="liked" className="mt-4 space-y-4">
-            {likedPapers.length > 0 ? (
+            {papersLoading ? (
+              <div className="text-center py-12 text-muted-foreground">로딩 중...</div>
+            ) : likedPapers.length > 0 ? (
               likedPapers.map((paper) => <PaperCard key={paper.id} paper={paper} />)
             ) : (
               <EmptyState icon={Heart} message="좋아요한 논문이 없어요" />

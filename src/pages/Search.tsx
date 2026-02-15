@@ -22,25 +22,7 @@ import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 type SortMode = "trending" | "recent" | "personalized";
 
-// Helper to convert backend PaperOut to frontend Paper format
-const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number, string>): any => {
-  return {
-    id: String(paperOut.id),
-    title: paperOut.title,
-    authors: paperOut.authors || [],
-    year: paperOut.year,
-    venue: "",
-    tags: paperOut.tags?.map(tagId => tagMap[tagId] || String(tagId)) || [],
-    abstract: paperOut.short,
-    pdfUrl: paperOut.raw_url,
-    imageUrl: paperOut.image_url, // PaperCard will resolve this using resolveImageUrl
-    metrics: {
-      trendingScore: 0,
-      recencyScore: paperOut.year >= new Date().getFullYear() - 1 ? 10 : 5,
-      citations: 0,
-    },
-  };
-};
+import { convertPaperOutToPaper } from "@/lib/paperUtils";
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
