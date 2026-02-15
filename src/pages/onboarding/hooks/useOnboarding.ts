@@ -60,6 +60,11 @@ export const useOnboarding = () => {
     };
 
     const handleSkip = () => {
+        // 설정에서 재진입한 경우, 기존 설정을 유지하고 홈으로 이동
+        if (fromSettings && prefs) {
+            nav(ROUTES.HOME);
+            return;
+        }
         const defaultPrefs = {
             tags: [],
             level: "undergraduate" as const,
