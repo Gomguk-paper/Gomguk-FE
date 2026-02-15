@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import { X, FileText } from "lucide-react";
-import { Paper, summaries } from "@/data/papers";
+import { Paper } from "@/data/papers";
 import { TagChip } from "@/components/TagChip";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/store/useStore";
 import { cleanAbstract } from "@/lib/textUtils";
 import { resolveImageUrl } from "@/lib/imageUtils";
+import { useSummaryQuery } from "@/hooks/queries/useSummaryQuery";
 
 // Import new components and hooks
 import { SummaryMetadata } from "./summary-carousel/SummaryMetadata";
@@ -30,6 +31,11 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     goNextPaper,
     goPrevPaper
   } = useSummaryNavigation(papers, initialIndex, open, onClose);
+
+  const currentPaper = papers[currentPaperIndex];
+
+  // Fetch summary from API
+  const { data: apiSummary, isLoading } = useSummaryQuery(currentPaper?.id);
 
   const layoutMode = prefs?.layoutMode || "auto";
   const isMobileMode = layoutMode === "mobile";
@@ -58,11 +64,10 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   if (!open) return null;
 
   const paper = papers[currentPaperIndex];
-  const manualSummary = summaries.find((s) => s.paperId === paper.id);
 
-  // Generate English summary from abstract
+  // Generate English summary from abstract (Fallback)
   const { cleaned, sentences } = cleanAbstract(paper.abstract || "");
-  const englishSummary = {
+  const fallbackSummary = {
     paperId: paper.id,
     hookOneLiner: sentences.length > 0 ? sentences[0] : "No summary available.",
     keyPoints: sentences.length > 1 ? sentences.slice(1, 4) : ["Please refer to the original text for details."],
@@ -70,7 +75,15 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
     evidenceScope: "abstract" as const
   };
 
-  const summary = manualSummary || englishSummary;
+  // Use API summary if available, otherwise use fallback
+  const summary = apiSummary ? {
+    paperId: paper.id,
+    hookOneLiner: apiSummary.hook,
+    keyPoints: apiSummary.points,
+    detailed: apiSummary.detailed,
+    evidenceScope: "full" as const // Assuming API returns full summary
+  } : fallbackSummary;
+
 
   return (
     <div
@@ -139,7 +152,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           {/* New Sub-components */}
           <SummaryMetadata paper={paper} />
 
-          <SummaryContent summary={summary} />
+          <SummaryContent summary={summary} isLoading={isLoading} />
 
           {/* Navigation hint */}
           <p className="text-xs text-muted-foreground text-center mt-4">

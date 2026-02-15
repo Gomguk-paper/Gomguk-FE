@@ -36,7 +36,7 @@ export default function Settings() {
         </div>
       </header>
 
-      <div className="max-w-[480px] md:max-w-2xl mx-auto p-4 md:px-8 mobile-safe-area-pl mobile-safe-area-pr space-y-4">
+      <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto p-4 mobile-safe-area-pl mobile-safe-area-pr space-y-4">
         {/* 프로필 설정 */}
         <ProfileSection user={user} setUser={setUser} />
 

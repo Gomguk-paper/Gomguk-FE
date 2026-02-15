@@ -37,4 +37,9 @@ export const papersApi = {
     unscrapPaper: async (paperId: number): Promise<void> => {
         await apiClient.delete(`/paper/${paperId}/scrap`);
     },
+
+    // Mark a paper as viewed
+    markPaperViewed: async (paperId: number): Promise<void> => {
+        await apiClient.put(`/paper/${paperId}/view`);
+    },
 };

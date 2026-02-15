@@ -2,6 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SummaryContentProps {
     summary: {
@@ -10,9 +11,51 @@ interface SummaryContentProps {
         detailed: string;
         evidenceScope: "full" | "intro" | "abstract";
     };
+    isLoading?: boolean;
 }
 
-export function SummaryContent({ summary }: SummaryContentProps) {
+export function SummaryContent({ summary, isLoading = false }: SummaryContentProps) {
+    if (isLoading) {
+        return (
+            <div className="space-y-8 animate-pulse">
+                {/* 한줄 요약 스켈레톤 */}
+                <div>
+                    <Skeleton className="h-4 w-20 mb-3" />
+                    <Skeleton className="h-8 w-full" />
+                </div>
+
+                {/* 핵심 포인트 스켈레톤 */}
+                <div>
+                    <Skeleton className="h-4 w-20 mb-4" />
+                    <div className="space-y-4">
+                        <div className="flex gap-3">
+                            <Skeleton className="h-6 w-6 rounded-full" />
+                            <Skeleton className="h-6 w-full" />
+                        </div>
+                        <div className="flex gap-3">
+                            <Skeleton className="h-6 w-6 rounded-full" />
+                            <Skeleton className="h-6 w-3/4" />
+                        </div>
+                        <div className="flex gap-3">
+                            <Skeleton className="h-6 w-6 rounded-full" />
+                            <Skeleton className="h-6 w-5/6" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* 상세 설명 스켈레톤 */}
+                <div>
+                    <Skeleton className="h-4 w-20 mb-4" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-8">
             {/* 한줄 요약 */}

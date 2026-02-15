@@ -57,7 +57,10 @@ apiClient.interceptors.response.use(
         }
 
         // Handle errors globally
-        console.error('API Error:', error);
+        // Suppress 404 errors from console logs as they are often expected (e.g. missing summary)
+        if (error.response?.status !== 404) {
+            console.error('API Error:', error);
+        }
         return Promise.reject(error);
     }
 );

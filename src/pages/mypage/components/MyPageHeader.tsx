@@ -4,6 +4,7 @@ import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { clearStoredUser } from "@/lib/authStorage";
 import { useStore } from "@/store/useStore";
+import { authApi } from "@/api/auth";
 
 interface MyPageHeaderProps {
     user: any;
@@ -17,10 +18,16 @@ export function MyPageHeader({ user, prefs, likedCount, savedCount, readCount }:
     const navigate = useNavigate();
     const { setUser } = useStore();
 
-    const handleLogout = () => {
-        clearStoredUser();
-        setUser(null);
-        navigate("/login");
+    const handleLogout = async () => {
+        try {
+            await authApi.logout();
+        } catch (error) {
+            console.error("Logout failed", error);
+        } finally {
+            clearStoredUser();
+            setUser(null);
+            navigate("/login");
+        }
     };
 
     return (

@@ -12,6 +12,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { clearStoredUser, type UserPrefs, type StoredUser } from "@/lib/authStorage";
+import { authApi } from "@/api/auth";
 
 interface AccountSectionProps {
     setUser: (user: StoredUser | null) => void;
@@ -22,10 +23,16 @@ export function AccountSection({ setUser, setPrefs }: AccountSectionProps) {
     const navigate = useNavigate();
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-    const handleLogout = () => {
-        clearStoredUser();
-        setUser(null);
-        navigate("/login");
+    const handleLogout = async () => {
+        try {
+            await authApi.logout();
+        } catch (error) {
+            console.error("Logout failed", error);
+        } finally {
+            clearStoredUser();
+            setUser(null);
+            navigate("/login");
+        }
     };
 
     const handleDeleteAccount = () => {
