@@ -21,6 +21,8 @@ import { LikedPapersTab } from "@/pages/mypage/components/LikedPapersTab";
 import { HistoryTab } from "@/pages/mypage/components/HistoryTab";
 import { StatsTab } from "@/pages/mypage/components/StatsTab";
 
+import { SummaryCarousel } from "@/components/SummaryCarousel";
+
 export default function MyPage() {
   // 1. Data Fetching & Business Logic (Separated via Hooks)
   const {
@@ -31,11 +33,17 @@ export default function MyPage() {
     readPapers,
     readPapersWithDate, // Now returned from hook
     papersLoading,
+    allPapers, // We might need to expose this from the hook or derive it
   } = useMyPageData();
 
   const { weeklyStats, tagDistribution } = usePaperStats(readPapersWithDate);
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  // Carousel State
+  const [carouselOpen, setCarouselOpen] = useState(false);
+  const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
+  const [currentCarouselPapers, setCurrentCarouselPapers] = useState<any[]>([]);
 
   // 2. Side Effects
   useScrollRestoration('mypage');
@@ -45,6 +53,16 @@ export default function MyPage() {
       setLoginModalOpen(true);
     }
   }, [user]);
+
+  // Handler for opening summary
+  const handleOpenSummary = (paper: any, papersList: any[]) => {
+    setCurrentCarouselPapers(papersList);
+    const idx = papersList.findIndex(p => p.id === paper.id);
+    if (idx !== -1) {
+      setSelectedPaperIndex(idx);
+      setCarouselOpen(true);
+    }
+  };
 
   // 3. UI Rendering
   const renderMyPageHeader = () => (
@@ -95,15 +113,30 @@ export default function MyPage() {
           </TabsList>
 
           <TabsContent value="saved">
-            <SavedPapersTab papers={savedPapers} loading={papersLoading} />
+            <SavedPapersTab
+              papers={savedPapers}
+              loading={papersLoading}
+              onOpenSummary={(paper) => handleOpenSummary(paper, savedPapers)}
+            />
           </TabsContent>
 
           <TabsContent value="liked">
-            <LikedPapersTab papers={likedPapers} loading={papersLoading} />
+            <LikedPapersTab
+              papers={likedPapers}
+              loading={papersLoading}
+              onOpenSummary={(paper) => handleOpenSummary(paper, likedPapers)}
+            />
           </TabsContent>
 
           <TabsContent value="history">
-            <HistoryTab readPapersWithDate={readPapersWithDate} />
+            <HistoryTab
+              readPapersWithDate={readPapersWithDate}
+              onOpenSummary={(paper) => {
+                // Creating a list of papers from readPapersWithDate for the carousel
+                const historyPapers = readPapersWithDate.map(item => item.paper);
+                handleOpenSummary(paper, historyPapers);
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="stats">
@@ -118,6 +151,14 @@ export default function MyPage() {
 
       {/* Login Modal */}
       <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} showNotice={true} />
+
+      {/* Summary Carousel */}
+      <SummaryCarousel
+        papers={currentCarouselPapers}
+        initialIndex={selectedPaperIndex}
+        open={carouselOpen}
+        onClose={() => setCarouselOpen(false)}
+      />
     </main>
   );
 }

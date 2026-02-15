@@ -13,8 +13,8 @@ export const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number
         venue: "", // Not provided by backend
         tags: paperOut.tags?.map(tagId => tagMap[tagId] || String(tagId)) || [],
         abstract: paperOut.short,
-        pdfUrl: paperOut.raw_url,
-        imageUrl: imageUrl,
+        pdfUrl: paperOut.raw_url ? paperOut.raw_url.replace("arxiv.org/pdf/", "arxiv.org/abs/").replace(".pdf", "") : paperOut.raw_url,
+        imageUrl: paperOut.image_url, // PaperCard will resolve this using resolveImageUrl
         metrics: {
             trendingScore: 0, // Not provided by backend
             recencyScore: paperOut.year >= new Date().getFullYear() - 1 ? 10 : 5,
