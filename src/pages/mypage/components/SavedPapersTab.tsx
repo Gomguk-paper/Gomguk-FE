@@ -4,9 +4,10 @@ import { Bookmark } from "lucide-react";
 interface SavedPapersTabProps {
     papers: any[];
     loading: boolean;
+    onOpenSummary?: (paper: any) => void;
 }
 
-export function SavedPapersTab({ papers, loading }: SavedPapersTabProps) {
+export function SavedPapersTab({ papers, loading, onOpenSummary }: SavedPapersTabProps) {
     if (loading) {
         return <div className="text-center py-12 text-muted-foreground">로딩 중...</div>;
     }
@@ -24,7 +25,11 @@ export function SavedPapersTab({ papers, loading }: SavedPapersTabProps) {
     return (
         <div className="mt-4 space-y-4">
             {papers.map((paper) => (
-                <PaperCard key={paper.id} paper={paper} />
+                <PaperCard
+                    key={paper.id}
+                    paper={paper}
+                    onOpenSummary={() => onOpenSummary?.(paper)}
+                />
             ))}
         </div>
     );

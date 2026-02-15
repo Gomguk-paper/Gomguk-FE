@@ -4,9 +4,10 @@ import { Heart } from "lucide-react";
 interface LikedPapersTabProps {
     papers: any[];
     loading: boolean;
+    onOpenSummary?: (paper: any) => void;
 }
 
-export function LikedPapersTab({ papers, loading }: LikedPapersTabProps) {
+export function LikedPapersTab({ papers, loading, onOpenSummary }: LikedPapersTabProps) {
     if (loading) {
         return <div className="text-center py-12 text-muted-foreground">로딩 중...</div>;
     }
@@ -24,7 +25,11 @@ export function LikedPapersTab({ papers, loading }: LikedPapersTabProps) {
     return (
         <div className="mt-4 space-y-4">
             {papers.map((paper) => (
-                <PaperCard key={paper.id} paper={paper} />
+                <PaperCard
+                    key={paper.id}
+                    paper={paper}
+                    onOpenSummary={() => onOpenSummary?.(paper)}
+                />
             ))}
         </div>
     );

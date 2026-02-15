@@ -20,11 +20,12 @@ import { Calendar, History } from "lucide-react";
 
 interface HistoryTabProps {
     readPapersWithDate: { paper: any; readAt: string; readDate: Date }[];
+    onOpenSummary?: (paper: any) => void;
 }
 
 type DateFilter = "all" | "today" | "week" | "month";
 
-export function HistoryTab({ readPapersWithDate }: HistoryTabProps) {
+export function HistoryTab({ readPapersWithDate, onOpenSummary }: HistoryTabProps) {
     const [dateFilter, setDateFilter] = useState<DateFilter>("all");
 
     // 날짜 필터 적용
@@ -108,7 +109,10 @@ export function HistoryTab({ readPapersWithDate }: HistoryTabProps) {
                                 </div>
                                 {items.map(({ paper, readAt }) => (
                                     <div key={paper.id} className="relative">
-                                        <PaperCard paper={paper} />
+                                        <PaperCard
+                                            paper={paper}
+                                            onOpenSummary={() => onOpenSummary?.(paper)}
+                                        />
                                         <div className="absolute top-4 right-16 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
                                             {format(parseISO(readAt), "HH:mm")}
                                         </div>
