@@ -1,221 +1,60 @@
-import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, BookOpen } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { papersApi, tagsApi } from "@/api";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { NotificationList } from "@/components/NotificationList";
 import { LoginModal } from "@/components/LoginModal";
-import { clearStoredUser } from "@/lib/authStorage";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
-import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
-import type { PaperOut } from "@/lib/apiTypes";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 
-// Helper function to convert backend PaperOut to frontend Paper format
-const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number, string>): any => {
-  // We now handle s3:// URLs in PaperCard via resolveImageUrl
-  const imageUrl = paperOut.image_url;
-
-  return {
-    id: String(paperOut.id),
-    title: paperOut.title,
-    authors: paperOut.authors || [],
-    year: paperOut.year,
-    venue: "", // Not provided by backend
-    tags: paperOut.tags?.map(tagId => tagMap[tagId] || String(tagId)) || [],
-    abstract: paperOut.short,
-    pdfUrl: paperOut.raw_url,
-    imageUrl: imageUrl,
-    metrics: {
-      trendingScore: 0, // Not provided by backend
-      recencyScore: paperOut.year >= new Date().getFullYear() - 1 ? 10 : 5,
-      citations: 0, // Not provided by backend
-    },
-  };
-};
+// Custom Hooks
+import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
+import { usePaperFeedQuery } from "@/hooks/queries/usePaperFeedQuery";
+import { useRecommendedPapers } from "@/hooks/domain/useRecommendedPapers";
+import { usePaperNotifications } from "@/hooks/features/usePaperNotifications";
+import { usePaperFeed } from "@/hooks/ui/usePaperFeed";
+import { usePaperCarousel } from "@/hooks/ui/usePaperCarousel";
+import { useState } from "react";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { prefs, user, setUser, addNotification, getNotifications } = useStore();
-  const [carouselOpen, setCarouselOpen] = useState(false);
-  const [selectedPaperIndex, setSelectedPaperIndex] = useState(0);
+  const { prefs, user } = useStore();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-
-  // Infinite scroll state
-  const [displayCount, setDisplayCount] = useState(10);
-  const PAPERS_PER_PAGE = 10;
 
   // Restore scroll position when navigating back to this page
   useScrollRestoration('home');
 
-  // Fetch all tags with pagination (API max limit is 500)
-  const { data: tagsResponse } = useQuery({
-    queryKey: ['all-tags'],
-    queryFn: async () => {
-      const allItems: { tag: { id: number; name: string; description: string | null; count: number } }[] = [];
-      let offset = 0;
-      const limit = 500;
-      while (true) {
-        const res = await tagsApi.getTags({ limit, offset });
-        allItems.push(...res.items);
-        if (allItems.length >= res.count || res.items.length < limit) break;
-        offset += limit;
-      }
-      return allItems;
-    },
-    retry: 1,
-    staleTime: 5 * 60 * 1000, // 5분 캐시
-  });
-
-  // Build tag ID -> name mapping
-  const tagMap = useMemo(() => {
-    const map: Record<number, string> = {};
-    if (tagsResponse) {
-      tagsResponse.forEach(item => {
-        map[item.tag.id] = item.tag.name;
-      });
-    }
-    return map;
-  }, [tagsResponse]);
-
-  // Fetch papers from API (updated to match backend spec)
+  // 1. Data Fetching Layer
+  const { tagMap } = useTagsQuery();
   const {
     data: papersResponse,
     isLoading: papersLoading,
     isError: papersError,
     error: papersErrorDetails,
     refetch: refetchPapers
-  } = useQuery({
-    queryKey: ['papers'],
-    queryFn: () => papersApi.getPapers({ limit: 100, offset: 0 }),
-    retry: 1,
+  } = usePaperFeedQuery();
+
+  // 2. Domain / Business Logic Layer
+  const { sortedPapers } = useRecommendedPapers({
+    papersResponse,
+    tagMap,
+    prefs
   });
 
-  // Extract and convert papers from the response
-  const papers = useMemo(() => {
-    if (!papersResponse?.items) {
-      console.log('[Home] No papers response or items:', papersResponse);
-      return [];
-    }
-    console.log('[Home] Raw API Response Items (first):', papersResponse.items[0]);
-    const converted = papersResponse.items.map(item => convertPaperOutToPaper(item.paper, tagMap));
-    console.log('[Home] Converted papers:', converted.length, 'papers');
-    return converted;
-  }, [papersResponse, tagMap]);
+  // 3. Feature / Side Effects Layer
+  usePaperNotifications(sortedPapers, user, prefs);
 
-
-
-  // Sort papers by personalized score
-  const sortedPapers = useMemo(() => {
-    // Defensive check: ensure papers have metrics
-    const validPapers = Array.isArray(papers)
-      ? papers.filter(p => p && p.metrics)
-      : [];
-
-    return [...validPapers].sort((a, b) => {
-      const scoreA = (a.metrics?.trendingScore || 0) + (a.metrics?.recencyScore || 0);
-      const scoreB = (b.metrics?.trendingScore || 0) + (b.metrics?.recencyScore || 0);
-
-      let weightedScoreA = scoreA;
-      let weightedScoreB = scoreB;
-
-      if (prefs?.tags) {
-        prefs.tags.forEach(({ name, weight }) => {
-          if (a.tags?.some((t) => t.toLowerCase() === name.toLowerCase())) {
-            weightedScoreA += weight * 10;
-          }
-          if (b.tags?.some((t) => t.toLowerCase() === name.toLowerCase())) {
-            weightedScoreB += weight * 10;
-          }
-        });
-      }
-
-      return weightedScoreB - weightedScoreA;
-    });
-  }, [papers, prefs]);
-
-  // Papers to display with infinite scroll
-  const displayedPapers = useMemo(() => {
-    return sortedPapers.slice(0, displayCount);
-  }, [sortedPapers, displayCount]);
-
-  const hasMore = displayCount < sortedPapers.length;
-
-  // Load more papers
-  const loadMore = () => {
-    setDisplayCount(prev => Math.min(prev + PAPERS_PER_PAGE, sortedPapers.length));
-  };
-
-  // Infinite scroll hook
-  const loadMoreRef = useInfiniteScroll({
-    onLoadMore: loadMore,
-    hasMore,
-    isLoading: papersLoading,
-  });
-
-  const openCarousel = (index: number) => {
-    setSelectedPaperIndex(index);
-    setCarouselOpen(true);
-  };
-
-  const openCarouselByPaperId = (paperId: string) => {
-    const index = sortedPapers.findIndex((p) => p.id === paperId);
-    if (index !== -1) {
-      openCarousel(index);
-    }
-  };
-
-  // 알림 생성 로직 (새로운 추천 논문, 관심 태그 매칭)
-  useEffect(() => {
-    if (!user || !prefs) return;
-
-    const existingNotifications = getNotifications();
-    const existingPaperIds = new Set(existingNotifications.map((n) => n.paperId));
-
-    // 관심 태그와 매칭되는 논문에 대한 알림 생성
-    if (prefs.tags && prefs.tags.length > 0) {
-      sortedPapers.forEach((paper) => {
-        // 이미 알림이 있으면 스킵
-        if (existingPaperIds.has(paper.id)) return;
-
-        // 관심 태그와 매칭되는지 확인
-        const hasMatchingTag = prefs.tags!.some((prefTag) =>
-          paper.tags?.some((tag) => tag.toLowerCase() === prefTag.name.toLowerCase())
-        );
-
-        if (hasMatchingTag) {
-          addNotification({
-            type: "tag_match",
-            paperId: paper.id,
-            title: paper.title,
-            message: `관심 태그와 매칭되는 새로운 논문이 추천되었습니다.`,
-          });
-          existingPaperIds.add(paper.id); // 중복 방지
-        }
-      });
-    }
-
-    // 새로운 추천 논문 알림 (상위 3개)
-    sortedPapers.slice(0, 3).forEach((paper) => {
-      if (existingPaperIds.has(paper.id)) return;
-
-      addNotification({
-        type: "new_recommendation",
-        paperId: paper.id,
-        title: paper.title,
-        message: `오늘의 추천 논문입니다.`,
-      });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, prefs?.tags?.length]);
-
-  const handleLogout = () => {
-    clearStoredUser();
-    setUser(null);
-  };
+  // 4. UI State Layer
+  const { displayedPapers, loadMoreRef, hasMore } = usePaperFeed(sortedPapers, papersLoading);
+  const {
+    carouselOpen,
+    selectedPaperIndex,
+    openCarousel,
+    openCarouselByPaperId,
+    closeCarousel
+  } = usePaperCarousel(sortedPapers);
 
   return (
     <main className="min-h-screen mobile-content-padding bg-background">
@@ -226,6 +65,7 @@ export default function Home() {
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => navigate("/")}
           >
+            <HamburgerMenu className="-ml-2 mr-1 md:hidden" />
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary-foreground" />
             </div>
@@ -277,7 +117,7 @@ export default function Home() {
               </div>
             ) : displayedPapers.length > 0 ? (
               // Success state - show papers
-              displayedPapers.map((paper, index) => (
+              displayedPapers.map((paper: any, index: number) => (
                 <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
               ))
             ) : (
@@ -308,7 +148,7 @@ export default function Home() {
         papers={sortedPapers} // Carousel needs access to all papers for navigation
         initialIndex={selectedPaperIndex}
         open={carouselOpen}
-        onClose={() => setCarouselOpen(false)}
+        onClose={closeCarousel}
       />
 
       {/* Login Modal */}
@@ -316,3 +156,4 @@ export default function Home() {
     </main>
   );
 }
+

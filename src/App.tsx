@@ -92,6 +92,7 @@ function AppRoutes() {
 
 import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { RightSidebar } from "@/components/RightSidebar";
+import { MobileSidebar } from "@/components/MobileSidebar";
 import { useTheme } from "@/hooks/useTheme";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -148,6 +149,11 @@ const AppLayout = () => {
           <RightSidebar />
         </ErrorBoundary>
       )}
+
+      {/* Mobile Sidebar (Global) */}
+      <ErrorBoundary>
+        <MobileSidebar />
+      </ErrorBoundary>
     </div>
   );
 };

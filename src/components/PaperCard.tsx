@@ -10,6 +10,7 @@ import {
   Hash,
   Undo,
   Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import {
   Tooltip,
@@ -267,40 +268,16 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           </div>
 
           {/* Abstract Preview */}
-          <Collapsible open={showAbstract} onOpenChange={setShowAbstract}>
-            <div className="space-y-1">
-              <div
-                className={cn(
-                  "text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none",
-                  !showAbstract && "line-clamp-2"
-                )}
+          <div className="space-y-1">
+            <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2">
+              <ReactMarkdown
+                remarkPlugins={[remarkMath, remarkGfm]}
+                rehypePlugins={[rehypeKatex]}
               >
-                <ReactMarkdown
-                  remarkPlugins={[remarkMath, remarkGfm]}
-                  rehypePlugins={[rehypeKatex]}
-                >
-                  {showAbstract ? paper.abstract : abstractPreview}
-                </ReactMarkdown>
-              </div>
-              {paper.abstract.length > UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH && (
-                <CollapsibleTrigger asChild>
-                  <button className="text-xs text-primary hover:underline flex items-center gap-1">
-                    {showAbstract ? (
-                      <>
-                        <ChevronUp className="w-3 h-3" />
-                        접기
-                      </>
-                    ) : (
-                      <>
-                        <FileText className="w-3 h-3" />
-                        더보기
-                      </>
-                    )}
-                  </button>
-                </CollapsibleTrigger>
-              )}
+                {abstractPreview}
+              </ReactMarkdown>
             </div>
-          </Collapsible>
+          </div>
 
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
@@ -333,7 +310,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               </Button>
             </div>
 
-            {/* Secondary Actions (PDF/요약) */}
+            {/* Secondary Actions (Link) */}
             <div className="flex items-center gap-2">
               {paper.pdfUrl && (
                 <Button variant="ghost" size="sm" className="text-xs min-h-touch border border-input hover:bg-secondary text-muted-foreground hover:text-foreground" asChild>
@@ -342,23 +319,13 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    aria-label="PDF 원문 보기 (새 탭에서 열림)"
+                    aria-label="원문 보기 (새 탭에서 열림)"
                   >
-                    PDF
+                    <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                    원문
                   </a>
                 </Button>
               )}
-              <Button
-                variant="default"
-                size="sm"
-                className="text-xs min-h-touch bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onOpenSummary) onOpenSummary();
-                }}
-              >
-                요약 보기
-              </Button>
             </div>
           </div>
           {!canUseActions && authMessage && (

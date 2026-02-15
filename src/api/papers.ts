@@ -12,6 +12,12 @@ export const papersApi = {
         return response.data;
     },
 
+    // Get recommended paper feed
+    getPaperFeed: async (params?: GetPapersParams): Promise<PagedPapersResponse> => {
+        const response = await apiClient.get<PagedPapersResponse>('/paper/feed', { params });
+        return response.data;
+    },
+
     // Get a single paper by ID
     getPaperById: async (id: number): Promise<PaperOut> => {
         const response = await apiClient.get<PaperOut>(`/paper/${id}`);
@@ -36,5 +42,10 @@ export const papersApi = {
     // Unscrap a paper
     unscrapPaper: async (paperId: number): Promise<void> => {
         await apiClient.delete(`/paper/${paperId}/scrap`);
+    },
+
+    // Mark a paper as viewed
+    markPaperViewed: async (paperId: number): Promise<void> => {
+        await apiClient.put(`/paper/${paperId}/view`);
     },
 };
