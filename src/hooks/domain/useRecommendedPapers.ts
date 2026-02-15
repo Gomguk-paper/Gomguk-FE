@@ -21,30 +21,12 @@ export const useRecommendedPapers = ({ papersResponse, tagMap, prefs }: UseRecom
     const sortedPapers = useMemo(() => {
         // Defensive check: ensure papers have metrics
         const validPapers = Array.isArray(papers)
-            ? papers.filter((p: any) => p && p.metrics && !String(p.id).startsWith('p')) // Filter out mock papers
+            ? papers.filter((p: any) => p && !String(p.id).startsWith('p')) // Filter out mock papers
             : [];
 
-        return [...validPapers].sort((a: any, b: any) => {
-            const scoreA = (a.metrics?.trendingScore || 0) + (a.metrics?.recencyScore || 0);
-            const scoreB = (b.metrics?.trendingScore || 0) + (b.metrics?.recencyScore || 0);
-
-            let weightedScoreA = scoreA;
-            let weightedScoreB = scoreB;
-
-            if (prefs?.tags) {
-                prefs.tags.forEach(({ name, weight }: any) => {
-                    if (a.tags?.some((t: string) => t.toLowerCase() === name.toLowerCase())) {
-                        weightedScoreA += weight * 10;
-                    }
-                    if (b.tags?.some((t: string) => t.toLowerCase() === name.toLowerCase())) {
-                        weightedScoreB += weight * 10;
-                    }
-                });
-            }
-
-            return weightedScoreB - weightedScoreA;
-        });
-    }, [papers, prefs]);
+        // Server side sorting is now used via /papers/feed
+        return validPapers;
+    }, [papers]);
 
     return { sortedPapers };
 };

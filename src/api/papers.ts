@@ -12,6 +12,12 @@ export const papersApi = {
         return response.data;
     },
 
+    // Get recommended paper feed
+    getPaperFeed: async (params?: GetPapersParams): Promise<PagedPapersResponse> => {
+        const response = await apiClient.get<PagedPapersResponse>('/paper/feed', { params });
+        return response.data;
+    },
+
     // Get a single paper by ID
     getPaperById: async (id: number): Promise<PaperOut> => {
         const response = await apiClient.get<PaperOut>(`/paper/${id}`);

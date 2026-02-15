@@ -11,7 +11,7 @@ import { HamburgerMenu } from "@/components/HamburgerMenu";
 
 // Custom Hooks
 import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
-import { usePapersQuery } from "@/hooks/queries/usePapersQuery";
+import { usePaperFeedQuery } from "@/hooks/queries/usePaperFeedQuery";
 import { useRecommendedPapers } from "@/hooks/domain/useRecommendedPapers";
 import { usePaperNotifications } from "@/hooks/features/usePaperNotifications";
 import { usePaperFeed } from "@/hooks/ui/usePaperFeed";
@@ -34,7 +34,7 @@ export default function Home() {
     isError: papersError,
     error: papersErrorDetails,
     refetch: refetchPapers
-  } = usePapersQuery();
+  } = usePaperFeedQuery();
 
   // 2. Domain / Business Logic Layer
   const { sortedPapers } = useRecommendedPapers({
