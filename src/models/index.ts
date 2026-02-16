@@ -13,6 +13,7 @@ export interface Paper {
   metrics: {
     trendingScore: number;
     recencyScore: number;
+    recommendScore: number;
     citations: number;
   };
 }
@@ -25,11 +26,4 @@ export interface Summary {
   evidenceScope: "abstract" | "intro" | "full";
 }
 
-export interface Report {
-  id: string;
-  title: string;
-  summary: string;
-  tags: string[];
-  relatedPaperIds: string[];
-  imageUrl?: string; // 썸네일 이미지
-}
+

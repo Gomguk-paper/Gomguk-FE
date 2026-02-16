@@ -1,10 +1,16 @@
 import apiClient from '@/lib/apiClient';
-import type { Summary } from '@/lib/apiTypes';
+import type { SummaryResponse, GetSummaryParams } from '@/lib/apiTypes';
 
 export const summariesApi = {
     // Get summary for a specific paper
-    getSummaryByPaperId: async (paperId: string): Promise<Summary> => {
-        const response = await apiClient.get<Summary>(`/summaries/${paperId}`);
+    getSummaryByPaperId: async (
+        paperId: number,
+        params?: GetSummaryParams
+    ): Promise<SummaryResponse> => {
+        const response = await apiClient.get<SummaryResponse>(
+            `/summary/${paperId}`,
+            { params }
+        );
         return response.data;
     },
 };

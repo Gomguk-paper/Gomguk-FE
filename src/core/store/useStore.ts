@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { UserPrefs, StoredUser } from '@/core/lib/authStorage';
+import { papersApi } from '@/api/papers';
 
 interface UserAction {
   paperId: string;
@@ -66,13 +67,17 @@ interface GomgukStore {
   // Theme
   theme: Theme;
   setTheme: (theme: Theme) => void;
+
+  // Mobile Menu
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: (open: boolean) => void;
 }
 
 const getUserActionKey = (user: StoredUser | null) => {
   if (!user) {
     return null;
   }
-  return user.provider;
+  return user.id;
 };
 
 export const useStore = create<GomgukStore>()(
@@ -119,81 +124,116 @@ export const useStore = create<GomgukStore>()(
         };
       }),
 
-      toggleLike: (paperId) => set((state) => {
-        const userKey = getUserActionKey(get().user);
-        if (!userKey) {
-          return state;
-        }
-        const currentActions = state.actionsByUser[userKey] ?? [];
-        const existing = currentActions.find(a => a.paperId === paperId);
-        if (existing) {
+      toggleLike: (paperId) => {
+        const state = get();
+        const userKey = getUserActionKey(state.user);
+        if (!userKey) return;
+
+        // Optimistic UI update
+        set((state) => {
+          const currentActions = state.actionsByUser[userKey] ?? [];
+          const existing = currentActions.find(a => a.paperId === paperId);
+
+          // API Call (Fire and forget)
+          const paperIdNum = parseInt(paperId, 10);
+          if (!isNaN(paperIdNum)) {
+            if (existing && existing.liked) {
+              papersApi.unlikePaper(paperIdNum).catch(console.error);
+            } else {
+              papersApi.likePaper(paperIdNum).catch(console.error);
+            }
+          }
+
+          if (existing) {
+            return {
+              actionsByUser: {
+                ...state.actionsByUser,
+                [userKey]: currentActions.map(a =>
+                  a.paperId === paperId ? { ...a, liked: !a.liked } : a
+                ),
+              },
+            };
+          }
           return {
             actionsByUser: {
               ...state.actionsByUser,
-              [userKey]: currentActions.map(a =>
-                a.paperId === paperId ? { ...a, liked: !a.liked } : a
-              ),
+              [userKey]: [...currentActions, { paperId, liked: true, saved: false }],
             },
           };
-        }
-        return {
-          actionsByUser: {
-            ...state.actionsByUser,
-            [userKey]: [...currentActions, { paperId, liked: true, saved: false }],
-          },
-        };
-      }),
-      toggleSave: (paperId) => set((state) => {
-        const userKey = getUserActionKey(get().user);
-        if (!userKey) {
-          return state;
-        }
-        const currentActions = state.actionsByUser[userKey] ?? [];
-        const existing = currentActions.find(a => a.paperId === paperId);
-        if (existing) {
+        });
+      },
+      toggleSave: (paperId) => {
+        const state = get();
+        const userKey = getUserActionKey(state.user);
+        if (!userKey) return;
+
+        set((state) => {
+          const currentActions = state.actionsByUser[userKey] ?? [];
+          const existing = currentActions.find(a => a.paperId === paperId);
+
+          // API Call
+          const paperIdNum = parseInt(paperId, 10);
+          if (!isNaN(paperIdNum)) {
+            if (existing && existing.saved) {
+              papersApi.unscrapPaper(paperIdNum).catch(console.error);
+            } else {
+              papersApi.scrapPaper(paperIdNum).catch(console.error);
+            }
+          }
+
+          if (existing) {
+            return {
+              actionsByUser: {
+                ...state.actionsByUser,
+                [userKey]: currentActions.map(a =>
+                  a.paperId === paperId ? { ...a, saved: !a.saved } : a
+                ),
+              },
+            };
+          }
           return {
             actionsByUser: {
               ...state.actionsByUser,
-              [userKey]: currentActions.map(a =>
-                a.paperId === paperId ? { ...a, saved: !a.saved } : a
-              ),
+              [userKey]: [...currentActions, { paperId, liked: false, saved: true }],
             },
           };
+        });
+      },
+      markAsRead: (paperId) => {
+        const state = get();
+        const userKey = getUserActionKey(state.user);
+        if (!userKey) return;
+
+        // API Call
+        const paperIdNum = parseInt(paperId, 10);
+        if (!isNaN(paperIdNum)) {
+          papersApi.markPaperViewed(paperIdNum).catch(console.error);
         }
-        return {
-          actionsByUser: {
-            ...state.actionsByUser,
-            [userKey]: [...currentActions, { paperId, liked: false, saved: true }],
-          },
-        };
-      }),
-      markAsRead: (paperId) => set((state) => {
-        const userKey = getUserActionKey(get().user);
-        if (!userKey) {
-          return state;
-        }
-        const currentActions = state.actionsByUser[userKey] ?? [];
-        const existing = currentActions.find(a => a.paperId === paperId);
-        if (existing) {
+
+        set((state) => {
+          const currentActions = state.actionsByUser[userKey] ?? [];
+          const existing = currentActions.find(a => a.paperId === paperId);
+          if (existing) {
+            return {
+              actionsByUser: {
+                ...state.actionsByUser,
+                [userKey]: currentActions.map(a =>
+                  a.paperId === paperId ? { ...a, readAt: new Date().toISOString() } : a
+                ),
+              },
+            };
+          }
           return {
             actionsByUser: {
               ...state.actionsByUser,
-              [userKey]: currentActions.map(a =>
-                a.paperId === paperId ? { ...a, readAt: new Date().toISOString() } : a
-              ),
+              [userKey]: [
+                ...currentActions,
+                { paperId, liked: false, saved: false, readAt: new Date().toISOString() },
+              ],
             },
           };
-        }
-        return {
-          actionsByUser: {
-            ...state.actionsByUser,
-            [userKey]: [
-              ...currentActions,
-              { paperId, liked: false, saved: false, readAt: new Date().toISOString() },
-            ],
-          },
-        };
-      }),
+        });
+      },
       getAction: (paperId) => {
         const userKey = getUserActionKey(get().user);
         if (!userKey) {
@@ -260,6 +300,10 @@ export const useStore = create<GomgukStore>()(
       // Theme
       theme: 'system',
       setTheme: (theme) => set({ theme }),
+
+      // Mobile Menu
+      mobileMenuOpen: false,
+      setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
     }),
     {
       name: 'gomguk-storage',

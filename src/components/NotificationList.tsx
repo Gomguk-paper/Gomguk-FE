@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { Bell, Sparkles, Tag, Bookmark, Clock } from "lucide-react";
 import { useStore, type Notification } from "@/store/useStore";
-import { papers } from "@/data/papers";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -86,7 +85,6 @@ export function NotificationList({ onNotificationClick }: NotificationListProps)
             <div className="divide-y">
               {sortedNotifications.map((notification) => {
                 const Icon = getNotificationIcon(notification.type);
-                const paper = papers.find((p) => p.id === notification.paperId);
                 const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
                   addSuffix: true,
                   locale: ko,
@@ -122,7 +120,7 @@ export function NotificationList({ onNotificationClick }: NotificationListProps)
                           )}
                         </div>
                         <p className="text-sm font-medium line-clamp-1 mb-1">
-                          {paper?.title || notification.title}
+                          {notification.title}
                         </p>
                         <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                           {notification.message}

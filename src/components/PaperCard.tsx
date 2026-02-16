@@ -10,6 +10,7 @@ import {
   Hash,
   Undo,
   Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import {
   Tooltip,
@@ -26,8 +27,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { Paper, summaries } from "@/data/papers";
+import type { Paper } from "@/models";
 import { useStore } from "@/store/useStore";
+import { useSummary } from "@/hooks/useSummary";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +39,11 @@ import { WhyThisModal } from "./WhyThisModal";
 import { LoginModal } from "./LoginModal";
 import { cn } from "@/lib/utils";
 import { UI_CONSTANTS } from "@/core/config/constants";
+import { resolveImageUrl } from "@/lib/imageUtils";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
 
 interface PaperCardProps {
   paper: Paper;
@@ -64,7 +71,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const [showAbstract, setShowAbstract] = useState(false);
 
   const action = getAction(paper.id);
-  const summary = summaries.find((s) => s.paperId === paper.id);
+  const { summary } = useSummary(paper.id);
   const isLiked = action?.liked || false;
   const isSaved = action?.saved || false;
   const canUseActions = Boolean(user);
@@ -140,23 +147,9 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           <div className="w-full md:w-[28%] flex-shrink-0">
             <div className="bg-muted relative aspect-[3/2] md:aspect-[4/3] w-full md:rounded-lg overflow-hidden">
               <img
-                src={paper.imageUrl}
+                src={resolveImageUrl(paper.imageUrl)}
                 alt={`${paper.title} figure`}
                 className="w-full h-full object-cover absolute inset-0"
-                onError={(e) => {
-                  // 이미지 로드 실패 시 아이콘 표시
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                  if (target.parentElement) {
-                    target.parentElement.innerHTML = `
-                      <div class="w-full h-full flex items-center justify-center text-muted-foreground">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    `;
-                  }
-                }}
               />
             </div>
           </div>
@@ -175,9 +168,11 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                 {paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && " et al."}
                 <span className="mx-1.5">·</span>
                 {paper.year}
-                <Badge variant="secondary" className="ml-2 px-1.5 py-0 h-5 font-semibold text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-0 align-middle">
-                  {paper.venue}
-                </Badge>
+                {paper.venue && (
+                  <Badge variant="secondary" className="ml-2 px-1.5 py-0 h-5 font-semibold text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-0 align-middle">
+                    {paper.venue}
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -263,40 +258,28 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           <div className="space-y-1 mb-auto">
             {/* Hook summary */}
             {summary && (
-              <p className="text-sm text-muted-foreground leading-relaxed mb-2">💡 {summary.hookOneLiner}</p>
+              <div className="text-sm text-muted-foreground leading-relaxed mb-2 prose prose-sm max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath, remarkGfm]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {`💡 ${summary.hookOneLiner}`}
+                </ReactMarkdown>
+              </div>
             )}
           </div>
 
           {/* Abstract Preview */}
-          <Collapsible open={showAbstract} onOpenChange={setShowAbstract}>
-            <div className="space-y-1">
-              <p
-                className={cn(
-                  "text-sm text-muted-foreground leading-relaxed",
-                  !showAbstract && "line-clamp-2"
-                )}
+          <div className="space-y-1">
+            <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2">
+              <ReactMarkdown
+                remarkPlugins={[remarkMath, remarkGfm]}
+                rehypePlugins={[rehypeKatex]}
               >
-                {showAbstract ? paper.abstract : abstractPreview}
-              </p>
-              {paper.abstract.length > UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH && (
-                <CollapsibleTrigger asChild>
-                  <button className="text-xs text-primary hover:underline flex items-center gap-1">
-                    {showAbstract ? (
-                      <>
-                        <ChevronUp className="w-3 h-3" />
-                        접기
-                      </>
-                    ) : (
-                      <>
-                        <FileText className="w-3 h-3" />
-                        더보기
-                      </>
-                    )}
-                  </button>
-                </CollapsibleTrigger>
-              )}
+                {abstractPreview}
+              </ReactMarkdown>
             </div>
-          </Collapsible>
+          </div>
 
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
@@ -329,7 +312,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
               </Button>
             </div>
 
-            {/* Secondary Actions (PDF/요약) */}
+            {/* Secondary Actions (Link) */}
             <div className="flex items-center gap-2">
               {paper.pdfUrl && (
                 <Button variant="ghost" size="sm" className="text-xs min-h-touch border border-input hover:bg-secondary text-muted-foreground hover:text-foreground" asChild>
@@ -338,23 +321,13 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    aria-label="PDF 원문 보기 (새 탭에서 열림)"
+                    aria-label="원문 보기 (새 탭에서 열림)"
                   >
-                    PDF
+                    <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                    원문
                   </a>
                 </Button>
               )}
-              <Button
-                variant="default"
-                size="sm"
-                className="text-xs min-h-touch bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onOpenSummary) onOpenSummary();
-                }}
-              >
-                요약 보기
-              </Button>
             </div>
           </div>
           {!canUseActions && authMessage && (

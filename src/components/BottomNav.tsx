@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/", icon: Home, label: "홈" },
-  { to: "/search", icon: Search, label: "탐색" },
+  { to: "/search", icon: Search, label: "검색" },
   { to: "/mypage", icon: User, label: "마이" },
 ];
 

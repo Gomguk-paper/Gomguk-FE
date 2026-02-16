@@ -6,7 +6,19 @@ import path from "path";
 export default defineConfig({
   server: {
     host: "::",
-    port: 8080,
+    port: 8081,
+    proxy: {
+      '/api': {
+        target: 'http://gomguk.cloud',
+        changeOrigin: true,
+        //rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/api/s3-images': {
+        target: 'https://papers.s3.ap-northeast-2.amazonaws.com', // Assuming Seoul region based on user language
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/s3-images/, ''),
+      },
+    },
   },
   plugins: [react()],
   resolve: {

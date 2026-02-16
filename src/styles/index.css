@@ -263,4 +263,63 @@
   .mobile-content-padding {
     padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
   }
+
+  /* Markdown & Math Styles */
+  .prose {
+    @apply text-foreground;
+  }
+
+  .prose p {
+    @apply my-2;
+  }
+
+  .prose strong {
+    @apply font-semibold text-foreground;
+  }
+
+  .prose em {
+    @apply italic;
+  }
+
+  .prose code {
+    @apply bg-secondary text-primary px-1 py-0.5 rounded text-sm font-mono;
+  }
+
+  .prose pre {
+    @apply bg-secondary p-3 rounded-lg overflow-x-auto my-3;
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose ul {
+    @apply list-disc list-inside my-2;
+  }
+
+  .prose ol {
+    @apply list-decimal list-inside my-2;
+  }
+
+  .prose li {
+    @apply my-1;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic my-3;
+  }
+
+  /* KaTeX 수식 스타일 */
+  .prose .katex {
+    @apply text-foreground;
+  }
+
+  .prose .katex-display {
+    @apply overflow-x-auto overflow-y-hidden my-4;
+  }
+
+  /* 인라인 수식 */
+  .prose .katex-html {
+    @apply inline-block;
+  }
 }
