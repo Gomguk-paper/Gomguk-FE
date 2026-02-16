@@ -99,10 +99,10 @@ export function SummaryContent({ summary, isLoading = false }: SummaryContentPro
                 </ul>
             </div>
 
-            {/* 상세 설명 */}
+            {/* 정리 (detailed) */}
             <div className="animate-fade-in">
                 <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                    상세 설명
+                    정리
                 </span>
                 <div className="mt-4 text-base leading-relaxed text-foreground/90 prose prose-base max-w-none">
                     <ReactMarkdown

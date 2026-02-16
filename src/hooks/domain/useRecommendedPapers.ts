@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { convertPaperOutToPaper } from "@/lib/paperUtils";
-import type { PaperOut, PagedPapersResponse } from "@/lib/apiTypes";
+import type { PaperOut, PaperItem, PagedPapersResponse } from "@/lib/apiTypes";
 
 interface UseRecommendedPapersProps {
     pages: PagedPapersResponse[] | undefined;
@@ -11,7 +11,10 @@ export const useRecommendedPapers = ({ pages, tagMap }: UseRecommendedPapersProp
     const sortedPapers = useMemo(() => {
         if (!pages) return [];
         return pages.flatMap(page =>
-            page.items.map(item => convertPaperOutToPaper(item.paper, tagMap))
+            page.items.map((item: PaperItem | Record<string, unknown>) => {
+                const rawPaper = "paper" in item && item.paper != null ? item.paper : item;
+                return convertPaperOutToPaper(rawPaper as PaperOut, tagMap);
+            })
         );
     }, [pages, tagMap]);
 

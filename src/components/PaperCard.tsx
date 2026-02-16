@@ -29,10 +29,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Paper } from "@/models";
 import { useStore } from "@/store/useStore";
+<<<<<<< Updated upstream
 import { useSummary } from "@/hooks/useSummary";
+=======
+import { useSummaryQuery } from "@/hooks/queries/useSummaryQuery";
+>>>>>>> Stashed changes
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 import { WhyThisModal } from "./WhyThisModal";
@@ -70,10 +73,12 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAbstract, setShowAbstract] = useState(false);
 
+  const { data: summaryFromApi } = useSummaryQuery(paper.id);
   const action = getAction(paper.id);
   const { summary } = useSummary(paper.id);
   const isLiked = action?.liked || false;
   const isSaved = action?.saved || false;
+  const titleText = summaryFromApi?.hook ?? paper.summary?.hook ?? paper.title ?? "";
   const canUseActions = Boolean(user);
   const authMessage = !user ? "로그인 후 좋아요/저장 기능을 사용할 수 있어요." : null;
 
@@ -161,18 +166,13 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           {/* Header: Title & Actions & Why */}
           <div className="flex justify-between items-start gap-2 mb-1">
             <div className="flex-1">
-              <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors mb-1">
-                {paper.title}
+              <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors mb-1 min-h-[1.5rem]">
+                {titleText}
               </h3>
               <div className="text-xs text-muted-foreground mb-2">
                 {paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && " et al."}
                 <span className="mx-1.5">·</span>
                 {paper.year}
-                {paper.venue && (
-                  <Badge variant="secondary" className="ml-2 px-1.5 py-0 h-5 font-semibold text-[10px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-0 align-middle">
-                    {paper.venue}
-                  </Badge>
-                )}
               </div>
             </div>
 
@@ -255,6 +255,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             ))}
           </div>
 
+<<<<<<< Updated upstream
           <div className="space-y-1 mb-auto">
             {/* Hook summary */}
             {summary && (
@@ -281,6 +282,8 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             </div>
           </div>
 
+=======
+>>>>>>> Stashed changes
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}

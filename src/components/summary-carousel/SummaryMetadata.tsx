@@ -51,11 +51,6 @@ export function SummaryMetadata({ paper }: SummaryMetadataProps) {
                     <Calendar className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">{paper.year}</span>
                 </div>
-                {paper.venue && (
-                    <div className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-medium">
-                        {paper.venue}
-                    </div>
-                )}
                 <div className="flex items-center gap-1.5">
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
