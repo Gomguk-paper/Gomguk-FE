@@ -29,25 +29,32 @@ export default function Home() {
   // 1. Data Fetching Layer
   const { tagMap } = useTagsQuery();
   const {
-    data: papersResponse,
+    data: papersData,
     isLoading: papersLoading,
     isError: papersError,
     error: papersErrorDetails,
-    refetch: refetchPapers
+    refetch: refetchPapers,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
   } = usePaperFeedQuery();
 
   // 2. Domain / Business Logic Layer
   const { sortedPapers } = useRecommendedPapers({
-    papersResponse,
+    pages: papersData?.pages,
     tagMap,
-    prefs
   });
 
   // 3. Feature / Side Effects Layer
   usePaperNotifications(sortedPapers, user, prefs);
 
   // 4. UI State Layer
-  const { displayedPapers, loadMoreRef, hasMore } = usePaperFeed(sortedPapers, papersLoading);
+  const { displayedPapers, loadMoreRef, hasMore, isFetchingNextPage: isFetching } = usePaperFeed({
+    papers: sortedPapers,
+    hasNextPage: hasNextPage ?? false,
+    isFetchingNextPage,
+    fetchNextPage,
+  });
   const {
     carouselOpen,
     selectedPaperIndex,
@@ -136,7 +143,7 @@ export default function Home() {
 
           {/* Infinite Scroll Trigger */}
           <div ref={loadMoreRef} className="h-10 flex items-center justify-center mt-4">
-            {hasMore && papersLoading && (
+            {isFetching && (
               <div className="text-sm text-muted-foreground">더 불러오는 중...</div>
             )}
           </div>

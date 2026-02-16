@@ -1,25 +1,23 @@
-import { useState, useMemo } from "react";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
-export const usePaperFeed = (sortedPapers: any[], isLoading: boolean) => {
-    const [displayCount, setDisplayCount] = useState(10);
-    const PAPERS_PER_PAGE = 10;
+interface UsePaperFeedOptions {
+    papers: any[];
+    hasNextPage: boolean;
+    isFetchingNextPage: boolean;
+    fetchNextPage: () => void;
+}
 
-    const displayedPapers = useMemo(() => {
-        return sortedPapers.slice(0, displayCount);
-    }, [sortedPapers, displayCount]);
-
-    const hasMore = displayCount < sortedPapers.length;
-
-    const loadMore = () => {
-        setDisplayCount(prev => Math.min(prev + PAPERS_PER_PAGE, sortedPapers.length));
-    };
-
+export const usePaperFeed = ({
+    papers,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+}: UsePaperFeedOptions) => {
     const loadMoreRef = useInfiniteScroll({
-        onLoadMore: loadMore,
-        hasMore,
-        isLoading,
+        onLoadMore: fetchNextPage,
+        hasMore: hasNextPage,
+        isLoading: isFetchingNextPage,
     });
 
-    return { displayedPapers, loadMoreRef, hasMore };
+    return { displayedPapers: papers, loadMoreRef, hasMore: hasNextPage, isFetchingNextPage };
 };
