@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import { TagChip } from "@/components/TagChip";
 import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
+import { useTrendingTags } from "@/contexts/TrendingTagsContext";
 
 interface OnboardingTagsProps {
     selectedTags: string[];
@@ -9,7 +10,8 @@ interface OnboardingTagsProps {
 }
 
 export function OnboardingTags({ selectedTags, onToggle }: OnboardingTagsProps) {
-    const { tagsResponse, isLoading } = useTagsQuery();
+    const { trendingTagNames, isTrendingTag, isLoading: trendingLoading } = useTrendingTags();
+    const { tagsResponse, isLoading: allTagsLoading } = useTagsQuery();
     const [searchQuery, setSearchQuery] = useState("");
 
     const allTags = useMemo(() => {
@@ -17,11 +19,14 @@ export function OnboardingTags({ selectedTags, onToggle }: OnboardingTagsProps) 
         return tagsResponse.map(item => item.tag.name);
     }, [tagsResponse]);
 
+    // 검색하지 않을 때: Trending 20개만 표시. 검색 시: 전체 태그에서 검색어로 필터
     const filteredTags = useMemo(() => {
-        if (!searchQuery.trim()) return allTags;
+        if (!searchQuery.trim()) return trendingTagNames;
         const q = searchQuery.toLowerCase();
         return allTags.filter(tag => tag.toLowerCase().includes(q));
-    }, [allTags, searchQuery]);
+    }, [trendingTagNames, allTags, searchQuery]);
+
+    const isLoading = trendingLoading || (!!searchQuery.trim() && allTagsLoading);
 
     return (
         <div className="space-y-4 animate-fade-in">
@@ -75,12 +80,15 @@ export function OnboardingTags({ selectedTags, onToggle }: OnboardingTagsProps) 
                             key={tag}
                             tag={tag}
                             selected={selectedTags.includes(tag)}
+                            trending={isTrendingTag(tag)}
                             onClick={() => onToggle(tag)}
                         />
                     ))}
                     {filteredTags.length === 0 && (
                         <p className="text-sm text-muted-foreground py-4">
-                            "{searchQuery}"에 해당하는 태그가 없습니다
+                            {searchQuery.trim()
+                                ? `"${searchQuery}"에 해당하는 태그가 없습니다`
+                                : "트렌딩 태그를 불러오는 중입니다"}
                         </p>
                     )}
                 </div>

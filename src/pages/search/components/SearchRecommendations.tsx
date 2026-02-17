@@ -7,6 +7,7 @@ interface SearchRecommendationsProps {
     handleSearch: (term: string) => void;
     removeHistory: (term: string) => void;
     trendingTags: string[];
+    isTrendingTag: (tag: string) => boolean;
     selectedTags: string[];
     handleTagClick: (tag: string) => void;
 }
@@ -16,6 +17,7 @@ export function SearchRecommendations({
     handleSearch,
     removeHistory,
     trendingTags,
+    isTrendingTag,
     selectedTags,
     handleTagClick,
 }: SearchRecommendationsProps) {
@@ -75,6 +77,7 @@ export function SearchRecommendations({
                             key={tag}
                             tag={tag}
                             selected={selectedTags.includes(tag)}
+                            trending={isTrendingTag(tag)}
                             onClick={() => handleTagClick(tag)}
                         />
                     ))}

@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { papersApi, tagsApi } from "@/api";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { useTrendingTags, TRENDING_TOP_COUNT_SEARCH } from "@/contexts/TrendingTagsContext";
 import { convertPaperOutToPaper } from "@/lib/paperUtils";
 import { Paper } from "@/models";
 
@@ -72,6 +73,10 @@ export function usePaperSearch() {
         });
         return map;
     }, [tagItems]);
+
+    // 검색 인기 태그 = Context 트렌딩 상위 N개 (단일 소스)
+    const { trendingTagNames, isTrendingTag } = useTrendingTags();
+    const trendingTags = trendingTagNames.slice(0, TRENDING_TOP_COUNT_SEARCH);
 
     // Sync selectedTags with URL parameters
     useEffect(() => {
@@ -151,8 +156,6 @@ export function usePaperSearch() {
         setCarouselOpen(true);
     };
 
-    const trendingTags = allTags.slice(0, 8);
-
     return {
         query,
         setQuery,
@@ -171,6 +174,7 @@ export function usePaperSearch() {
         removeHistory,
         handleSearch,
         trendingTags,
+        isTrendingTag,
         allTags
     };
 }

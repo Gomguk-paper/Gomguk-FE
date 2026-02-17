@@ -21,11 +21,10 @@ export function TagChip({ tag, selected, trending, onClick, size = "md" }: TagCh
         size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
         "bg-secondary text-secondary-foreground border-border",
         selected && "ring-2 ring-primary ring-offset-1",
-        trending && "animate-pulse",
         onClick ? "hover:scale-105 cursor-pointer" : "cursor-default"
       )}
     >
-      {trending && <span className="text-trending">🔥</span>}#{tag}
+      <span className={trending ? "text-red-500" : undefined}>#{tag}</span>
     </div>
   );
 

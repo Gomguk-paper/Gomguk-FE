@@ -96,6 +96,7 @@ import { MobileSidebar } from "@/components/MobileSidebar";
 import { useTheme } from "@/hooks/useTheme";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { TrendingTagsProvider } from "@/contexts/TrendingTagsContext";
 
 const AppLayout = () => {
   const { prefs } = useStore();
@@ -164,9 +165,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <ErrorBoundary>
-          <AppLayout />
-        </ErrorBoundary>
+        <TrendingTagsProvider>
+          <ErrorBoundary>
+            <AppLayout />
+          </ErrorBoundary>
+        </TrendingTagsProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

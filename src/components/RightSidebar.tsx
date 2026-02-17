@@ -3,11 +3,12 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import { tagsApi } from "@/api";
 import { useStore } from "@/store/useStore";
 import { LoginModal } from "@/components/LoginModal";
 import { LegalModal } from "@/components/LegalModal";
+import { useTrendingTags } from "@/contexts/TrendingTagsContext";
+
+const TRENDING_VISIBLE = 5;
 
 export function RightSidebar() {
     const navigate = useNavigate();
@@ -21,11 +22,7 @@ export function RightSidebar() {
 
     const isLoggedIn = Boolean(user);
 
-    // Fetch trending tags from API (Hook must be called before any early return)
-    const { data: trendingTagsResponse } = useQuery({
-        queryKey: ['tags', 'trending'],
-        queryFn: () => tagsApi.getTags({ limit: 20 }),
-    });
+    const { trendingTagNames } = useTrendingTags();
 
     const handleLegalClick = (type: "terms" | "privacy" | "cookies" | "accessibility" | "advertising") => {
         setLegalContentType(type);
@@ -37,9 +34,7 @@ export function RightSidebar() {
         return null;
     }
 
-    const trendingTagsData = trendingTagsResponse?.items || [];
-    const allTrendingTags = trendingTagsData.map(item => ({ tag: item.tag.name, count: item.tag.count || 0 }));
-    const trendingTags = showAllTrends ? allTrendingTags : allTrendingTags.slice(0, 5);
+    const visibleTags = showAllTrends ? trendingTagNames : trendingTagNames.slice(0, TRENDING_VISIBLE);
 
     const handleTrendOptions = (tag: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -57,19 +52,15 @@ export function RightSidebar() {
             <div className="bg-card rounded-xl border p-4 relative">
                 <h2 className="font-display font-bold text-lg mb-4">Trending Topics</h2>
                 <div className={`space-y-4 transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
-                    {trendingTags.map(({ tag, count }, index) => (
+                    {visibleTags.map((tag, index) => (
                         <div
                             key={tag}
                             role="button"
-                            onClick={() => navigate(`/search?tag=${tag}`)}
+                            onClick={() => navigate(`/search?tag=${encodeURIComponent(tag)}`)}
                             className="flex items-center justify-between group cursor-pointer"
                         >
-                            <div>
-                                <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                    {index + 1} · 컴퓨터 과학
-                                </div>
-                                <div className="font-bold pt-0.5 group-hover:underline">#{tag}</div>
-                                <div className="text-xs text-muted-foreground pt-0.5">{count} papers</div>
+                            <div className="font-bold text-foreground group-hover:underline">
+                                {index + 1}. #{tag}
                             </div>
                             <Button
                                 variant="ghost"
@@ -82,7 +73,7 @@ export function RightSidebar() {
                         </div>
                     ))}
                 </div>
-                {allTrendingTags.length > 5 && (
+                {trendingTagNames.length > TRENDING_VISIBLE && (
                     <Button
                         variant="ghost"
                         className="w-full text-primary justify-start px-0 mt-4 hover:bg-transparent hover:underline"

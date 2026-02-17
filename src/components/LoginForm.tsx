@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { AuthProvider, getStoredPrefs, setStoredUser, clearStoredUser } from "@/lib/authStorage";
 import { authApi } from "@/api/auth";
+import { ROUTES } from "@/core/config/constants";
 import { BookOpen, Loader2 } from "lucide-react";
 
 interface LoginFormProps {
@@ -64,7 +65,8 @@ export function LoginForm({
 
   const handleLogin = async (provider: AuthProvider) => {
     if (provider === "google") {
-      const redirectUri = `${window.location.origin}/login`;
+      // 전체 페이지·모달 공통: OAuth 후 항상 /login으로 돌아와 콜백 처리
+      const redirectUri = `${window.location.origin}${ROUTES.LOGIN}`;
       const backendUrl = import.meta.env.VITE_BACKEND_URL || window.location.origin;
       const loginUrl = `${backendUrl}/api/oauth/google/login?redirect_uri=${encodeURIComponent(redirectUri)}&remember=${rememberMe}`;
       window.location.href = loginUrl;

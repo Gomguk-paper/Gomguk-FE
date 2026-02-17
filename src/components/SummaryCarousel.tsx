@@ -7,6 +7,7 @@ import { useStore } from "@/store/useStore";
 import { cleanAbstract } from "@/lib/textUtils";
 import { resolveImageUrl } from "@/lib/imageUtils";
 import { useSummaryQuery } from "@/hooks/queries/useSummaryQuery";
+import { useTrendingTags } from "@/contexts/TrendingTagsContext";
 
 // Import new components and hooks
 import { SummaryMetadata } from "./summary-carousel/SummaryMetadata";
@@ -23,6 +24,7 @@ interface SummaryCarouselProps {
 
 export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: SummaryCarouselProps) {
   const { markAsRead, prefs } = useStore();
+  const { isTrendingTag } = useTrendingTags();
 
   // Custom hook for navigation logic
   const {
@@ -119,7 +121,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
             {paper.tags.slice(0, 3).map((tag) => (
-              <TagChip key={tag} tag={tag} size="sm" />
+              <TagChip key={tag} tag={tag} size="sm" trending={isTrendingTag(tag)} />
             ))}
           </div>
 

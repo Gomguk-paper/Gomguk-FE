@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LoginForm } from "@/components/LoginForm";
 import { getStoredPrefs, setStoredUser } from "@/lib/authStorage";
+import { ROUTES } from "@/core/config/constants";
 import { meApi } from "@/api/me";
 import { useStore } from "@/store/useStore";
 
@@ -16,20 +17,17 @@ export default function Login() {
       ? "로그인이 필요합니다."
       : null;
 
-  // Handle OAuth callback
+  // Handle OAuth callback (공통: 전체 페이지 로그인 + 모달에서 Google 로그인 후 리다이렉트)
+  // access_token이 있으면 처리 (is_new_user 없어도 동작하도록 통일)
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
+    const accessToken = searchParams.get("access_token");
     const isNewUser = searchParams.get("is_new_user");
 
-    if (isNewUser !== null && !isProcessingCallback) {
+    if (accessToken && !isProcessingCallback) {
       setIsProcessingCallback(true);
+      localStorage.setItem("access_token", accessToken);
 
-      const accessToken = searchParams.get("access_token");
-      if (accessToken) {
-        localStorage.setItem("access_token", accessToken);
-      }
-
-      // Fetch user info from backend
       meApi
         .getMe()
         .then((userData) => {
@@ -40,16 +38,14 @@ export default function Login() {
             createdAt: new Date().toISOString(),
           };
 
-          // Store user info
           setStoredUser(user);
           setUser(user);
 
-          // Redirect based on whether user is new
           const storedPrefs = getStoredPrefs();
           if (isNewUser === "true" || !storedPrefs) {
-            navigate("/onboarding", { replace: true });
+            navigate(ROUTES.ONBOARDING, { replace: true });
           } else {
-            navigate("/", { replace: true });
+            navigate(ROUTES.HOME, { replace: true });
           }
         })
         .catch((error) => {
@@ -61,7 +57,7 @@ export default function Login() {
 
   const handleLoginSuccess = () => {
     const storedPrefs = getStoredPrefs();
-    navigate(storedPrefs ? "/" : "/onboarding", { replace: true });
+    navigate(storedPrefs ? ROUTES.HOME : ROUTES.ONBOARDING, { replace: true });
   };
 
   if (isProcessingCallback) {

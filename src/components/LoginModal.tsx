@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LoginForm } from "./LoginForm";
 import { getStoredPrefs } from "@/lib/authStorage";
+import { ROUTES } from "@/core/config/constants";
 import { useNavigate } from "react-router-dom";
 
 interface LoginModalProps {
@@ -119,11 +120,11 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
     };
   }, [open]);
 
-  // 로그인 성공 시 처리 (Login 페이지와 동일한 로직)
+  // 로그인 성공 시 처리 (Login 페이지와 동일: prefs 있으면 홈, 없으면 온보딩)
   const handleLoginSuccess = () => {
     const storedPrefs = getStoredPrefs();
     onOpenChange(false);
-    navigate(storedPrefs ? "/" : "/onboarding", { replace: true });
+    navigate(storedPrefs ? ROUTES.HOME : ROUTES.ONBOARDING, { replace: true });
   };
 
   // 모달이 닫힐 때 애니메이션 상태 업데이트

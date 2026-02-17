@@ -25,6 +25,7 @@ import {
 import type { Paper } from "@/models";
 import { useStore } from "@/store/useStore";
 import { useSummaryQuery } from "@/hooks/queries/useSummaryQuery";
+import { useTrendingTags } from "@/contexts/TrendingTagsContext";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect, useRef } from "react";
@@ -61,6 +62,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const hideToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: summaryFromApi } = useSummaryQuery(paper.id);
+  const { isTrendingTag } = useTrendingTags();
   const action = getAction(paper.id);
   const isLiked = action?.liked || false;
   const isSaved = action?.saved || false;
@@ -262,7 +264,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
           <div className="flex flex-wrap gap-1.5 mb-3">
             {paper.tags.slice(0, UI_CONSTANTS.PAPER.MAX_DISPLAYED_TAGS).map((tag) => (
-              <TagChip key={tag} tag={tag} size="sm" />
+              <TagChip key={tag} tag={tag} size="sm" trending={isTrendingTag(tag)} />
             ))}
           </div>
 

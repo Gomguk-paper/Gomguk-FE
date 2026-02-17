@@ -24,6 +24,7 @@ export default function SearchPage() {
     handleSearch,
     removeHistory,
     trendingTags,
+    isTrendingTag,
   } = usePaperSearch();
 
   // Always scroll to top for search page (disable restoration)
@@ -72,6 +73,7 @@ export default function SearchPage() {
             handleSearch={handleSearch}
             removeHistory={removeHistory}
             trendingTags={trendingTags}
+            isTrendingTag={isTrendingTag}
             selectedTags={selectedTags}
             handleTagClick={handleTagClick}
           />

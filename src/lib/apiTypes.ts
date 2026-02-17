@@ -99,6 +99,15 @@ export interface GetTagsParams {
     offset?: number;
 }
 
+export interface TrendingTagIdsResponse {
+    tag_ids: number[];
+}
+
+export interface GetTrendingTagsParams {
+    limit?: number;
+    candidate_paper_limit?: number;
+}
+
 // ============================================
 // Auth Types
 // ============================================
