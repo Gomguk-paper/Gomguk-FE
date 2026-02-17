@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { X, FileText } from "lucide-react";
+import { X } from "lucide-react";
 import { Paper } from "@/models";
 import { TagChip } from "@/components/TagChip";
 import { Button } from "@/components/ui/button";
@@ -92,20 +92,8 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
     >
-      {/* Close button & controls */}
+      {/* Close button */}
       <div className="absolute top-4 right-4 z-[60] flex items-center gap-2">
-        {paper.pdfUrl && (
-          <Button variant="ghost" size="icon" asChild onClick={(e) => e.stopPropagation()}>
-            <a
-              href={paper.pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="PDF 원문 보기 (새 탭에서 열림)"
-            >
-              <FileText className="w-5 h-5" />
-            </a>
-          </Button>
-        )}
         <Button
           variant="outline"
           size="icon"
@@ -152,11 +140,11 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           {/* New Sub-components */}
           <SummaryMetadata paper={paper} />
 
-          <SummaryContent summary={summary} isLoading={isLoading} />
+          <SummaryContent summary={summary} pdfUrl={paper.pdfUrl} isLoading={isLoading} />
 
           {/* Navigation hint */}
           <p className="text-xs text-muted-foreground text-center mt-4">
-            화면을 클릭하거나 탭하여 다음 단계로 이동
+            화살표를 클릭하여 다음 논문으로 이동
           </p>
         </div>
       </div>

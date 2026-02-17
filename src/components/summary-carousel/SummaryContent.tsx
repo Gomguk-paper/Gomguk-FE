@@ -11,10 +11,11 @@ interface SummaryContentProps {
         detailed: string;
         evidenceScope: "full" | "intro" | "abstract";
     };
+    pdfUrl?: string;
     isLoading?: boolean;
 }
 
-export function SummaryContent({ summary, isLoading = false }: SummaryContentProps) {
+export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryContentProps) {
     if (isLoading) {
         return (
             <div className="space-y-8 animate-pulse">
@@ -112,16 +113,19 @@ export function SummaryContent({ summary, isLoading = false }: SummaryContentPro
                         {summary.detailed}
                     </ReactMarkdown>
                 </div>
-                <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
-                    <span className="text-xs text-muted-foreground">
-                        📚 요약 근거:{" "}
-                        {summary.evidenceScope === "full"
-                            ? "전체 논문"
-                            : summary.evidenceScope === "intro"
-                                ? "서론 기반"
-                                : "초록 기반"}
-                    </span>
-                </div>
+                {pdfUrl && (
+                    <div className="mt-4 p-3 bg-secondary/50 rounded-lg text-center">
+                        <a
+                            href={pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-primary hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            📄 전체 논문 읽어보기
+                        </a>
+                    </div>
+                )}
             </div>
         </div>
     );

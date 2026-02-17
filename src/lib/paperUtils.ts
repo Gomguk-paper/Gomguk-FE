@@ -45,7 +45,11 @@ export const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number
         venue: typeof raw.source === "string" ? raw.source : "",
         tags: paperOut.tags?.map(tagId => tagMap[tagId] || String(tagId)) || [],
         abstract: summary.detailed || (typeof raw.short === "string" ? raw.short : ""),
-        pdfUrl: paperOut.raw_url ? paperOut.raw_url.replace("arxiv.org/pdf/", "arxiv.org/abs/").replace(".pdf", "") : paperOut.raw_url ?? "",
+        pdfUrl: paperOut.raw_url
+            ? paperOut.raw_url.includes("arxiv.org/pdf/")
+                ? paperOut.raw_url.replace("arxiv.org/pdf/", "arxiv.org/abs/").replace(".pdf", "")
+                : paperOut.raw_url
+            : paperOut.raw_url ?? "",
         imageUrl: paperOut.image_url ?? "",
         metrics: {
             trendingScore: paperOut.trending_score ?? 0,

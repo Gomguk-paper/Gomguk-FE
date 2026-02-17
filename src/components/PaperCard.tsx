@@ -297,10 +297,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    aria-label="원문 보기 (새 탭에서 열림)"
+                    aria-label="논문 다운로드 (새 탭에서 열림)"
                   >
                     <ExternalLink className="w-3.5 h-3.5 mr-1" />
-                    원문
+                    논문 다운로드
                   </a>
                 </Button>
               )}

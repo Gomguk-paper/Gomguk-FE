@@ -49,9 +49,9 @@ apiClient.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${access_token}`;
                 return apiClient(originalRequest);
             } catch (refreshError) {
-                // Refresh failed, redirect to login or clear auth
+                // Refresh failed (e.g. refresh_token 만료/쿠키 미전달) → 재로그인 유도
                 localStorage.removeItem('access_token');
-                // You might want to redirect to login page here
+                window.dispatchEvent(new CustomEvent('auth:session-expired'));
                 return Promise.reject(refreshError);
             }
         }
