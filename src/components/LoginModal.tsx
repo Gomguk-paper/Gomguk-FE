@@ -119,14 +119,11 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
     };
   }, [open]);
 
-  // 로그인 성공 시 처리
+  // 로그인 성공 시 처리 (Login 페이지와 동일한 로직)
   const handleLoginSuccess = () => {
     const storedPrefs = getStoredPrefs();
     onOpenChange(false);
-    // 필요시 리다이렉트 (예: 온보딩이 필요한 경우)
-    if (!storedPrefs) {
-      navigate("/onboarding", { replace: true });
-    }
+    navigate(storedPrefs ? "/" : "/onboarding", { replace: true });
   };
 
   // 모달이 닫힐 때 애니메이션 상태 업데이트
