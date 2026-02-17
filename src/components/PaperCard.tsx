@@ -1,11 +1,7 @@
 import {
   Heart,
   Bookmark,
-  HelpCircle,
-  FileText,
-  ChevronUp,
   MoreVertical,
-  Ban,
   EyeOff,
   Hash,
   Undo,
@@ -22,7 +18,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
@@ -32,9 +27,7 @@ import { useStore } from "@/store/useStore";
 import { useSummaryQuery } from "@/hooks/queries/useSummaryQuery";
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useState } from "react";
-import { WhyThisModal } from "./WhyThisModal";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { LoginModal } from "./LoginModal";
 import { cn } from "@/lib/utils";
 import { UI_CONSTANTS } from "@/core/config/constants";
@@ -52,21 +45,21 @@ interface PaperCardProps {
 export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const {
     user,
+    prefs,
     getAction,
     toggleLike,
     toggleSave,
     hidePaper,
-    blockAuthor,
     excludeTag,
     hiddenPapers,
-    blockedAuthors,
     excludedTags,
     undoHidePaper
   } = useStore();
 
-  const [showHideUndo, setShowHideUndo] = useState(false);
-  const [showWhyModal, setShowWhyModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [hideToastPhase, setHideToastPhase] = useState<"show" | "fade" | "gone">("show");
+  const hideToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const { data: summaryFromApi } = useSummaryQuery(paper.id);
   const action = getAction(paper.id);
   const isLiked = action?.liked || false;
@@ -98,12 +91,63 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   };
 
   const isHidden = hiddenPapers[paper.id];
-  const isBlockedAuthor = paper.authors.some(author => blockedAuthors[author]);
   const isExcludedTag = paper.tags.some(tag => excludedTags[tag]);
 
+  // 숨기기 토스트: 2.5초 표시 후 페이드아웃 → 사라짐
+  useEffect(() => {
+    if (!isHidden) {
+      hideToastTimerRef.current && clearTimeout(hideToastTimerRef.current);
+      hideToastTimerRef.current = null;
+      return;
+    }
+    setHideToastPhase("show");
+    hideToastTimerRef.current = setTimeout(() => {
+      setHideToastPhase("fade");
+      hideToastTimerRef.current = setTimeout(() => {
+        setHideToastPhase("gone");
+        hideToastTimerRef.current = null;
+      }, 100);
+    }, 1500);
+    return () => {
+      if (hideToastTimerRef.current) clearTimeout(hideToastTimerRef.current);
+      hideToastTimerRef.current = null;
+    };
+  }, [isHidden]);
+
+  // 추천 이유 계산 (tooltip용)
+  const recommendationReason = useMemo(() => {
+    if (prefs?.tags) {
+      const matchedTags = paper.tags.filter(t =>
+        prefs.tags.some(pt => pt.name.toLowerCase() === t.toLowerCase())
+      );
+      if (matchedTags.length > 0) {
+        const highestWeight = prefs.tags
+          .filter(pt => matchedTags.some(t => t.toLowerCase() === pt.name.toLowerCase()))
+          .sort((a, b) => b.weight - a.weight)[0];
+        if (highestWeight) {
+          return `당신이 #${highestWeight.name}에 관심도 ${highestWeight.weight}를 설정했어요`;
+        }
+      }
+    }
+    if (paper.metrics.trendingScore >= 90) {
+      return "이번 주 급상승 논문이에요";
+    }
+    if (paper.metrics.recencyScore >= 80) {
+      return "최근에 발표된 따끈따끈한 연구예요";
+    }
+    return "해당 분야의 중요한 논문으로 선정되었어요";
+  }, [paper, prefs]);
+
   if (isHidden) {
+    if (hideToastPhase === "gone") return null;
     return (
-      <div className="bg-muted/50 rounded-lg border p-4 flex items-center justify-between animate-in fade-in duration-300">
+      <div
+        className={cn(
+          "bg-muted/50 rounded-lg border p-4 flex items-center justify-between transition-opacity duration-300",
+          hideToastPhase === "show" && "animate-in fade-in duration-300",
+          hideToastPhase === "fade" && "animate-out fade-out duration-300 opacity-0"
+        )}
+      >
         <span className="text-sm text-muted-foreground">논문이 숨겨졌습니다.</span>
         <Button
           variant="outline"
@@ -121,7 +165,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
     );
   }
 
-  if (isBlockedAuthor || isExcludedTag) {
+  if (isExcludedTag) {
     return null;
   }
 
@@ -171,17 +215,13 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-amber-500 hover:text-amber-600 hover:bg-amber-100/50"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowWhyModal(true);
-                    }}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <Sparkles className="w-4 h-4 fill-current" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" align="end" className="text-xs max-w-[200px]">
-                  <p>이 논문은 최근 읽은 Transformer 관련 논문들과 유사하여 추천되었습니다.</p>
-                  <p className="mt-1 text-[10px] text-muted-foreground font-semibold cursor-pointer underline">자세히 보기</p>
+                <TooltipContent side="bottom" align="end" className="text-xs max-w-[220px]">
+                  <p>{recommendationReason}</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -199,27 +239,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                     <EyeOff className="w-4 h-4 mr-2" />
                     이 논문 숨기기
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <Ban className="w-4 h-4 mr-2" />
-                      저자 차단
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      {paper.authors.map(author => (
-                        <DropdownMenuItem key={author} onClick={(e) => {
-                          e.stopPropagation();
-                          blockAuthor(author);
-                        }}>
-                          {author}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <Hash className="w-4 h-4 mr-2" />
-                      관심 없는 주제
+                      태그 차단
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
                       {paper.tags.map(tag => (
@@ -311,8 +334,6 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           )}
         </div>
       </article>
-
-      <WhyThisModal paper={paper} open={showWhyModal} onOpenChange={setShowWhyModal} />
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} showNotice={true} />
     </>

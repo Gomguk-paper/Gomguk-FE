@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { Bell, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
-import { NotificationList } from "@/components/NotificationList";
 import { LoginModal } from "@/components/LoginModal";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
@@ -13,7 +12,6 @@ import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
 import { usePaperFeedQuery } from "@/hooks/queries/usePaperFeedQuery";
 import { useRecommendedPapers } from "@/hooks/domain/useRecommendedPapers";
-import { usePaperNotifications } from "@/hooks/features/usePaperNotifications";
 import { usePaperFeed } from "@/hooks/ui/usePaperFeed";
 import { usePaperCarousel } from "@/hooks/ui/usePaperCarousel";
 import { useState, useEffect } from "react";
@@ -21,7 +19,7 @@ import { isAxiosError } from "axios";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { prefs, user } = useStore();
+  const { user } = useStore();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   // Restore scroll position when navigating back to this page
@@ -60,10 +58,7 @@ export default function Home() {
     tagMap,
   });
 
-  // 3. Feature / Side Effects Layer
-  usePaperNotifications(sortedPapers, user, prefs);
-
-  // 4. UI State Layer
+  // 3. UI State Layer
   const { displayedPapers, loadMoreRef, hasMore, isFetchingNextPage: isFetching } = usePaperFeed({
     papers: sortedPapers,
     hasNextPage: hasNextPage ?? false,
@@ -95,13 +90,6 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-2">
-            {user ? (
-              <NotificationList onNotificationClick={openCarouselByPaperId} />
-            ) : (
-              <button className="p-2 text-muted-foreground opacity-50 cursor-not-allowed" disabled>
-                <Bell className="w-5 h-5" />
-              </button>
-            )}
           </div>
         </div>
       </header>

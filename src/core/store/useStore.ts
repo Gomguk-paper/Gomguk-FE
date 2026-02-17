@@ -10,18 +10,6 @@ interface UserAction {
   readAt?: string;
 }
 
-export type NotificationType = "new_recommendation" | "tag_match" | "saved_update";
-
-export interface Notification {
-  id: string;
-  type: NotificationType;
-  paperId: string;
-  title: string;
-  message: string;
-  createdAt: string;
-  read: boolean;
-}
-
 export type Theme = 'light' | 'dark' | 'system';
 
 interface GomgukStore {
@@ -42,23 +30,15 @@ interface GomgukStore {
 
   // Filtering
   hiddenPapers: Record<string, boolean>;
-  blockedAuthors: Record<string, boolean>;
   excludedTags: Record<string, boolean>;
   hidePaper: (paperId: string) => void;
-  blockAuthor: (authorId: string) => void;
   excludeTag: (tag: string) => void;
   undoHidePaper: (paperId: string) => void;
+  unexcludeTag: (tag: string) => void;
 
   // Following
   followedAuthors: Record<string, boolean>;
   toggleFollow: (authorId: string) => void;
-
-  // Notifications
-  notificationsByUser: Record<string, Notification[]>;
-  addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => void;
-  markNotificationAsRead: (notificationId: string) => void;
-  getNotifications: () => Notification[];
-  getUnreadCount: () => number;
 
   // UI State
   currentSummaryIndex: number;
@@ -96,7 +76,6 @@ export const useStore = create<GomgukStore>()(
 
       // Filtering
       hiddenPapers: {},
-      blockedAuthors: {},
       excludedTags: {},
       hidePaper: (paperId) => set((state) => ({
         hiddenPapers: { ...state.hiddenPapers, [paperId]: true }
@@ -105,12 +84,13 @@ export const useStore = create<GomgukStore>()(
         const { [paperId]: _, ...rest } = state.hiddenPapers;
         return { hiddenPapers: rest };
       }),
-      blockAuthor: (authorId) => set((state) => ({
-        blockedAuthors: { ...state.blockedAuthors, [authorId]: true }
-      })),
       excludeTag: (tag) => set((state) => ({
         excludedTags: { ...state.excludedTags, [tag]: true }
       })),
+      unexcludeTag: (tag) => set((state) => {
+        const { [tag]: _, ...rest } = state.excludedTags;
+        return { excludedTags: rest };
+      }),
 
       // Following
       followedAuthors: {},
@@ -243,56 +223,6 @@ export const useStore = create<GomgukStore>()(
         return currentActions.find(a => a.paperId === paperId);
       },
 
-      // Notifications
-      notificationsByUser: {},
-      addNotification: (notification) => {
-        const userKey = getUserActionKey(get().user);
-        if (!userKey) {
-          return;
-        }
-        const newNotification: Notification = {
-          ...notification,
-          id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          createdAt: new Date().toISOString(),
-          read: false,
-        };
-        set((state) => ({
-          notificationsByUser: {
-            ...state.notificationsByUser,
-            [userKey]: [newNotification, ...(state.notificationsByUser[userKey] ?? [])].slice(0, 50), // 최대 50개 유지
-          },
-        }));
-      },
-      markNotificationAsRead: (notificationId) => {
-        const userKey = getUserActionKey(get().user);
-        if (!userKey) {
-          return;
-        }
-        set((state) => ({
-          notificationsByUser: {
-            ...state.notificationsByUser,
-            [userKey]: (state.notificationsByUser[userKey] ?? []).map(n =>
-              n.id === notificationId ? { ...n, read: true } : n
-            ),
-          },
-        }));
-      },
-      getNotifications: () => {
-        const userKey = getUserActionKey(get().user);
-        if (!userKey) {
-          return [];
-        }
-        return get().notificationsByUser[userKey] ?? [];
-      },
-      getUnreadCount: () => {
-        const userKey = getUserActionKey(get().user);
-        if (!userKey) {
-          return 0;
-        }
-        const notifications = get().notificationsByUser[userKey] ?? [];
-        return notifications.filter(n => !n.read).length;
-      },
-
       // UI State
       currentSummaryIndex: 0,
       setCurrentSummaryIndex: (index) => set({ currentSummaryIndex: index }),
@@ -335,11 +265,9 @@ export const useStore = create<GomgukStore>()(
       partialize: (state) => ({
         prefs: state.prefs,
         actionsByUser: state.actionsByUser,
-        notificationsByUser: state.notificationsByUser,
         currentSummaryIndex: state.currentSummaryIndex,
         theme: state.theme,
         hiddenPapers: state.hiddenPapers,
-        blockedAuthors: state.blockedAuthors,
         excludedTags: state.excludedTags,
         followedAuthors: state.followedAuthors,
       }),

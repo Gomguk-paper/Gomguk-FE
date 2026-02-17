@@ -7,8 +7,8 @@ import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
 
 import { ProfileSection } from "./settings/components/ProfileSection";
-import { NotificationSection } from "./settings/components/NotificationSection";
 import { InterestSection } from "./settings/components/InterestSection";
+import { FilterManagementSection } from "./settings/components/FilterManagementSection";
 import { ScreenSection } from "./settings/components/ScreenSection";
 import { ThemeSection } from "./settings/components/ThemeSection";
 import { ReadingSection } from "./settings/components/ReadingSection";
@@ -40,11 +40,11 @@ export default function Settings() {
         {/* 프로필 설정 */}
         <ProfileSection user={user} setUser={setUser} />
 
-        {/* 알림 설정 */}
-        <NotificationSection />
-
         {/* 관심 분야 설정 */}
         <InterestSection prefs={prefs} />
+
+        {/* 숨긴 논문 / 차단 태그 관리 */}
+        <FilterManagementSection />
 
         {/* 화면 설정 */}
         <ScreenSection prefs={prefs} setPrefs={setPrefs} />
