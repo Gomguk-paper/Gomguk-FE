@@ -52,7 +52,8 @@ export interface PagedPapersResponse {
 
 export interface GetPapersParams {
     q?: string; // 제목 검색 (부분 일치)
-    tag?: number; // 태그 id 필터
+    tag?: number; // 태그 id 필터 (단일, 레거시)
+    tags?: number[]; // 태그 id 필터 (복수, AND 조건)
     source?: Site; // 출처 필터
     sort?: 'popular' | 'recent';
     limit?: number;

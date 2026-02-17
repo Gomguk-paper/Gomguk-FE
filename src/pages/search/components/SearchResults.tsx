@@ -1,3 +1,4 @@
+import { RefObject } from "react";
 import { PaperCard } from "@/components/PaperCard";
 import { PaperCardSkeleton } from "@/components/PaperCardSkeleton";
 import { Paper } from "@/models";
@@ -5,12 +6,11 @@ import { Paper } from "@/models";
 interface SearchResultsProps {
     isLoading: boolean;
     filteredCount: number;
-    papers: Paper[]; // This should match carouselPapers type which is Paper[]
+    papers: Paper[];
     onOpenSummary: (index: number) => void;
-    showTitle?: boolean; // New prop to control "Search Results" title if needed logic differs?
-    // Actually the title logic "Search Results" or "All Papers" depends on query/tags.
-    // The parent passes the title string or boolean.
     title: string;
+    loadMoreRef?: RefObject<HTMLDivElement | null>;
+    isFetchingNextPage?: boolean;
 }
 
 export function SearchResults({
@@ -19,6 +19,8 @@ export function SearchResults({
     papers,
     onOpenSummary,
     title,
+    loadMoreRef,
+    isFetchingNextPage,
 }: SearchResultsProps) {
     return (
         <section className="p-4">
@@ -36,11 +38,19 @@ export function SearchResults({
                     ))}
                 </div>
             ) : papers.length > 0 ? (
-                <div className="space-y-4">
-                    {papers.map((paper, index) => (
-                        <PaperCard key={paper.id} paper={paper} onOpenSummary={() => onOpenSummary(index)} />
-                    ))}
-                </div>
+                <>
+                    <div className="space-y-4">
+                        {papers.map((paper, index) => (
+                            <PaperCard key={paper.id} paper={paper} onOpenSummary={() => onOpenSummary(index)} />
+                        ))}
+                    </div>
+                    {/* 무한 스크롤 트리거 */}
+                    <div ref={loadMoreRef} className="h-10 flex items-center justify-center mt-4">
+                        {isFetchingNextPage && (
+                            <div className="text-sm text-muted-foreground">더 불러오는 중...</div>
+                        )}
+                    </div>
+                </>
             ) : (
                 <div className="text-center py-12 text-muted-foreground">
                     <p>검색 결과가 없습니다</p>

@@ -1,14 +1,17 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { papersApi, tagsApi } from "@/api";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { papersApi } from "@/api";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
 import { useTrendingTags, TRENDING_TOP_COUNT_SEARCH } from "@/contexts/TrendingTagsContext";
 import { convertPaperOutToPaper } from "@/lib/paperUtils";
-import { Paper } from "@/models";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 
 export type SortMode = "trending" | "recent" | "recommended";
+
+const PAGE_SIZE = 20;
 
 export function usePaperSearch() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -23,44 +26,14 @@ export function usePaperSearch() {
     // Search History
     const { history, addHistory, removeHistory } = useSearchHistory();
 
-    // Fetch papers based on sortMode
-    const { data: papersData, isLoading: papersLoading } = useQuery({
-        queryKey: ['papers', sortMode],
-        queryFn: () => {
-            if (sortMode === 'recommended') {
-                return papersApi.getPaperFeed({ limit: 50, offset: 0 });
-            }
-            const backendSort = sortMode === 'trending' ? 'popular' : 'recent';
-            return papersApi.getPapers({ sort: backendSort, limit: 50, offset: 0 });
-        },
-    });
-    const papers = papersData?.items || [];
+    // 인기 태그와 동일한 태그 소스 사용 (이름↔ID 매칭 보장)
+    const { tagsResponse } = useTagsQuery();
+    const tagItems = tagsResponse || [];
+    const allTags = useMemo(() => tagItems.map((t: { tag: { name: string } }) => t.tag.name), [tagItems]);
 
-    // Fetch tags
-    const { data: tagsData } = useQuery({
-        queryKey: ['all-tags'],
-        queryFn: async () => {
-            const allItems: { tag: { id: number; name: string; description: string | null; count: number } }[] = [];
-            let offset = 0;
-            const limit = 500;
-            while (true) {
-                const res = await tagsApi.getTags({ limit, offset });
-                allItems.push(...res.items);
-                if (allItems.length >= res.count || res.items.length < limit) break;
-                offset += limit;
-            }
-            return allItems;
-        },
-        staleTime: 5 * 60 * 1000,
-    });
-
-    const tagItems = tagsData || [];
-    const allTags = useMemo(() => tagItems.map(t => t.tag.name), [tagItems]);
-
-    // Create mappings
     const tagNameToId = useMemo(() => {
         const map = new Map<string, number>();
-        tagItems.forEach(item => {
+        tagItems.forEach((item: { tag: { id: number; name: string } }) => {
             map.set(item.tag.name, item.tag.id);
         });
         return map;
@@ -68,15 +41,81 @@ export function usePaperSearch() {
 
     const tagIdToName = useMemo(() => {
         const map: Record<number, string> = {};
-        tagItems.forEach(item => {
+        tagItems.forEach((item: { tag: { id: number; name: string } }) => {
             map[item.tag.id] = item.tag.name;
         });
         return map;
     }, [tagItems]);
 
+    const tagIds = useMemo(() => {
+        const ids = selectedTags
+            .map(name => tagNameToId.get(name))
+            .filter((id): id is number => id !== undefined);
+        return [...ids].sort((a, b) => a - b);
+    }, [selectedTags, tagNameToId]);
+
     // 검색 인기 태그 = Context 트렌딩 상위 N개 (단일 소스)
     const { trendingTagNames, isTrendingTag } = useTrendingTags();
     const trendingTags = trendingTagNames.slice(0, TRENDING_TOP_COUNT_SEARCH);
+
+    // 백엔드 offset 기반 무한 스크롤. 태그 선택 시에는 항상 getPapers+tags 사용 (feed는 태그 필터 미지원)
+    const infiniteQuery = useInfiniteQuery({
+        queryKey: ['papers', 'search', sortMode, query.trim(), tagIds],
+        queryFn: ({ pageParam = 0 }) => {
+            const hasTagFilter = tagIds.length > 0;
+            if (sortMode === 'recommended' && !hasTagFilter) {
+                return papersApi.getPaperFeed({ limit: PAGE_SIZE, offset: pageParam });
+            }
+            const backendSort = sortMode === 'trending' ? 'popular' : 'recent';
+            return papersApi.getPapers({
+                sort: backendSort,
+                limit: PAGE_SIZE,
+                offset: pageParam,
+                q: query.trim() || undefined,
+                tags: hasTagFilter ? tagIds : undefined,
+            });
+        },
+        initialPageParam: 0,
+        getNextPageParam: (lastPage, allPages) => {
+            const totalFetched = allPages.reduce((sum, p) => sum + p.items.length, 0);
+            if (lastPage.items.length < PAGE_SIZE || totalFetched >= lastPage.count) {
+                return undefined;
+            }
+            return totalFetched;
+        },
+        staleTime: 1000 * 60 * 2,
+    });
+
+    const {
+        data: papersData,
+        isLoading: papersLoading,
+        hasNextPage,
+        isFetchingNextPage,
+        fetchNextPage,
+    } = infiniteQuery;
+
+    const rawItems = useMemo(
+        () => papersData?.pages.flatMap(p => p.items) ?? [],
+        [papersData?.pages]
+    );
+
+    const carouselPapers = useMemo(() => {
+        return rawItems.map(item => {
+            const paper = convertPaperOutToPaper(item.paper, tagIdToName);
+            if ((item.paper as any).source) {
+                paper.venue = (item.paper as any).source;
+            }
+            return paper;
+        });
+    }, [rawItems, tagIdToName]);
+
+    const totalCount = papersData?.pages[0]?.count ?? 0;
+
+    const loadMoreRef = useInfiniteScroll({
+        onLoadMore: () => fetchNextPage(),
+        hasMore: hasNextPage ?? false,
+        isLoading: isFetchingNextPage,
+    });
 
     // Sync selectedTags with URL parameters
     useEffect(() => {
@@ -88,54 +127,12 @@ export function usePaperSearch() {
         }
     }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Filter and Sort Papers
-    const filteredPapers = useMemo(() => {
-        let result = [...papers];
-
-        // Filter by search query
-        if (query) {
-            const q = query.toLowerCase();
-            result = result.filter(
-                (item) =>
-                    item.paper.title.toLowerCase().includes(q) ||
-                    item.paper.short.toLowerCase().includes(q)
-            );
-        }
-
-        // Filter by selected tags
-        if (selectedTags.length > 0) {
-            const selectedTagIds = selectedTags
-                .map(tagName => tagNameToId.get(tagName))
-                .filter((id): id is number => id !== undefined);
-
-            if (selectedTagIds.length > 0) {
-                result = result.filter(item => {
-                    const paperTagIds = item.paper.tags || [];
-                    return selectedTagIds.some(selectedId => paperTagIds.includes(selectedId));
-                });
-            }
-        }
-
-        // No frontend sorting - trust backend order
-        return result;
-    }, [papers, query, selectedTags, tagNameToId]);
-
-    // Convert for display
-    const carouselPapers = useMemo(() => {
-        return filteredPapers.map(item => {
-            const paper = convertPaperOutToPaper(item.paper, tagIdToName);
-            if ((item.paper as any).source) {
-                paper.venue = (item.paper as any).source;
-            }
-            return paper;
-        });
-    }, [filteredPapers, tagIdToName]);
-
     const handleTagClick = (tag: string) => {
         const newSelectedTags = selectedTags.includes(tag)
             ? selectedTags.filter(t => t !== tag)
             : [...selectedTags, tag];
 
+        setSelectedTags(newSelectedTags);
         if (newSelectedTags.length === 0) {
             setSearchParams({});
         } else {
@@ -175,6 +172,10 @@ export function usePaperSearch() {
         handleSearch,
         trendingTags,
         isTrendingTag,
-        allTags
+        allTags,
+        totalCount,
+        loadMoreRef,
+        hasNextPage: hasNextPage ?? false,
+        isFetchingNextPage,
     };
 }
