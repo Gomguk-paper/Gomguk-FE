@@ -1,5 +1,11 @@
 // Domain Models - 논문 추천 서비스의 핵심 데이터 구조
 
+export interface PaperSummaryEmbed {
+  hook: string;
+  points: string[];
+  detailed: string;
+}
+
 export interface Paper {
   id: string;
   title: string;
@@ -16,6 +22,8 @@ export interface Paper {
     recommendScore: number;
     citations: number;
   };
+  /** PaperOut에 포함된 한국어 요약 (카드/캐러셀 표시용) */
+  summary?: PaperSummaryEmbed;
 }
 
 export interface Summary {

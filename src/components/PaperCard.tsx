@@ -29,11 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Paper } from "@/models";
 import { useStore } from "@/store/useStore";
-<<<<<<< Updated upstream
-import { useSummary } from "@/hooks/useSummary";
-=======
 import { useSummaryQuery } from "@/hooks/queries/useSummaryQuery";
->>>>>>> Stashed changes
 import { TagChip } from "./TagChip";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -71,21 +67,13 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const [showHideUndo, setShowHideUndo] = useState(false);
   const [showWhyModal, setShowWhyModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showAbstract, setShowAbstract] = useState(false);
-
   const { data: summaryFromApi } = useSummaryQuery(paper.id);
   const action = getAction(paper.id);
-  const { summary } = useSummary(paper.id);
   const isLiked = action?.liked || false;
   const isSaved = action?.saved || false;
   const titleText = summaryFromApi?.hook ?? paper.summary?.hook ?? paper.title ?? "";
   const canUseActions = Boolean(user);
   const authMessage = !user ? "로그인 후 좋아요/저장 기능을 사용할 수 있어요." : null;
-
-  const abstractPreview =
-    paper.abstract.length > UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH
-      ? paper.abstract.substring(0, UI_CONSTANTS.PAPER.ABSTRACT_PREVIEW_LENGTH) + "..."
-      : paper.abstract;
 
   const handleActionClick = (action: () => void) => {
     if (!user) {
@@ -255,35 +243,20 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             ))}
           </div>
 
-<<<<<<< Updated upstream
-          <div className="space-y-1 mb-auto">
-            {/* Hook summary */}
-            {summary && (
-              <div className="text-sm text-muted-foreground leading-relaxed mb-2 prose prose-sm max-w-none">
+          {/* 요약 미리보기: paper.summary 또는 API 응답 */}
+          {(paper.summary?.points?.length ? paper.summary.points[0] : paper.summary?.hook ?? summaryFromApi?.hook) && (
+            <div className="space-y-1 mb-auto">
+              <div className="text-sm text-muted-foreground leading-relaxed mb-2 prose prose-sm max-w-none line-clamp-2">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath, remarkGfm]}
                   rehypePlugins={[rehypeKatex]}
                 >
-                  {`💡 ${summary.hookOneLiner}`}
+                  {`💡 ${paper.summary?.points?.[0] ?? paper.summary?.hook ?? summaryFromApi?.hook ?? ""}`}
                 </ReactMarkdown>
               </div>
-            )}
-          </div>
-
-          {/* Abstract Preview */}
-          <div className="space-y-1">
-            <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2">
-              <ReactMarkdown
-                remarkPlugins={[remarkMath, remarkGfm]}
-                rehypePlugins={[rehypeKatex]}
-              >
-                {abstractPreview}
-              </ReactMarkdown>
             </div>
-          </div>
+          )}
 
-=======
->>>>>>> Stashed changes
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}
