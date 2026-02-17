@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Lock } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
@@ -112,34 +112,33 @@ export default function Home() {
                 const is401 = isAxiosError(papersErrorDetails) && papersErrorDetails.response?.status === 401;
                 return (
                   <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                    <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
-                      <svg className="w-8 h-8 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                      <Lock className="w-8 h-8 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">논문을 불러올 수 없습니다</h3>
+                    <h3 className="text-lg font-semibold mb-2">로그인이 필요합니다</h3>
                     <p className="text-sm text-muted-foreground mb-4">
                       {is401
-                        ? "세션이 만료되었습니다. 다시 로그인해주세요."
+                        ? "맞춤 논문 피드를 보려면 로그인을 해야합니다"
                         : papersErrorDetails instanceof Error
                           ? papersErrorDetails.message
                           : "서버에 연결할 수 없습니다"}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-2">
-                      {is401 && (
+                      {is401 ? (
                         <button
                           onClick={() => setLoginModalOpen(true)}
                           className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                         >
                           로그인하기
                         </button>
+                      ) : (
+                        <button
+                          onClick={() => refetchPapers()}
+                          className="px-4 py-2 border border-input bg-background rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                        >
+                          다시 시도
+                        </button>
                       )}
-                      <button
-                        onClick={() => refetchPapers()}
-                        className="px-4 py-2 border border-input bg-background rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-                      >
-                        다시 시도
-                      </button>
                     </div>
                   </div>
                 );

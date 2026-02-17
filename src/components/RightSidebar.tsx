@@ -102,7 +102,11 @@ export function RightSidebar() {
                     >
                         <div className="text-center p-4">
                             <p className="font-semibold text-lg mb-2">🔒 로그인이 필요합니다</p>
-                            <p className="text-sm text-muted-foreground">개인화된 트렌드를 보려면 로그인하세요</p>
+                            <p className="text-sm text-muted-foreground text-center">
+                                현재 인기있는 주제를 보려면
+                                <br />
+                                로그인을 해야합니다
+                            </p>
                         </div>
                     </div>
                 )}
