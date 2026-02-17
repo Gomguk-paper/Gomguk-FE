@@ -46,8 +46,6 @@ export function RightSidebar() {
 
     return (
         <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
-            {/* Search Bar Placeholder (Optional, if we decided to move it here, but keeping it in main body for now) */}
-
             {/* Trends Section */}
             <div className="bg-card rounded-xl border p-4 relative">
                 <h2 className="font-display font-bold text-lg mb-4">Trending Topics</h2>

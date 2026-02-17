@@ -74,7 +74,6 @@ export function LoginForm({
     }
 
     // HARDCODED LOGIN: 요청에 따라 강제 로그인 처리
-    console.log("Force logging in...");
     const user = {
       id: "test-user-id",
       name: "테스트 유저",

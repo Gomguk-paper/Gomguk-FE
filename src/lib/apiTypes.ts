@@ -226,6 +226,3 @@ export interface Report {
     relatedPaperIds: string[];
     imageUrl?: string;
 }
-
-// Re-export Author types
-

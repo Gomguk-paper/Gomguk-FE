@@ -25,21 +25,7 @@ export default function Home() {
   // Restore scroll position when navigating back to this page
   useScrollRestoration('home');
 
-  // 세션 만료 시( refresh 실패 ) 로그인 모달 열기
-  useEffect(() => {
-    const handler = () => setLoginModalOpen(true);
-    window.addEventListener("auth:session-expired", handler);
-    return () => window.removeEventListener("auth:session-expired", handler);
-  }, []);
-
-  // 401 후 재로그인 시 피드 다시 불러오기
-  useEffect(() => {
-    if (user && papersError && isAxiosError(papersErrorDetails) && papersErrorDetails.response?.status === 401) {
-      refetchPapers();
-    }
-  }, [user]);
-
-  // 1. Data Fetching Layer
+  // 1. Data Fetching Layer (훅은 항상 동일 순서로 호출)
   const { tagMap } = useTagsQuery();
   const {
     data: papersData,
@@ -52,13 +38,27 @@ export default function Home() {
     fetchNextPage,
   } = usePaperFeedQuery();
 
-  // 2. Domain / Business Logic Layer
+  // 세션 만료 시( refresh 실패 ) 로그인 모달 열기
+  useEffect(() => {
+    const handler = () => setLoginModalOpen(true);
+    window.addEventListener("auth:session-expired", handler);
+    return () => window.removeEventListener("auth:session-expired", handler);
+  }, []);
+
+  // 401 후 재로그인 시 피드 다시 불러오기
+  useEffect(() => {
+    if (user && papersError && isAxiosError(papersErrorDetails) && papersErrorDetails.response?.status === 401) {
+      refetchPapers();
+    }
+  }, [user, papersError, papersErrorDetails, refetchPapers]);
+
+  // 2. Domain / Business Logic
   const { sortedPapers } = useRecommendedPapers({
     pages: papersData?.pages,
     tagMap,
   });
 
-  // 3. UI State Layer
+  // 3. UI State
   const { displayedPapers, loadMoreRef, hasMore, isFetchingNextPage: isFetching } = usePaperFeed({
     papers: sortedPapers,
     hasNextPage: hasNextPage ?? false,
