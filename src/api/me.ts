@@ -30,4 +30,9 @@ export const meApi = {
         const response = await apiClient.get<PagedPapersResponse>('/me/papers/read', { params });
         return response.data;
     },
+
+    // 온보딩 태그 선호도 저장
+    setOnboardingTags: async (tagPreferences: Record<string, number>): Promise<void> => {
+        await apiClient.put('/me/onboarding-tags', { tag_preferences: tagPreferences });
+    },
 };
