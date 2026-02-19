@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { setStoredPrefs } from "@/lib/authStorage";
 import { UI_CONSTANTS, ROUTES } from "@/core/config/constants";
+import { meApi } from "@/api/me";
 
 export type Step = "tags" | "weights" | "level";
 
@@ -56,6 +57,14 @@ export const useOnboarding = () => {
         };
         setPrefs(nextPrefs);
         setStoredPrefs(nextPrefs);
+
+        // 백엔드에 태그 선호도 동기화 (fire-and-forget)
+        const tagPreferences: Record<string, number> = {};
+        for (const tag of nextPrefs.tags) {
+            tagPreferences[tag.name] = tag.weight;
+        }
+        meApi.setOnboardingTags(tagPreferences).catch(console.error);
+
         nav(ROUTES.HOME);
     };
 
