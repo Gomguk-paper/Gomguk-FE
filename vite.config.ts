@@ -7,9 +7,14 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8081,
+    hmr: {
+      clientPort: 443,
+      host: 'gomguk.cloud',
+      protocol: 'wss'
+    },
     proxy: {
       '/api': {
-        target: 'http://gomguk.cloud',
+        target: 'https://gomguk.cloud',
         changeOrigin: true,
         //rewrite: (path) => path.replace(/^\/api/, ''),
       },
