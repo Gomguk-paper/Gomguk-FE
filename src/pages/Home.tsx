@@ -104,20 +104,30 @@ export default function Home() {
           <div className="space-y-4">
             {/* Login Required State (Priority over loading/error if !user) */}
             {!user ? (
-              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Lock className="w-8 h-8 text-primary" />
+              <div className="relative">
+                {/* Background Skeletons (Blurred) */}
+                <div className="filter blur-sm select-none pointer-events-none opacity-50 space-y-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <PaperCardSkeleton key={i} />
+                  ))}
                 </div>
-                <h3 className="text-lg font-semibold mb-2">로그인이 필요합니다</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  맞춤 논문 피드를 보려면 로그인을 해야합니다
-                </p>
-                <button
-                  onClick={() => setLoginModalOpen(true)}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                >
-                  로그인하기
-                </button>
+
+                {/* Login Overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 shadow-sm backdrop-blur-sm">
+                    <Lock className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2 bg-background/50 backdrop-blur-md px-4 py-1 rounded-full">로그인이 필요합니다</h3>
+                  <p className="text-sm text-muted-foreground mb-4 bg-background/50 backdrop-blur-md px-4 py-1 rounded-full">
+                    맞춤 논문 피드를 보려면 로그인을 해야합니다
+                  </p>
+                  <button
+                    onClick={() => setLoginModalOpen(true)}
+                    className="px-6 py-2.5 bg-primary text-primary-foreground font-medium rounded-full hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    로그인하기
+                  </button>
+                </div>
               </div>
             ) : papersLoading ? (
               // Loading state - show skeletons
