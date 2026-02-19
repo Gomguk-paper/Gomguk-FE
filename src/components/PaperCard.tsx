@@ -6,7 +6,6 @@ import {
   Hash,
   Undo,
   Sparkles,
-  ExternalLink,
   Lightbulb,
 } from "lucide-react";
 import {
@@ -289,50 +288,34 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}
-            <div className="flex items-center gap-1 flex-1">
+            <div className="flex items-center gap-1 flex-1 justify-end">
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn("gap-1.5 min-h-touch", isLiked && "text-liked")}
+                className={cn("min-h-touch px-2", isLiked && "text-liked")}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleActionClick(() => toggleLike(paper.id));
                 }}
               >
                 <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
-                <span className="text-xs hidden sm:inline">좋아요</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn("gap-1.5 min-h-touch", isSaved && "text-saved")}
+                className={cn("min-h-touch px-2", isSaved && "text-saved")}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleActionClick(() => toggleSave(paper.id));
                 }}
               >
                 <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
-                <span className="text-xs hidden sm:inline">저장</span>
               </Button>
             </div>
 
-            {/* Secondary Actions (Link) */}
+            {/* Secondary Actions (Link) - Removed */}
             <div className="flex items-center gap-2">
-              {paper.pdfUrl && (
-                <Button variant="ghost" size="sm" className="text-xs min-h-touch border border-input hover:bg-secondary text-muted-foreground hover:text-foreground" asChild>
-                  <a
-                    href={paper.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label="논문 다운로드 (새 탭에서 열림)"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 mr-1" />
-                    논문 다운로드
-                  </a>
-                </Button>
-              )}
             </div>
           </div>
           {!canUseActions && authMessage && (
