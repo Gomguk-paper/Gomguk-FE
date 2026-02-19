@@ -1,14 +1,8 @@
-import { useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-} from "@/components/ui/dialog";
 
 interface SummaryContentProps {
     summary: {
@@ -21,19 +15,7 @@ interface SummaryContentProps {
     isLoading?: boolean;
 }
 
-/** 논문 본문을 앱 내 뷰어에서 볼 수 있는 URL. arxiv abs → PDF URL로 변환 */
-function getViewerUrl(pdfUrl: string): string {
-    const trimmed = pdfUrl.trim();
-    const absMatch = trimmed.match(/arxiv\.org\/abs\/([^/?#]+)/i);
-    if (absMatch) return `https://arxiv.org/pdf/${absMatch[1]}.pdf`;
-    if (trimmed.includes("arxiv.org/pdf/")) return trimmed;
-    return trimmed;
-}
-
 export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryContentProps) {
-    const [viewerOpen, setViewerOpen] = useState(false);
-    const viewerSrc = useMemo(() => (pdfUrl ? getViewerUrl(pdfUrl) : ""), [pdfUrl]);
-
     if (isLoading) {
         return (
             <div className="space-y-8 animate-pulse">
@@ -132,43 +114,17 @@ export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryCo
                     </ReactMarkdown>
                 </div>
                 {pdfUrl && (
-                    <>
-                        <div className="mt-4 p-3 bg-secondary/50 rounded-lg text-center">
-                            <button
-                                type="button"
-                                className="text-sm font-medium text-primary hover:underline"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setViewerOpen(true);
-                                }}
-                            >
-                                📄 전체 논문 읽어보기
-                            </button>
-                        </div>
-                        <Dialog open={viewerOpen} onOpenChange={setViewerOpen}>
-                            <DialogContent
-                                className="max-w-[95vw] w-full h-[90vh] p-0 gap-0 overflow-hidden flex flex-col"
-                                onPointerDownOutside={(e) => e.stopPropagation()}
-                            >
-                                <DialogTitle className="sr-only">논문 본문 뷰어</DialogTitle>
-                                <div className="flex items-center justify-end gap-2 px-3 py-2 border-b bg-muted/30 shrink-0">
-                                    <a
-                                        href={viewerSrc}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-xs text-primary hover:underline"
-                                    >
-                                        새 탭에서 열기
-                                    </a>
-                                </div>
-                                <iframe
-                                    title="논문 본문"
-                                    src={viewerSrc}
-                                    className="w-full flex-1 min-h-0 border-0 rounded-b-lg"
-                                />
-                            </DialogContent>
-                        </Dialog>
-                    </>
+                    <div className="mt-4 p-3 bg-secondary/50 rounded-lg text-center">
+                        <a
+                            href={pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-primary hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            📄 전체 논문 읽어보기
+                        </a>
+                    </div>
                 )}
             </div>
         </div>
