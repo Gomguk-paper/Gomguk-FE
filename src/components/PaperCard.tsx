@@ -266,7 +266,13 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
           <div className="flex flex-wrap gap-1.5 mb-3">
             {paper.tags.slice(0, UI_CONSTANTS.PAPER.MAX_DISPLAYED_TAGS).map((tag) => (
-              <TagChip key={tag} tag={tag} size="sm" trending={isTrendingTag(tag)} />
+              <TagChip
+                key={tag}
+                tag={tag}
+                size="sm"
+                interest={prefs?.tags?.some((pt) => pt.name.toLowerCase() === tag.toLowerCase())}
+                trending={isTrendingTag(tag)}
+              />
             ))}
           </div>
 

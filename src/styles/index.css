@@ -51,6 +51,9 @@
     --tag-diffusion: 160 55% 45%;
 
     --trending: 25 90% 55%;
+    /* 태그 강조: 관심태그=핑크, 트렌딩=하늘색 (겹치면 관심 우선) */
+    --tag-interest: 345 65% 58%;
+    --tag-trending: 199 89% 48%;
     --saved: 220 60% 35%;
     --liked: 0 75% 60%;
 
@@ -106,6 +109,9 @@
 
     --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
     --shadow-card: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+
+    --tag-interest: 345 60% 62%;
+    --tag-trending: 199 89% 55%;
   }
 
   * {

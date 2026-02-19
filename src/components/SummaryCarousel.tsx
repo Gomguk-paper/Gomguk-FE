@@ -125,7 +125,13 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
             {paper.tags.slice(0, 3).map((tag) => (
-              <TagChip key={tag} tag={tag} size="sm" trending={isTrendingTag(tag)} />
+              <TagChip
+                key={tag}
+                tag={tag}
+                size="sm"
+                interest={prefs?.tags?.some((pt) => pt.name.toLowerCase() === tag.toLowerCase())}
+                trending={isTrendingTag(tag)}
+              />
             ))}
           </div>
 
