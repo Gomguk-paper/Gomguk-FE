@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -51,7 +51,7 @@ export function RightSidebar() {
     return (
         <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
             {/* Trends Section */}
-            <div className="bg-card rounded-xl border p-4 relative min-h-[300px]">
+            <div className="bg-card rounded-xl border p-4 relative min-h-[300px] mt-10">
                 <h2 className="font-display font-bold text-lg mb-4">Trending Topics</h2>
                 <div className={`space-y-4 transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
                     {visibleTags.map((tag, index) => (
@@ -93,8 +93,11 @@ export function RightSidebar() {
                         role="button"
                         aria-label="로그인하여 Trending Topics 보기"
                     >
-                        <div className="text-center p-4">
-                            <p className="font-semibold text-lg mb-2">🔒 로그인이 필요합니다</p>
+                        <div className="text-center p-4 flex flex-col items-center">
+                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 shadow-sm backdrop-blur-sm">
+                                <Lock className="w-6 h-6 text-primary" />
+                            </div>
+                            <p className="font-semibold text-lg mb-2">로그인이 필요합니다</p>
                             <p className="text-sm text-muted-foreground text-center">
                                 현재 인기있는 주제를 보려면
                                 <br />
