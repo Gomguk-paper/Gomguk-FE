@@ -6,7 +6,7 @@ import {
   Hash,
   Undo,
   Sparkles,
-  ExternalLink,
+  Lightbulb,
 } from "lucide-react";
 import {
   Tooltip,
@@ -216,10 +216,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-amber-500 hover:text-amber-600 hover:bg-amber-100/50"
+                    className="h-6 w-6 rounded-full bg-primary/10 text-primary hover:bg-primary/20 p-0"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Sparkles className="w-4 h-4 fill-current" />
+                    <Sparkles className="w-3.5 h-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" align="end" className="text-xs max-w-[220px]">
@@ -270,13 +270,16 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
           {/* 요약 미리보기: paper.summary 또는 API 응답 */}
           {(paper.summary?.points?.length ? paper.summary.points[0] : paper.summary?.hook ?? summaryFromApi?.hook) && (
-            <div className="space-y-1 mb-auto">
-              <div className="text-sm text-muted-foreground leading-relaxed mb-2 prose prose-sm max-w-none line-clamp-2">
+            <div className="flex gap-3 mb-auto items-start">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                <Lightbulb className="w-3.5 h-3.5 text-primary" />
+              </div>
+              <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2 [&_p]:m-0">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath, remarkGfm]}
                   rehypePlugins={[rehypeKatex]}
                 >
-                  {`💡 ${paper.summary?.points?.[0] ?? paper.summary?.hook ?? summaryFromApi?.hook ?? ""}`}
+                  {`${paper.summary?.points?.[0] ?? paper.summary?.hook ?? summaryFromApi?.hook ?? ""}`}
                 </ReactMarkdown>
               </div>
             </div>
@@ -285,50 +288,49 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}
-            <div className="flex items-center gap-1 flex-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("gap-1.5 min-h-touch", isLiked && "text-liked")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleActionClick(() => toggleLike(paper.id));
-                }}
-              >
-                <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
-                <span className="text-xs hidden sm:inline">좋아요</span>
-              </Button>
+            {/* Primary Actions (좋아요/저장/읽음) */}
+            <div className="flex items-center gap-1 flex-1 justify-end -mr-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn("h-8 w-8 text-muted-foreground hover:text-liked hover:bg-red-50", isLiked && "text-liked hover:text-liked bg-red-50")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleActionClick(() => toggleLike(paper.id));
+                    }}
+                  >
+                    <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>좋아요</p>
+                </TooltipContent>
+              </Tooltip>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("gap-1.5 min-h-touch", isSaved && "text-saved")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleActionClick(() => toggleSave(paper.id));
-                }}
-              >
-                <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
-                <span className="text-xs hidden sm:inline">저장</span>
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn("h-8 w-8 text-muted-foreground hover:text-saved hover:bg-blue-50", isSaved && "text-saved hover:text-saved bg-blue-50")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleActionClick(() => toggleSave(paper.id));
+                    }}
+                  >
+                    <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>저장</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
 
-            {/* Secondary Actions (Link) */}
+            {/* Secondary Actions (Link) - Removed */}
             <div className="flex items-center gap-2">
-              {paper.pdfUrl && (
-                <Button variant="ghost" size="sm" className="text-xs min-h-touch border border-input hover:bg-secondary text-muted-foreground hover:text-foreground" asChild>
-                  <a
-                    href={paper.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label="논문 다운로드 (새 탭에서 열림)"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 mr-1" />
-                    논문 다운로드
-                  </a>
-                </Button>
-              )}
             </div>
           </div>
           {!canUseActions && authMessage && (
