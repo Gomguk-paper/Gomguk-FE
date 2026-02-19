@@ -113,20 +113,22 @@ export default function Home() {
                 </div>
 
                 {/* Login Overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 shadow-sm backdrop-blur-sm">
-                    <Lock className="w-8 h-8 text-primary" />
+                <div className="absolute inset-0 z-10 p-4 text-center">
+                  <div className="sticky top-[30vh] flex flex-col items-center justify-center">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 shadow-sm backdrop-blur-sm">
+                      <Lock className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2 bg-background/50 backdrop-blur-md px-4 py-1 rounded-full">로그인이 필요합니다</h3>
+                    <p className="text-sm text-muted-foreground mb-4 bg-background/50 backdrop-blur-md px-4 py-1 rounded-full">
+                      맞춤 논문 피드를 보려면 로그인을 해야합니다
+                    </p>
+                    <button
+                      onClick={() => setLoginModalOpen(true)}
+                      className="px-6 py-2.5 bg-primary text-primary-foreground font-medium rounded-full hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    >
+                      로그인하기
+                    </button>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2 bg-background/50 backdrop-blur-md px-4 py-1 rounded-full">로그인이 필요합니다</h3>
-                  <p className="text-sm text-muted-foreground mb-4 bg-background/50 backdrop-blur-md px-4 py-1 rounded-full">
-                    맞춤 논문 피드를 보려면 로그인을 해야합니다
-                  </p>
-                  <button
-                    onClick={() => setLoginModalOpen(true)}
-                    className="px-6 py-2.5 bg-primary text-primary-foreground font-medium rounded-full hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  >
-                    로그인하기
-                  </button>
                 </div>
               </div>
             ) : papersLoading ? (
