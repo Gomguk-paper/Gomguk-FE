@@ -5,13 +5,18 @@ import { tagDescriptions } from "@/data/tagDescriptions";
 interface TagChipProps {
   tag: string;
   selected?: boolean;
+  /** 관심태그(설정한 분야): 핑크. trending과 겹치면 이쪽 우선 */
+  interest?: boolean;
+  /** 트렌딩 토픽: 하늘색 */
   trending?: boolean;
   onClick?: () => void;
   size?: "sm" | "md";
 }
 
-export function TagChip({ tag, selected, trending, onClick, size = "md" }: TagChipProps) {
+export function TagChip({ tag, selected, interest, trending, onClick, size = "md" }: TagChipProps) {
   const description = tagDescriptions[tag] || `${tag} 관련 논문`;
+  const isInterest = Boolean(interest);
+  const isTrendingOnly = Boolean(trending) && !isInterest;
 
   const chipContent = (
     <div
@@ -20,11 +25,15 @@ export function TagChip({ tag, selected, trending, onClick, size = "md" }: TagCh
         "inline-flex items-center justify-center leading-none pt-[1px] gap-1 rounded-full border font-medium transition-all",
         size === "sm" ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm",
         "bg-secondary text-secondary-foreground border-border",
+        isInterest &&
+          "bg-[hsl(var(--tag-interest)/0.15)] text-[hsl(var(--tag-interest))] border-[hsl(var(--tag-interest)/0.5)]",
+        isTrendingOnly &&
+          "bg-[hsl(var(--tag-trending)/0.15)] text-[hsl(var(--tag-trending))] border-[hsl(var(--tag-trending)/0.5)]",
         selected && "ring-2 ring-primary ring-offset-1",
         onClick ? "hover:scale-105 cursor-pointer" : "cursor-default"
       )}
     >
-      <span className={trending ? "text-red-500" : undefined}>#{tag}</span>
+      <span>#{tag}</span>
     </div>
   );
 

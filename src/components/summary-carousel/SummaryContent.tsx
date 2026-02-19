@@ -59,7 +59,7 @@ export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryCo
 
     return (
         <div className="space-y-8">
-            {/* 한줄 요약 */}
+            {/* 한줄 요약: BE hook */}
             <div className="animate-fade-in">
                 <span className="text-xs font-medium text-primary uppercase tracking-wide">
                     한줄 요약
@@ -74,7 +74,7 @@ export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryCo
                 </div>
             </div>
 
-            {/* 핵심 포인트 */}
+            {/* 핵심 포인트: BE points */}
             <div className="animate-fade-in">
                 <span className="text-xs font-medium text-primary uppercase tracking-wide">
                     핵심 포인트
@@ -100,7 +100,7 @@ export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryCo
                 </ul>
             </div>
 
-            {/* 정리 (detailed) */}
+            {/* 정리: BE detailed */}
             <div className="animate-fade-in">
                 <span className="text-xs font-medium text-primary uppercase tracking-wide">
                     정리

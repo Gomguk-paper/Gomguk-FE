@@ -30,12 +30,10 @@ function getSummaryFromPaperOut(raw: Record<string, unknown>): { hook: string; p
 
 // Helper function to convert backend PaperOut to frontend Paper format
 export const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number, string>): any => {
-    const raw = paperOut as Record<string, unknown>;
+    const raw = paperOut as unknown as Record<string, unknown>;
     const summary = getSummaryFromPaperOut(raw);
-    const title =
-        summary.hook ||
-        (typeof raw.title === "string" ? raw.title : "") ||
-        (summary.points[0]?.slice(0, 80) ?? "");
+    /** 백엔드에서 title 필드로 논문 실제 제목 전송 */
+    const title = typeof raw.title === "string" ? raw.title.trim() : "";
 
     return {
         id: String(paperOut.id),
@@ -52,11 +50,12 @@ export const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number
             : paperOut.raw_url ?? "",
         imageUrl: paperOut.image_url ?? "",
         metrics: {
-            trendingScore: paperOut.trending_score ?? 0,
-            recencyScore: paperOut.freshness_score ?? 0,
-            recommendScore: paperOut.recommend_score ?? 0,
+            trendingScore: ((paperOut.trending_score ?? 0) as number) * 100,
+            recencyScore: ((paperOut.freshness_score ?? 0) as number) * 100,
+            recommendScore: ((paperOut.recommend_score ?? 0) as number) * 100,
             citations: Number((raw.citation_count as number) ?? 0),
         },
         summary: { hook: summary.hook, points: summary.points, detailed: summary.detailed },
     };
 };
+

@@ -1,5 +1,9 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
 import { Paper } from "@/models";
 import { TagChip } from "@/components/TagChip";
 import { Button } from "@/components/ui/button";
@@ -67,25 +71,40 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
   const paper = papers[currentPaperIndex];
 
-  // Generate English summary from abstract (Fallback)
+  // API 실패 시: paper.summary(목록 API 임베딩) 우선, 없으면 abstract 기반 fallback
   const { cleaned, sentences } = cleanAbstract(paper.abstract || "");
   const fallbackSummary = {
     paperId: paper.id,
-    hookOneLiner: sentences.length > 0 ? sentences[0] : "No summary available.",
-    keyPoints: sentences.length > 1 ? sentences.slice(1, 4) : ["Please refer to the original text for details."],
-    detailed: cleaned || "No summary available.",
-    evidenceScope: "abstract" as const
+    hookOneLiner: paper.summary?.hook || sentences[0] || "요약을 불러올 수 없습니다.",
+    keyPoints: Array.isArray(paper.summary?.points) && paper.summary.points.length > 0
+      ? paper.summary.points
+      : sentences.length > 1
+        ? sentences.slice(1, 4)
+        : [],
+    detailed: paper.summary?.detailed || cleaned || "요약을 불러올 수 없습니다.",
+    evidenceScope: "abstract" as const,
   };
 
-  // Use API summary if available, otherwise use fallback
-  const summary = apiSummary ? {
-    paperId: paper.id,
-    hookOneLiner: apiSummary.hook,
-    keyPoints: apiSummary.points,
-    detailed: apiSummary.detailed,
-    evidenceScope: "full" as const // Assuming API returns full summary
-  } : fallbackSummary;
+  // BE points를 항상 string[]로 정규화 (빈 배열/다른 형식/snake_case 대비)
+  const normalizePoints = (raw: unknown): string[] => {
+    if (Array.isArray(raw)) return raw.filter((p): p is string => typeof p === "string");
+    if (typeof raw === "string" && raw.trim()) return [raw];
+    return [];
+  };
 
+  const summary = apiSummary
+    ? {
+        paperId: paper.id,
+        hookOneLiner: apiSummary.hook ?? "",
+        keyPoints: normalizePoints(
+          apiSummary.points ??
+          (apiSummary as unknown as Record<string, unknown>).key_points ??
+          (apiSummary as unknown as Record<string, unknown>).keyPoints
+        ),
+        detailed: apiSummary.detailed ?? "",
+        evidenceScope: "full" as const,
+      }
+    : fallbackSummary;
 
   return (
     <div
@@ -121,19 +140,35 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
             {paper.tags.slice(0, 3).map((tag) => (
-              <TagChip key={tag} tag={tag} size="sm" trending={isTrendingTag(tag)} />
+              <TagChip
+                key={tag}
+                tag={tag}
+                size="sm"
+                interest={prefs?.tags?.some((pt) => pt.name.toLowerCase() === tag.toLowerCase())}
+                trending={isTrendingTag(tag)}
+              />
             ))}
           </div>
 
-          {/* Title */}
-          <h2 className="font-display text-xl font-semibold mb-4 text-foreground">{paper.title}</h2>
+          {/* Title - 마크다운/LaTeX 수식 지원 */}
+          <div className="font-display text-xl font-semibold mb-4 text-foreground [&_.katex]:text-inherit [&_.katex]:text-base">
+            <ReactMarkdown
+              remarkPlugins={[remarkMath, remarkGfm]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                p: ({ children }) => <span className="block">{children}</span>,
+              }}
+            >
+              {paper.title || "논문제목이 없습니다"}
+            </ReactMarkdown>
+          </div>
 
           {/* Image Section */}
           {paper.imageUrl && (
             <div className="mb-6 rounded-lg overflow-hidden border bg-muted">
               <img
                 src={resolveImageUrl(paper.imageUrl)}
-                alt={paper.title}
+                alt={paper.title || "논문 figure"}
                 className="w-full h-auto object-cover max-h-[400px]"
               />
             </div>

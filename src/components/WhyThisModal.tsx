@@ -78,7 +78,7 @@ export function WhyThisModal({ paper, open, onOpenChange }: WhyThisModalProps) {
             ))}
           </div>
           
-          <h4 className="font-medium text-sm">{paper.title}</h4>
+          <h4 className="font-medium text-sm">{paper.title || "논문제목이 없습니다"}</h4>
           
           <div className="space-y-3">
             {reasons.map((reason, i) => (

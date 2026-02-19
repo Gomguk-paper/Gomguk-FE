@@ -23,6 +23,7 @@ export function RightSidebar() {
     const isLoggedIn = Boolean(user);
 
     const { trendingTagNames } = useTrendingTags();
+    const tags = trendingTagNames ?? [];
 
     const handleLegalClick = (type: "terms" | "privacy" | "cookies" | "accessibility" | "advertising") => {
         setLegalContentType(type);
@@ -37,7 +38,7 @@ export function RightSidebar() {
     const DUMMY_TAGS = ["인공지능", "머신러닝", "딥러닝", "자연어처리", "컴퓨터비전"];
 
     const visibleTags = isLoggedIn
-        ? (showAllTrends ? trendingTagNames : trendingTagNames.slice(0, TRENDING_VISIBLE))
+        ? (showAllTrends ? tags : tags.slice(0, TRENDING_VISIBLE))
         : DUMMY_TAGS;
 
     const handleTrendOptions = (tag: string, e: React.MouseEvent) => {
@@ -50,9 +51,9 @@ export function RightSidebar() {
 
     return (
         <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
-            {/* Trends Section */}
-            <div className="bg-card rounded-xl border p-4 relative min-h-[500px] mt-10">
-                <h2 className="font-display font-bold text-2xl mb-6 text-center">Trending Topics</h2>
+            {/* Trends Section: flex-shrink-0으로 카드가 내용만큼 늘어나고, 길면 aside 전체 스크롤 */}
+            <div className="bg-card rounded-xl border p-4 relative min-h-[500px] mt-10 flex-shrink-0">
+                <h2 className="font-display font-bold text-2xl mb-6 text-center text-foreground">Trending Topics</h2>
                 <div className={`flex flex-col divide-y transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
                     {visibleTags.map((tag, index) => (
                         <div
@@ -65,7 +66,7 @@ export function RightSidebar() {
                                 <span className={`flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm leading-none pt-0.5 ${!isLoggedIn ? 'w-10 h-10 text-lg' : ''}`}>
                                     {index + 1}
                                 </span>
-                                <span className={`font-bold text-foreground group-hover:text-primary transition-colors leading-none pt-0.5 ${!isLoggedIn ? 'text-xl' : ''}`}>
+                                <span className={`font-bold text-[hsl(var(--tag-trending))] group-hover:opacity-80 transition-colors leading-none pt-0.5 ${!isLoggedIn ? 'text-xl' : ''}`}>
                                     #{tag}
                                 </span>
                             </div>
@@ -91,11 +92,11 @@ export function RightSidebar() {
                         </div>
                     ))}
                 </div>
-                {trendingTagNames.length > TRENDING_VISIBLE && (
+                {isLoggedIn && tags.length > TRENDING_VISIBLE && (
                     <Button
                         variant="secondary"
                         className="w-full justify-center mt-6 py-6 font-bold text-muted-foreground hover:text-foreground transition-colors"
-                        onClick={() => setShowAllTrends(!showAllTrends)}
+                        onClick={() => setShowAllTrends((prev) => !prev)}
                     >
                         {showAllTrends ? "간단히 보기" : "더 보기"}
                     </Button>
@@ -126,7 +127,7 @@ export function RightSidebar() {
 
 
             {/* Footer */}
-            <div className="px-4 text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-8">
+            <div className="px-4 text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-8 flex-shrink-0">
                 <span
                     className="hover:underline cursor-pointer"
                     onClick={() => handleLegalClick("terms")}
