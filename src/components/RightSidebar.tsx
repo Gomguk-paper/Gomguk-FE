@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Lock, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -34,7 +34,11 @@ export function RightSidebar() {
         return null;
     }
 
-    const visibleTags = showAllTrends ? trendingTagNames : trendingTagNames.slice(0, TRENDING_VISIBLE);
+    const DUMMY_TAGS = ["인공지능", "머신러닝", "딥러닝", "자연어처리", "컴퓨터비전"];
+
+    const visibleTags = isLoggedIn
+        ? (showAllTrends ? trendingTagNames : trendingTagNames.slice(0, TRENDING_VISIBLE))
+        : DUMMY_TAGS;
 
     const handleTrendOptions = (tag: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -47,34 +51,50 @@ export function RightSidebar() {
     return (
         <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
             {/* Trends Section */}
-            <div className="bg-card rounded-xl border p-4 relative">
-                <h2 className="font-display font-bold text-lg mb-4">Trending Topics</h2>
-                <div className={`space-y-4 transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
+            <div className="bg-card rounded-xl border p-4 relative min-h-[500px] mt-10">
+                <h2 className="font-display font-bold text-2xl mb-6 text-center">Trending Topics</h2>
+                <div className={`flex flex-col divide-y transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
                     {visibleTags.map((tag, index) => (
                         <div
                             key={tag}
                             role="button"
                             onClick={() => navigate(`/search?tag=${encodeURIComponent(tag)}`)}
-                            className="flex items-center justify-between group cursor-pointer"
+                            className="flex items-center justify-between group cursor-pointer py-6"
                         >
-                            <div className="font-bold text-foreground group-hover:underline">
-                                {index + 1}. #{tag}
+                            <div className="flex items-center gap-4">
+                                <span className={`flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm leading-none pt-0.5 ${!isLoggedIn ? 'w-10 h-10 text-lg' : ''}`}>
+                                    {index + 1}
+                                </span>
+                                <span className={`font-bold text-foreground group-hover:text-primary transition-colors leading-none pt-0.5 ${!isLoggedIn ? 'text-xl' : ''}`}>
+                                    #{tag}
+                                </span>
                             </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground"
-                                onClick={(e) => handleTrendOptions(tag, e)}
-                            >
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
+
+                            {/* Right side balance */}
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                {!isLoggedIn && (
+                                    <span className="text-sm font-medium">1.2k papers</span>
+                                )}
+                                {isLoggedIn ? (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={(e) => handleTrendOptions(tag, e)}
+                                    >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                ) : (
+                                    <ArrowUpRight className="h-5 w-5 opacity-50" />
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
                 {trendingTagNames.length > TRENDING_VISIBLE && (
                     <Button
-                        variant="ghost"
-                        className="w-full text-primary justify-start px-0 mt-4 hover:bg-transparent hover:underline"
+                        variant="secondary"
+                        className="w-full justify-center mt-6 py-6 font-bold text-muted-foreground hover:text-foreground transition-colors"
                         onClick={() => setShowAllTrends(!showAllTrends)}
                     >
                         {showAllTrends ? "간단히 보기" : "더 보기"}
@@ -89,8 +109,11 @@ export function RightSidebar() {
                         role="button"
                         aria-label="로그인하여 Trending Topics 보기"
                     >
-                        <div className="text-center p-4">
-                            <p className="font-semibold text-lg mb-2">🔒 로그인이 필요합니다</p>
+                        <div className="text-center p-4 flex flex-col items-center">
+                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 shadow-sm backdrop-blur-sm">
+                                <Lock className="w-6 h-6 text-primary" />
+                            </div>
+                            <p className="font-semibold text-lg mb-2">로그인이 필요합니다</p>
                             <p className="text-sm text-muted-foreground text-center">
                                 현재 인기있는 주제를 보려면
                                 <br />

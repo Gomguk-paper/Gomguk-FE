@@ -138,7 +138,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
 
   return (
     <div
-      className={cn("fixed inset-0 z-50", open ? "block" : "pointer-events-none")}
+      className={cn("fixed inset-0 z-[100]", open ? "block" : "pointer-events-none")}
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-modal-title"
@@ -159,7 +159,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
       <div
         ref={modalRef}
         className={cn(
-          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50",
+          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[100]",
           "bg-background border rounded-lg shadow-2xl",
           "max-w-sm w-[90%] sm:w-full",
           "p-6",
