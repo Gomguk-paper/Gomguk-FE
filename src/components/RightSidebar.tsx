@@ -34,7 +34,11 @@ export function RightSidebar() {
         return null;
     }
 
-    const visibleTags = showAllTrends ? trendingTagNames : trendingTagNames.slice(0, TRENDING_VISIBLE);
+    const DUMMY_TAGS = ["인공지능", "머신러닝", "딥러닝", "자연어처리", "컴퓨터비전"];
+
+    const visibleTags = isLoggedIn
+        ? (showAllTrends ? trendingTagNames : trendingTagNames.slice(0, TRENDING_VISIBLE))
+        : DUMMY_TAGS;
 
     const handleTrendOptions = (tag: string, e: React.MouseEvent) => {
         e.stopPropagation();
