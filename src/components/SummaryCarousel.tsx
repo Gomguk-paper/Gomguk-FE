@@ -1,5 +1,9 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
 import { Paper } from "@/models";
 import { TagChip } from "@/components/TagChip";
 import { Button } from "@/components/ui/button";
@@ -125,8 +129,18 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
             ))}
           </div>
 
-          {/* Title */}
-          <h2 className="font-display text-xl font-semibold mb-4 text-foreground">{paper.title}</h2>
+          {/* Title - 마크다운/LaTeX 수식 지원 */}
+          <div className="font-display text-xl font-semibold mb-4 text-foreground [&_.katex]:text-inherit [&_.katex]:text-base">
+            <ReactMarkdown
+              remarkPlugins={[remarkMath, remarkGfm]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                p: ({ children }) => <span className="block">{children}</span>,
+              }}
+            >
+              {paper.title || ""}
+            </ReactMarkdown>
+          </div>
 
           {/* Image Section */}
           {paper.imageUrl && (

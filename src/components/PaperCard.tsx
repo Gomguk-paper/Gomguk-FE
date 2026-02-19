@@ -200,8 +200,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           {/* Header: Title & Actions & Why */}
           <div className="flex justify-between items-start gap-2 mb-1">
             <div className="flex-1">
-              <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors mb-1 min-h-[1.5rem]">
-                {titleText}
+              <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors mb-1 min-h-[1.5rem] prose prose-sm max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}>
+                  {titleText}
+                </ReactMarkdown>
               </h3>
               <div className="text-xs text-muted-foreground mb-2">
                 {paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && " et al."}
