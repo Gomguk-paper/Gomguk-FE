@@ -217,10 +217,10 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-amber-500 hover:text-amber-600 hover:bg-amber-100/50"
+                    className="h-6 w-6 rounded-full bg-primary/10 text-primary hover:bg-primary/20 p-0"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Sparkles className="w-4 h-4 fill-current" />
+                    <Sparkles className="w-3.5 h-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" align="end" className="text-xs max-w-[220px]">
