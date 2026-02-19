@@ -17,8 +17,8 @@ export function TagChip({ tag, selected, trending, onClick, size = "md" }: TagCh
     <div
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border font-medium transition-all",
-        size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
+        "inline-flex items-center justify-center leading-none pt-[1px] gap-1 rounded-full border font-medium transition-all",
+        size === "sm" ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm",
         "bg-secondary text-secondary-foreground border-border",
         selected && "ring-2 ring-primary ring-offset-1",
         onClick ? "hover:scale-105 cursor-pointer" : "cursor-default"

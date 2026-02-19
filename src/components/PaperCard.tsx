@@ -43,6 +43,84 @@ interface PaperCardProps {
   onOpenSummary?: () => void;
 }
 
+interface HeaderActionsProps {
+  paper: Paper;
+  recommendationReason: string;
+  hidePaper: (id: string) => void;
+  excludeTag: (tag: string) => void;
+  isOverlay?: boolean;
+}
+
+function HeaderActions({ paper, recommendationReason, hidePaper, excludeTag, isOverlay }: HeaderActionsProps) {
+  return (
+    <>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "h-6 w-6 rounded-full p-0 transition-colors",
+              isOverlay
+                ? "bg-black/40 text-white hover:bg-black/60 hover:text-white backdrop-blur-[2px]"
+                : "bg-primary/10 text-primary hover:bg-primary/20"
+            )}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" align="end" className="text-xs max-w-[220px]">
+          <p>{recommendationReason}</p>
+        </TooltipContent>
+      </Tooltip>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "h-8 w-8 transition-colors rounded-full",
+              isOverlay
+                ? "text-white hover:bg-black/40 hover:text-white"
+                : "text-muted-foreground"
+            )}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MoreVertical className="w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem onClick={(e) => {
+            e.stopPropagation();
+            hidePaper(paper.id);
+          }}>
+            <EyeOff className="w-4 h-4 mr-2" />
+            이 논문 숨기기
+          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Hash className="w-4 h-4 mr-2" />
+              태그 차단
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              {paper.tags.map(tag => (
+                <DropdownMenuItem key={tag} onClick={(e) => {
+                  e.stopPropagation();
+                  excludeTag(tag);
+                }}>
+                  {tag}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+}
+
 export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const {
     user,
@@ -176,15 +254,16 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
       <article
         className={cn(
           "bg-card rounded-lg border shadow-card transition-all cursor-pointer overflow-hidden",
-          // Responsive layout: flex-col on mobile, flex-row on desktop
-          "flex flex-col md:flex-row md:gap-5 md:p-4"
+          // Responsive layout: flex-col on mobile, flex-row on desktop (unless forced mobile)
+          "flex flex-col",
+          prefs?.layoutMode !== 'mobile' && "md:flex-row md:gap-5 md:p-4"
         )}
         onClick={handleCardClick}
       >
         {/* Image Section */}
         {paper.imageUrl && (
           <div className="w-full md:w-[28%] flex-shrink-0">
-            <div className="bg-muted relative aspect-[3/2] md:aspect-[4/3] w-full md:rounded-lg overflow-hidden">
+            <div className="bg-muted relative aspect-[2/1] md:aspect-[4/3] w-full md:rounded-lg overflow-hidden">
               <img
                 src={resolveImageUrl(paper.imageUrl)}
                 alt={`${paper.title} figure`}
@@ -199,66 +278,32 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
           {/* Header: Title & Actions & Why */}
           <div className="flex justify-between items-start gap-2 mb-1">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors mb-1 min-h-[1.5rem]">
                 {titleText}
               </h3>
-              <div className="text-xs text-muted-foreground mb-2">
+              <div className="text-xs text-muted-foreground mb-2 truncate">
                 {paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && " et al."}
                 <span className="mx-1.5">·</span>
                 {paper.year}
               </div>
             </div>
 
-            <div className="flex items-center gap-1 -mr-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 rounded-full bg-primary/10 text-primary hover:bg-primary/20 p-0"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" align="end" className="text-xs max-w-[220px]">
-                  <p>{recommendationReason}</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => e.stopPropagation()}>
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={(e) => {
-                    e.stopPropagation();
-                    hidePaper(paper.id);
-                  }}>
-                    <EyeOff className="w-4 h-4 mr-2" />
-                    이 논문 숨기기
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <Hash className="w-4 h-4 mr-2" />
-                      태그 차단
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      {paper.tags.map(tag => (
-                        <DropdownMenuItem key={tag} onClick={(e) => {
-                          e.stopPropagation();
-                          excludeTag(tag);
-                        }}>
-                          {tag}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {/* Desktop/No-Image Header Actions */}
+            <div className={cn(
+              "flex items-center gap-1 -mr-2 mt-0.5 flex-shrink-0",
+              // If image exists, hide these icons on mobile (since they are in overlay)
+              // If layoutMode is 'mobile', always hide here (since always overlay)
+              // If standard mode, hide on mobile (hidden), show on desktop (md:flex)
+              paper.imageUrl && (prefs?.layoutMode === 'mobile' ? "hidden" : "hidden md:flex")
+            )}>
+              <HeaderActions
+                paper={paper}
+                recommendationReason={recommendationReason}
+                hidePaper={hidePaper}
+                excludeTag={excludeTag}
+                isOverlay={false}
+              />
             </div>
           </div>
 
@@ -270,11 +315,11 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
           {/* 요약 미리보기: paper.summary 또는 API 응답 */}
           {(paper.summary?.points?.length ? paper.summary.points[0] : paper.summary?.hook ?? summaryFromApi?.hook) && (
-            <div className="flex gap-3 mb-auto items-start">
+            <div className="flex gap-4 mb-auto items-start">
               <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                 <Lightbulb className="w-3.5 h-3.5 text-primary" />
               </div>
-              <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2 [&_p]:m-0">
+              <div className="text-sm text-muted-foreground leading-normal prose prose-sm max-w-none line-clamp-2 [&_p]:m-0">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath, remarkGfm]}
                   rehypePlugins={[rehypeKatex]}
@@ -286,7 +331,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           )}
 
           {/* Actions */}
-          <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
+          <div className="flex flex-wrap items-center gap-2 py-1 border-t md:border-t-0 md:pt-0 mt-4 md:mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}
             {/* Primary Actions (좋아요/저장/읽음) */}
             <div className="flex items-center gap-1 flex-1 justify-end -mr-2">
@@ -337,7 +382,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             <p className="text-xs text-muted-foreground mt-2">{authMessage}</p>
           )}
         </div>
-      </article>
+      </article >
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} showNotice={true} />
     </>

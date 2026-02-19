@@ -106,7 +106,7 @@ export default function Home() {
             </div>
             <h2 className="font-display font-semibold text-lg">맞춤 논문 피드</h2>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {/* Login Required State (Priority over loading/error if !user) */}
             {!user ? (
               <div className="relative">
