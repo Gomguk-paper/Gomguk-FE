@@ -66,7 +66,8 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const action = getAction(paper.id);
   const isLiked = action?.liked || false;
   const isSaved = action?.saved || false;
-  const titleText = summaryFromApi?.hook ?? paper.summary?.hook ?? paper.title ?? "";
+  /** 맨 위 텍스트: BE hook 연동 (API → paper.summary) */
+  const hookText = summaryFromApi?.hook ?? paper.summary?.hook ?? "";
   const canUseActions = Boolean(user);
   const authMessage = !user ? "로그인 후 좋아요/저장 기능을 사용할 수 있어요." : null;
 
@@ -187,7 +188,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             <div className="bg-muted relative aspect-[3/2] md:aspect-[4/3] w-full md:rounded-lg overflow-hidden">
               <img
                 src={resolveImageUrl(paper.imageUrl)}
-                alt={`${paper.title} figure`}
+                alt={`${paper.title || "논문"} figure`}
                 className="w-full h-full object-cover absolute inset-0"
               />
             </div>
@@ -197,12 +198,12 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
         {/* Content Section */}
         <div className="flex-1 flex flex-col p-4 md:p-0">
 
-          {/* Header: Title & Actions & Why */}
+          {/* Header: 맨 위 = BE hook / Actions & Why */}
           <div className="flex justify-between items-start gap-2 mb-1">
             <div className="flex-1">
               <h3 className="font-display font-semibold text-lg leading-snug text-foreground hover:text-primary transition-colors mb-1 min-h-[1.5rem] prose prose-sm max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkMath, remarkGfm]} rehypePlugins={[rehypeKatex]}>
-                  {titleText}
+                  {hookText || paper.title || "논문제목이 없습니다"}
                 </ReactMarkdown>
               </h3>
               <div className="text-xs text-muted-foreground mb-2">
@@ -276,22 +277,20 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             ))}
           </div>
 
-          {/* 요약 미리보기: paper.summary 또는 API 응답 */}
-          {(paper.summary?.points?.length ? paper.summary.points[0] : paper.summary?.hook ?? summaryFromApi?.hook) && (
-            <div className="flex gap-3 mb-auto items-start">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <Lightbulb className="w-3.5 h-3.5 text-primary" />
-              </div>
-              <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2 [&_p]:m-0">
-                <ReactMarkdown
-                  remarkPlugins={[remarkMath, remarkGfm]}
-                  rehypePlugins={[rehypeKatex]}
-                >
-                  {`${paper.summary?.points?.[0] ?? paper.summary?.hook ?? summaryFromApi?.hook ?? ""}`}
-                </ReactMarkdown>
-              </div>
+          {/* 태그 아래: 논문 실제 제목 (좋아요/북마크 위), 없으면 "논문제목이 없습니다" */}
+          <div className="flex gap-3 mb-auto items-start">
+            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+              <Lightbulb className="w-3.5 h-3.5 text-primary" />
             </div>
-          )}
+            <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2 [&_p]:m-0">
+              <ReactMarkdown
+                remarkPlugins={[remarkMath, remarkGfm]}
+                rehypePlugins={[rehypeKatex]}
+              >
+                {paper.title || "논문제목이 없습니다"}
+              </ReactMarkdown>
+            </div>
+          </div>
 
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">

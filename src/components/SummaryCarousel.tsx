@@ -71,25 +71,40 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
   const paper = papers[currentPaperIndex];
 
-  // Generate English summary from abstract (Fallback)
+  // API 실패 시: paper.summary(목록 API 임베딩) 우선, 없으면 abstract 기반 fallback
   const { cleaned, sentences } = cleanAbstract(paper.abstract || "");
   const fallbackSummary = {
     paperId: paper.id,
-    hookOneLiner: sentences.length > 0 ? sentences[0] : "No summary available.",
-    keyPoints: sentences.length > 1 ? sentences.slice(1, 4) : ["Please refer to the original text for details."],
-    detailed: cleaned || "No summary available.",
-    evidenceScope: "abstract" as const
+    hookOneLiner: paper.summary?.hook || sentences[0] || "요약을 불러올 수 없습니다.",
+    keyPoints: Array.isArray(paper.summary?.points) && paper.summary.points.length > 0
+      ? paper.summary.points
+      : sentences.length > 1
+        ? sentences.slice(1, 4)
+        : [],
+    detailed: paper.summary?.detailed || cleaned || "요약을 불러올 수 없습니다.",
+    evidenceScope: "abstract" as const,
   };
 
-  // Use API summary if available, otherwise use fallback
-  const summary = apiSummary ? {
-    paperId: paper.id,
-    hookOneLiner: apiSummary.hook,
-    keyPoints: apiSummary.points,
-    detailed: apiSummary.detailed,
-    evidenceScope: "full" as const // Assuming API returns full summary
-  } : fallbackSummary;
+  // BE points를 항상 string[]로 정규화 (빈 배열/다른 형식/snake_case 대비)
+  const normalizePoints = (raw: unknown): string[] => {
+    if (Array.isArray(raw)) return raw.filter((p): p is string => typeof p === "string");
+    if (typeof raw === "string" && raw.trim()) return [raw];
+    return [];
+  };
 
+  const summary = apiSummary
+    ? {
+        paperId: paper.id,
+        hookOneLiner: apiSummary.hook ?? "",
+        keyPoints: normalizePoints(
+          apiSummary.points ??
+          (apiSummary as unknown as Record<string, unknown>).key_points ??
+          (apiSummary as unknown as Record<string, unknown>).keyPoints
+        ),
+        detailed: apiSummary.detailed ?? "",
+        evidenceScope: "full" as const,
+      }
+    : fallbackSummary;
 
   return (
     <div
@@ -144,7 +159,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
                 p: ({ children }) => <span className="block">{children}</span>,
               }}
             >
-              {paper.title || ""}
+              {paper.title || "논문제목이 없습니다"}
             </ReactMarkdown>
           </div>
 
@@ -153,7 +168,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
             <div className="mb-6 rounded-lg overflow-hidden border bg-muted">
               <img
                 src={resolveImageUrl(paper.imageUrl)}
-                alt={paper.title}
+                alt={paper.title || "논문 figure"}
                 className="w-full h-auto object-cover max-h-[400px]"
               />
             </div>
