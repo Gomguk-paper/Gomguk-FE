@@ -7,11 +7,10 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8081,
-    hmr: {
-      clientPort: 443,
-      host: 'gomguk.cloud',
-      protocol: 'wss'
-    },
+    // 로컬(localhost:8081)에서는 기본 HMR 사용. gomguk.cloud 터널 접속 시에만 아래 설정 사용
+    hmr: process.env.VITE_HMR_REMOTE
+      ? { clientPort: 443, host: 'gomguk.cloud', protocol: 'wss' }
+      : true,
     proxy: {
       '/api': {
         target: 'https://gomguk.cloud',
