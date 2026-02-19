@@ -22,8 +22,8 @@ export function TagChip({ tag, selected, interest, trending, onClick, size = "md
     <div
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border font-medium transition-all",
-        size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
+        "inline-flex items-center justify-center leading-none pt-[1px] gap-1 rounded-full border font-medium transition-all",
+        size === "sm" ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm",
         "bg-secondary text-secondary-foreground border-border",
         isInterest &&
           "bg-[hsl(var(--tag-interest)/0.15)] text-[hsl(var(--tag-interest))] border-[hsl(var(--tag-interest)/0.5)]",

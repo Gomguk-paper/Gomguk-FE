@@ -74,7 +74,7 @@ export function OnboardingTags({ selectedTags, onToggle }: OnboardingTagsProps) 
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-wrap gap-2 max-h-[50vh] overflow-y-auto scrollbar-hide">
+                <div className="flex flex-wrap gap-2 max-h-[50vh] overflow-y-auto scrollbar-hide pb-24">
                     {filteredTags.map((tag) => (
                         <TagChip
                             key={tag}

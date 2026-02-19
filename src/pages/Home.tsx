@@ -101,12 +101,12 @@ export default function Home() {
         {/* Paper Feed */}
         <section className="p-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-primary" />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+              <Sparkles className="w-4 h-4" />
             </div>
             <h2 className="font-display font-semibold text-lg">맞춤 논문 피드</h2>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {/* Login Required State (Priority over loading/error if !user) */}
             {!user ? (
               <div className="relative">
