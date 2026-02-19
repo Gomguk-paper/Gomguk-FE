@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Lock } from "lucide-react";
+import { BookOpen, Lock, Sparkles } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
@@ -100,7 +100,12 @@ export default function Home() {
 
         {/* Paper Feed */}
         <section className="p-4">
-          <h2 className="font-display font-semibold text-lg mb-3">📚 맞춤 논문 피드</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-primary" />
+            </div>
+            <h2 className="font-display font-semibold text-lg">맞춤 논문 피드</h2>
+          </div>
           <div className="space-y-4">
             {/* Login Required State (Priority over loading/error if !user) */}
             {!user ? (

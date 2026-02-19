@@ -7,6 +7,7 @@ import {
   Undo,
   Sparkles,
   ExternalLink,
+  Lightbulb,
 } from "lucide-react";
 import {
   Tooltip,
@@ -270,13 +271,16 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
           {/* 요약 미리보기: paper.summary 또는 API 응답 */}
           {(paper.summary?.points?.length ? paper.summary.points[0] : paper.summary?.hook ?? summaryFromApi?.hook) && (
-            <div className="space-y-1 mb-auto">
-              <div className="text-sm text-muted-foreground leading-relaxed mb-2 prose prose-sm max-w-none line-clamp-2">
+            <div className="flex gap-3 mb-auto items-start">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                <Lightbulb className="w-3.5 h-3.5 text-primary" />
+              </div>
+              <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2 [&_p]:m-0">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath, remarkGfm]}
                   rehypePlugins={[rehypeKatex]}
                 >
-                  {`💡 ${paper.summary?.points?.[0] ?? paper.summary?.hook ?? summaryFromApi?.hook ?? ""}`}
+                  {`${paper.summary?.points?.[0] ?? paper.summary?.hook ?? summaryFromApi?.hook ?? ""}`}
                 </ReactMarkdown>
               </div>
             </div>
