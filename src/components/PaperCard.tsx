@@ -288,30 +288,45 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}
-            <div className="flex items-center gap-1 flex-1 justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("min-h-touch px-2", isLiked && "text-liked")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleActionClick(() => toggleLike(paper.id));
-                }}
-              >
-                <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
-              </Button>
+            {/* Primary Actions (좋아요/저장/읽음) */}
+            <div className="flex items-center gap-1 flex-1 justify-end -mr-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn("h-8 w-8 text-muted-foreground hover:text-liked hover:bg-red-50", isLiked && "text-liked hover:text-liked bg-red-50")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleActionClick(() => toggleLike(paper.id));
+                    }}
+                  >
+                    <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>좋아요</p>
+                </TooltipContent>
+              </Tooltip>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("min-h-touch px-2", isSaved && "text-saved")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleActionClick(() => toggleSave(paper.id));
-                }}
-              >
-                <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn("h-8 w-8 text-muted-foreground hover:text-saved hover:bg-blue-50", isSaved && "text-saved hover:text-saved bg-blue-50")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleActionClick(() => toggleSave(paper.id));
+                    }}
+                  >
+                    <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>저장</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
 
             {/* Secondary Actions (Link) - Removed */}
