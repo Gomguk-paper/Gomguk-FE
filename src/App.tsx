@@ -17,14 +17,36 @@ import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import CookiePolicy from "./pages/legal/CookiePolicy";
 import Accessibility from "./pages/legal/Accessibility";
 import AdvertisingInfo from "./pages/legal/AdvertisingInfo";
-import { getStoredPrefs, getStoredUser, clearStoredUser } from "@/lib/authStorage";
-import { useEffect, useState } from "react";
+import { getStoredPrefs, getStoredUser, setStoredUser, clearStoredUser } from "@/lib/authStorage";
+import { ROUTES } from "@/core/config/constants";
+import { meApi } from "@/api/me";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
+
+/** URL에서 access_token 추출 (쿼리 또는 해시) */
+function getAccessTokenFromLocation(search: string, hash: string): string | null {
+  const fromSearch = new URLSearchParams(search).get("access_token");
+  if (fromSearch) return fromSearch;
+  const fromHash = new URLSearchParams(hash.replace(/^#/, "")).get("access_token");
+  return fromHash || null;
+}
+
+/** URL에서 is_new_user 추출 */
+function getIsNewUserFromLocation(search: string, hash: string): string | null {
+  const fromSearch = new URLSearchParams(search).get("is_new_user");
+  if (fromSearch !== null) return fromSearch;
+  return new URLSearchParams(hash.replace(/^#/, "")).get("is_new_user");
+}
 
 function AppRoutes() {
   const { user, prefs, setUser, setPrefs } = useStore();
   const [hydrated, setHydrated] = useState(false);
+  const [oauthProcessing, setOauthProcessing] = useState(false);
+  const oauthProcessedRef = useRef(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = getStoredUser();
@@ -44,6 +66,46 @@ function AppRoutes() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 초기 마운트 시에만 실행
 
+  // 전역 OAuth 콜백: 모달/전체페이지 구분 없이 어느 경로로 돌아와도 access_token 처리 (무한 모달 방지)
+  useEffect(() => {
+    if (!hydrated || oauthProcessedRef.current) return;
+
+    const accessToken = getAccessTokenFromLocation(location.search, location.hash);
+    if (!accessToken) return;
+
+    oauthProcessedRef.current = true;
+    setOauthProcessing(true);
+    localStorage.setItem("access_token", accessToken);
+
+    meApi
+      .getMe()
+      .then((userData) => {
+        const newUser = {
+          id: userData.id.toString(),
+          name: userData.name,
+          provider: userData.provider as "google" | "github" | "kakao",
+          createdAt: new Date().toISOString(),
+        };
+        setStoredUser(newUser);
+        setUser(newUser);
+
+        const isNewUser = getIsNewUserFromLocation(location.search, location.hash);
+        const storedPrefs = getStoredPrefs();
+        if (isNewUser === "true" || !storedPrefs) {
+          navigate(ROUTES.ONBOARDING, { replace: true });
+        } else {
+          navigate(ROUTES.HOME, { replace: true });
+        }
+      })
+      .catch((err) => {
+        console.error("OAuth callback: getMe failed", err);
+        oauthProcessedRef.current = false;
+      })
+      .finally(() => {
+        setOauthProcessing(false);
+      });
+  }, [hydrated, location.search, location.hash, navigate, setUser]);
+
   if (!hydrated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -53,6 +115,18 @@ function AppRoutes() {
       </div>
     );
   }
+
+  if (oauthProcessing) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">로그인 처리 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   const hasPrefs = Boolean(prefs);
 
   return (
