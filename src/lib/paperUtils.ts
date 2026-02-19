@@ -52,9 +52,9 @@ export const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number
             : paperOut.raw_url ?? "",
         imageUrl: paperOut.image_url ?? "",
         metrics: {
-            trendingScore: paperOut.trending_score ?? 0,
-            recencyScore: paperOut.freshness_score ?? 0,
-            recommendScore: paperOut.recommend_score ?? 0,
+            trendingScore: ((paperOut.trending_score ?? 0) as number) * 100,
+            recencyScore: ((paperOut.freshness_score ?? 0) as number) * 100,
+            recommendScore: ((paperOut.recommend_score ?? 0) as number) * 100,
             citations: Number((raw.citation_count as number) ?? 0),
         },
         summary: { hook: summary.hook, points: summary.points, detailed: summary.detailed },
