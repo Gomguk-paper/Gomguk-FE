@@ -50,7 +50,7 @@ export function RightSidebar() {
     };
 
     return (
-        <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
+        <aside className="hidden xl:flex flex-col w-[280px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
             {/* Trends Section: flex-shrink-0으로 카드가 내용만큼 늘어나고, 길면 aside 전체 스크롤 */}
             <div className="bg-card rounded-xl border p-4 relative min-h-[500px] mt-10 flex-shrink-0">
                 <h2 className="font-display font-bold text-2xl mb-6 text-center text-foreground">Trending Topics</h2>

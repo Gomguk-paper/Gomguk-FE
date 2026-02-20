@@ -10,6 +10,15 @@ interface UserAction {
   readAt?: string;
 }
 
+export interface StoreNotification {
+  type: string;
+  paperId: string;
+  title: string;
+  message: string;
+  createdAt?: string;
+  read?: boolean;
+}
+
 export type Theme = 'light' | 'dark' | 'system';
 
 interface GomgukStore {
@@ -27,6 +36,11 @@ interface GomgukStore {
   toggleSave: (paperId: string) => void;
   markAsRead: (paperId: string) => void;
   getAction: (paperId: string) => UserAction | undefined;
+
+  // Notifications
+  notifications: StoreNotification[];
+  addNotification: (notification: StoreNotification) => void;
+  getNotifications: () => StoreNotification[];
 
   // Filtering
   hiddenPapers: Record<string, boolean>;
@@ -73,6 +87,13 @@ export const useStore = create<GomgukStore>()(
 
       // Actions
       actionsByUser: {},
+
+      // Notifications
+      notifications: [],
+      addNotification: (notification) => set((state) => ({
+        notifications: [...state.notifications, { ...notification, createdAt: new Date().toISOString() }]
+      })),
+      getNotifications: () => get().notifications,
 
       // Filtering
       hiddenPapers: {},
@@ -256,7 +277,10 @@ export const useStore = create<GomgukStore>()(
         if (persistedState && typeof persistedState === 'object') {
           const { user: _user, actions: _actions, ...rest } = persistedState as Record<string, any>;
           if (!('actionsByUser' in rest)) {
-            return { ...rest, actionsByUser: {} } as GomgukStore;
+            return { ...rest, actionsByUser: {}, notifications: [] } as GomgukStore;
+          }
+          if (!('notifications' in rest)) {
+            return { ...rest, notifications: [] } as GomgukStore;
           }
           return rest as GomgukStore;
         }
@@ -270,6 +294,7 @@ export const useStore = create<GomgukStore>()(
         hiddenPapers: state.hiddenPapers,
         excludedTags: state.excludedTags,
         followedAuthors: state.followedAuthors,
+        notifications: state.notifications,
       }),
     }
   )
