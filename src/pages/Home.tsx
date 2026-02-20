@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Lock, Sparkles } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
@@ -84,8 +85,8 @@ export default function Home() {
             onClick={() => navigate("/")}
           >
             <HamburgerMenu className="-ml-2 mr-1 md:hidden" />
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-primary-foreground" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+              <img src={logo} alt="곰국" className="w-full h-full object-contain" />
             </div>
             <span className="font-display font-bold text-lg">곰국</span>
           </div>

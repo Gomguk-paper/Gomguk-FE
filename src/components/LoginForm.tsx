@@ -6,7 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { AuthProvider, getStoredPrefs, setStoredUser, clearStoredUser } from "@/lib/authStorage";
 import { authApi } from "@/api/auth";
 import { ROUTES } from "@/core/config/constants";
-import { BookOpen, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 interface LoginFormProps {
   /** 로그인 성공 시 호출되는 콜백 */
@@ -109,9 +110,9 @@ export function LoginForm({
         <div id="login_brand" className="space-y-3">
           <div
             id="login_logo"
-            className="w-16 h-16 mx-auto bg-primary rounded-2xl flex items-center justify-center shadow-lg"
+            className="w-16 h-16 mx-auto flex items-center justify-center"
           >
-            <BookOpen className="w-8 h-8 text-primary-foreground" />
+            <img src={logo} alt="곰국" className="w-full h-full object-contain" />
           </div>
           <h1 id="login_title" className="font-display text-2xl font-bold text-foreground">
             곰국
@@ -188,9 +189,9 @@ export function LoginForm({
       <div id="login_brand" className="space-y-4">
         <div
           id="login_logo"
-          className="w-20 h-20 mx-auto bg-primary rounded-2xl flex items-center justify-center shadow-lg"
+          className="w-20 h-20 mx-auto flex items-center justify-center"
         >
-          <BookOpen className="w-10 h-10 text-primary-foreground" />
+          <img src={logo} alt="곰국" className="w-full h-full object-contain" />
         </div>
         <h1 id="login_title" className="font-display text-4xl font-bold text-foreground">
           곰국

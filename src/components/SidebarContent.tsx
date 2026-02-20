@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { Home, Search, User, Settings, LogOut, LogIn, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.png";
 import { useStore } from "@/store/useStore";
 import { clearStoredUser } from "@/lib/authStorage";
 import { useState } from "react";
@@ -47,8 +48,8 @@ export function SidebarContent({ className, onLinkClick }: SidebarContentProps) 
                     className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={onLinkClick}
                 >
-                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-primary-foreground" />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+                        <img src={logo} alt="곰국" className="w-full h-full object-contain" />
                     </div>
                     <span className="font-display font-bold text-xl">곰국</span>
                 </NavLink>
