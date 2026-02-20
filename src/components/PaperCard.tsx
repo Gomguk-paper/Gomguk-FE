@@ -1,8 +1,42 @@
+import {
+  Heart,
+  Bookmark,
+  MoreVertical,
+  EyeOff,
+  Hash,
+  Undo,
+  Sparkles,
+  Lightbulb,
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
 import type { Paper } from "@/models";
 import { useStore } from "@/store/useStore";
-import { MobileCard } from "./paper-card/MobileCard";
-import { DesktopCard } from "./paper-card/DesktopCard";
-import { useEffect, useState } from "react";
+import { useSummaryQuery } from "@/hooks/queries/useSummaryQuery";
+import { useTrendingTags } from "@/contexts/TrendingTagsContext";
+import { TagChip } from "./TagChip";
+import { Button } from "@/components/ui/button";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { LoginModal } from "./LoginModal";
+import { cn } from "@/lib/utils";
+import { UI_CONSTANTS } from "@/core/config/constants";
+import { resolveImageUrl } from "@/lib/imageUtils";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
 
 interface PaperCardProps {
   paper: Paper;
@@ -10,8 +44,18 @@ interface PaperCardProps {
 }
 
 export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
-  const { prefs } = useStore();
-  const [isMobileWidth, setIsMobileWidth] = useState(false);
+  const {
+    user,
+    prefs,
+    getAction,
+    toggleLike,
+    toggleSave,
+    hidePaper,
+    excludeTag,
+    hiddenPapers,
+    excludedTags,
+    undoHidePaper
+  } = useStore();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [hideToastPhase, setHideToastPhase] = useState<"show" | "fade" | "gone">("show");
@@ -54,23 +98,78 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
 
   // 숨기기 토스트: 2.5초 표시 후 페이드아웃 → 사라짐
   useEffect(() => {
-    const checkWidth = () => {
-      setIsMobileWidth(window.innerWidth < 768); // Tailwind 'md' breakpoint
+    if (!isHidden) {
+      hideToastTimerRef.current && clearTimeout(hideToastTimerRef.current);
+      hideToastTimerRef.current = null;
+      return;
+    }
+    setHideToastPhase("show");
+    hideToastTimerRef.current = setTimeout(() => {
+      setHideToastPhase("fade");
+      hideToastTimerRef.current = setTimeout(() => {
+        setHideToastPhase("gone");
+        hideToastTimerRef.current = null;
+      }, 100);
+    }, 1500);
+    return () => {
+      if (hideToastTimerRef.current) clearTimeout(hideToastTimerRef.current);
+      hideToastTimerRef.current = null;
     };
+  }, [isHidden]);
 
-    checkWidth();
-    window.addEventListener('resize', checkWidth);
-    return () => window.removeEventListener('resize', checkWidth);
-  }, []);
+  // 추천 이유 계산 (tooltip용)
+  const recommendationReason = useMemo(() => {
+    if (prefs?.tags) {
+      const matchedTags = paper.tags.filter(t =>
+        prefs.tags.some(pt => pt.name.toLowerCase() === t.toLowerCase())
+      );
+      if (matchedTags.length > 0) {
+        const highestWeight = prefs.tags
+          .filter(pt => matchedTags.some(t => t.toLowerCase() === pt.name.toLowerCase()))
+          .sort((a, b) => b.weight - a.weight)[0];
+        if (highestWeight) {
+          return `당신이 #${highestWeight.name}에 관심도 ${highestWeight.weight}를 설정했어요`;
+        }
+      }
+    }
+    if (paper.metrics.trendingScore >= 90) {
+      return "이번 주 급상승 논문이에요";
+    }
+    if (paper.metrics.recencyScore >= 80) {
+      return "최근에 발표된 따끈따끈한 연구예요";
+    }
+    return "해당 분야의 중요한 논문으로 선정되었어요";
+  }, [paper, prefs]);
 
-  // Determine which card to render
-  // 1. If user forces mobile layout -> MobileCard
-  // 2. If screen is small (< md) -> MobileCard
-  // 3. Otherwise -> DesktopCard
-  const showMobileCard = prefs?.layoutMode === 'mobile' || isMobileWidth;
+  if (isHidden) {
+    if (hideToastPhase === "gone") return null;
+    return (
+      <div
+        className={cn(
+          "bg-muted/50 rounded-lg border p-4 flex items-center justify-between transition-opacity duration-300",
+          hideToastPhase === "show" && "animate-in fade-in duration-300",
+          hideToastPhase === "fade" && "animate-out fade-out duration-300 opacity-0"
+        )}
+      >
+        <span className="text-sm text-muted-foreground">논문이 숨겨졌습니다.</span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            undoHidePaper(paper.id);
+          }}
+          className="gap-1 h-8"
+        >
+          <Undo className="w-3 h-3" />
+          실행 취소
+        </Button>
+      </div>
+    );
+  }
 
-  if (showMobileCard) {
-    return <MobileCard paper={paper} onOpenSummary={onOpenSummary} />;
+  if (isExcludedTag) {
+    return null;
   }
 
   return (
