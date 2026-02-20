@@ -106,7 +106,9 @@ function AppRoutes() {
       });
   }, [hydrated, location.search, location.hash, navigate, setUser]);
 
-  if (!hydrated) {
+  // 비로그인에서도 /search는 바로 보이도록, 로딩 시에도 검색 라우트는 렌더
+  const isSearchPage = location.pathname === "/search";
+  if (!hydrated && !isSearchPage) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center">
