@@ -12,6 +12,15 @@ interface UserAction {
 
 export type Theme = 'light' | 'dark' | 'system';
 
+interface Notification {
+  id: string;
+  type: string;
+  paperId: string;
+  title: string;
+  message: string;
+  createdAt: string;
+}
+
 interface GomgukStore {
   // User
   user: StoredUser | null;
@@ -51,6 +60,11 @@ interface GomgukStore {
   // Mobile Menu
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
+
+  // Notifications
+  notifications: Notification[];
+  addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => void;
+  getNotifications: () => Notification[];
 }
 
 const getUserActionKey = (user: StoredUser | null) => {
@@ -234,6 +248,20 @@ export const useStore = create<GomgukStore>()(
       // Mobile Menu
       mobileMenuOpen: false,
       setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
+
+      // Notifications
+      notifications: [],
+      addNotification: (notification) => set((state) => ({
+        notifications: [
+          ...state.notifications,
+          {
+            ...notification,
+            id: `${notification.paperId}-${notification.type}`,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      })),
+      getNotifications: () => get().notifications,
     }),
     {
       name: 'gomguk-storage',
