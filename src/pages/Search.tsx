@@ -25,6 +25,7 @@ export default function SearchPage() {
     removeHistory,
     trendingTags,
     isTrendingTag,
+    allTags,
     totalCount,
     loadMoreRef,
     isFetchingNextPage,
@@ -49,6 +50,8 @@ export default function SearchPage() {
             setSortMode={setSortMode}
             selectedTags={selectedTags}
             handleTagClick={handleTagClick}
+            allTags={allTags}
+            isTrendingTag={isTrendingTag}
             showMenuTrigger={true}
           />
         </div>
@@ -66,6 +69,8 @@ export default function SearchPage() {
             setSortMode={setSortMode}
             selectedTags={selectedTags}
             handleTagClick={handleTagClick}
+            allTags={allTags}
+            isTrendingTag={isTrendingTag}
           />
         </div>
 
@@ -79,6 +84,7 @@ export default function SearchPage() {
             isTrendingTag={isTrendingTag}
             selectedTags={selectedTags}
             handleTagClick={handleTagClick}
+            setQuery={setQuery}
           />
         )}
 

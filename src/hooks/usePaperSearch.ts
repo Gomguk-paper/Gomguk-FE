@@ -58,9 +58,17 @@ export function usePaperSearch() {
     const { trendingTagNames, isTrendingTag } = useTrendingTags();
     const trendingTags = trendingTagNames.slice(0, TRENDING_TOP_COUNT_SEARCH);
 
-    // 백엔드 offset 기반 무한 스크롤. 태그 선택 시에는 항상 getPapers+tags 사용 (feed는 태그 필터 미지원)
+    // 태그 이름→ID 해석이 끝났을 때만 태그 필터 적용
+    const tagFilterReady = selectedTags.length === 0 || tagIds.length === selectedTags.length;
+
+    // # 입력 중(태그 제안 모드)이면 BE 요청 차단
+    const isHashMode = query.trim().startsWith('#');
+
+    // 텍스트 검색어: 태그가 있거나 # 모드면 절대 전달하지 않음 (태그 검색과 텍스트 검색 완전 분리)
+    const textQuery = (!isHashMode && selectedTags.length === 0) ? (query.trim() || undefined) : undefined;
+
     const infiniteQuery = useInfiniteQuery({
-        queryKey: ['papers', 'search', sortMode, query.trim(), tagIds],
+        queryKey: ['papers', 'search', sortMode, textQuery ?? '', tagIds],
         queryFn: ({ pageParam = 0 }) => {
             const hasTagFilter = tagIds.length > 0;
             if (sortMode === 'recommended' && !hasTagFilter) {
@@ -71,10 +79,11 @@ export function usePaperSearch() {
                 sort: backendSort,
                 limit: PAGE_SIZE,
                 offset: pageParam,
-                q: query.trim() || undefined,
+                q: textQuery,
                 tags: hasTagFilter ? tagIds : undefined,
             });
         },
+        enabled: tagFilterReady && !isHashMode,
         initialPageParam: 0,
         getNextPageParam: (lastPage, allPages) => {
             const totalFetched = allPages.reduce((sum, p) => sum + p.items.length, 0);
@@ -88,28 +97,46 @@ export function usePaperSearch() {
 
     const {
         data: papersData,
-        isLoading: papersLoading,
+        isLoading: queryLoading,
         hasNextPage,
         isFetchingNextPage,
         fetchNextPage,
     } = infiniteQuery;
+
+    const papersLoading = queryLoading || (selectedTags.length > 0 && !tagFilterReady);
 
     const rawItems = useMemo(
         () => papersData?.pages.flatMap(p => p.items) ?? [],
         [papersData?.pages]
     );
 
+    // 태그 검색 시: BE가 제목/키워드로 섞어 보낼 수 있으므로, 요청한 tagIds를 논문이 실제로 보유한 경우만 유지 (태그 ID 기준)
+    const filteredRawItems = useMemo(() => {
+        if (tagIds.length === 0) return rawItems;
+        return rawItems.filter(item => {
+            const paperTagIds = (item.paper as { tags?: number[] }).tags ?? [];
+            return tagIds.every(tid => paperTagIds.includes(tid));
+        });
+    }, [rawItems, tagIds]);
+
     const carouselPapers = useMemo(() => {
-        return rawItems.map(item => {
+        return filteredRawItems.map(item => {
             const paper = convertPaperOutToPaper(item.paper, tagIdToName);
             if ((item.paper as any).source) {
                 paper.venue = (item.paper as any).source;
             }
             return paper;
         });
-    }, [rawItems, tagIdToName]);
+    }, [filteredRawItems, tagIdToName]);
 
-    const totalCount = papersData?.pages[0]?.count ?? 0;
+    // # 입력 중에는 결과 비움. 그 외에는 carouselPapers 그대로 (이미 filteredRawItems로 태그 필터됨)
+    const displayedPapers = useMemo(() => {
+        if (isHashMode) return [];
+        return carouselPapers;
+    }, [carouselPapers, isHashMode]);
+
+    const beTotalCount = papersData?.pages[0]?.count ?? 0;
+    const totalCount = selectedTags.length > 0 ? displayedPapers.length : beTotalCount;
 
     const loadMoreRef = useInfiniteScroll({
         onLoadMore: () => fetchNextPage(),
@@ -128,9 +155,12 @@ export function usePaperSearch() {
     }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleTagClick = (tag: string) => {
-        const newSelectedTags = selectedTags.includes(tag)
-            ? selectedTags.filter(t => t !== tag)
-            : [...selectedTags, tag];
+        const isAdding = !selectedTags.includes(tag);
+        const newSelectedTags = isAdding
+            ? [...selectedTags, tag]
+            : selectedTags.filter(t => t !== tag);
+
+        if (isAdding) setQuery('');
 
         setSelectedTags(newSelectedTags);
         if (newSelectedTags.length === 0) {
@@ -161,7 +191,7 @@ export function usePaperSearch() {
         sortMode,
         setSortMode,
         papersLoading,
-        carouselPapers,
+        carouselPapers: displayedPapers,
         openCarousel,
         carouselOpen,
         setCarouselOpen,

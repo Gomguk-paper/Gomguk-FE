@@ -7,6 +7,7 @@ import { useStore } from "@/store/useStore";
 import { LoginModal } from "@/components/LoginModal";
 import { LegalModal } from "@/components/LegalModal";
 import { useTrendingTags } from "@/contexts/TrendingTagsContext";
+import { UI_CONSTANTS } from "@/core/config/constants";
 
 const TRENDING_VISIBLE = 5;
 
@@ -30,16 +31,13 @@ export function RightSidebar() {
         setLegalModalOpen(true);
     };
 
-    // Hide on login and onboarding pages
     if (location.pathname === "/login" || location.pathname === "/onboarding") {
         return null;
     }
 
-    const DUMMY_TAGS = ["인공지능", "머신러닝", "딥러닝", "자연어처리", "컴퓨터비전"];
-
     const visibleTags = isLoggedIn
         ? (showAllTrends ? tags : tags.slice(0, TRENDING_VISIBLE))
-        : DUMMY_TAGS;
+        : [...UI_CONSTANTS.SIDEBAR_PREVIEW_TAGS];
 
     const handleTrendOptions = (tag: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -51,7 +49,6 @@ export function RightSidebar() {
 
     return (
         <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
-            {/* Trends Section: flex-shrink-0으로 카드가 내용만큼 늘어나고, 길면 aside 전체 스크롤 */}
             <div className="bg-card rounded-xl border p-4 relative min-h-[500px] mt-10 flex-shrink-0">
                 <h2 className="font-display font-bold text-2xl mb-6 text-center text-foreground">Trending Topics</h2>
                 <div className={`flex flex-col divide-y transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
@@ -71,10 +68,9 @@ export function RightSidebar() {
                                 </span>
                             </div>
 
-                            {/* Right side balance */}
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 {!isLoggedIn && (
-                                    <span className="text-sm font-medium">1.2k papers</span>
+                                    <span className="text-sm font-medium">인기 태그</span>
                                 )}
                                 {isLoggedIn ? (
                                     <Button
@@ -102,10 +98,9 @@ export function RightSidebar() {
                     </Button>
                 )}
 
-                {/* Login Overlay - only visible when not logged in */}
-                {!isLoggedIn && (
+                {!isLoggedIn && !loginModalOpen && (
                     <div
-                        className="absolute inset-0 cursor-pointer rounded-xl flex items-center justify-center bg-background/30 backdrop-blur-sm"
+                        className="absolute inset-0 cursor-pointer rounded-xl flex items-center justify-center bg-background/30 backdrop-blur-sm z-0"
                         onClick={() => setLoginModalOpen(true)}
                         role="button"
                         aria-label="로그인하여 Trending Topics 보기"
@@ -126,7 +121,6 @@ export function RightSidebar() {
             </div>
 
 
-            {/* Footer */}
             <div className="px-4 text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 mt-8 flex-shrink-0">
                 <span
                     className="hover:underline cursor-pointer"
@@ -163,10 +157,7 @@ export function RightSidebar() {
                 </div>
             </div>
 
-            {/* Login Modal */}
             <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} showNotice={true} />
-
-            {/* Legal Modal */}
             <LegalModal open={legalModalOpen} onOpenChange={setLegalModalOpen} contentType={legalContentType} />
         </aside>
     );

@@ -1,4 +1,4 @@
-import { BarChart3, TrendingUp } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import {
     Card,
     CardContent,
@@ -11,19 +11,10 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    PieChart,
-    Pie,
-    Cell,
-} from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 
 interface StatsTabProps {
     readPapersCount: number;
-    weeklyStats: { week: string; count: number }[];
     tagDistribution: { tag: string; count: number }[];
 }
 
@@ -42,17 +33,7 @@ const COLORS = [
     "hsl(200, 75%, 55%)",
 ];
 
-const getBarColor = (index: number) => {
-    const colors = [
-        "hsl(220, 60%, 50%)",
-        "hsl(220, 60%, 55%)",
-        "hsl(220, 60%, 60%)",
-        "hsl(220, 60%, 65%)",
-    ];
-    return colors[index % colors.length];
-};
-
-export function StatsTab({ readPapersCount, weeklyStats, tagDistribution }: StatsTabProps) {
+export function StatsTab({ readPapersCount, tagDistribution }: StatsTabProps) {
     if (readPapersCount === 0) {
         return (
             <div className="text-center py-12 text-muted-foreground">
@@ -65,35 +46,6 @@ export function StatsTab({ readPapersCount, weeklyStats, tagDistribution }: Stat
 
     return (
         <div className="mt-4 space-y-4">
-            {/* 주별 읽기 통계 */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4" />
-                        주별 읽기 통계
-                    </CardTitle>
-                    <CardDescription>최근 4주간 읽은 논문 수</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartContainer config={chartConfig}>
-                        <BarChart data={weeklyStats}>
-                            <XAxis dataKey="week" />
-                            <YAxis />
-                            <ChartTooltip content={<ChartTooltipContent />} />
-                            <Bar dataKey="count" radius={4}>
-                                {weeklyStats.map((_, index) => (
-                                    <Cell
-                                        key={`cell-${index}`}
-                                        fill={getBarColor(index)}
-                                    />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ChartContainer>
-                </CardContent>
-            </Card>
-
-            {/* 태그별 읽기 분포 */}
             {tagDistribution.length > 0 && (
                 <Card>
                     <CardHeader>
@@ -126,7 +78,6 @@ export function StatsTab({ readPapersCount, weeklyStats, tagDistribution }: Stat
                 </Card>
             )}
 
-            {/* 읽기 습관 요약 */}
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base">읽기 습관 요약</CardTitle>

@@ -59,20 +59,28 @@ export function SummaryMetadata({ paper }: SummaryMetadataProps) {
                 </div>
             </div>
 
-            {/* Metrics - 트렌딩/최신도/추천 점수 (0 포함 표시) */}
+            {/* Metrics - BE가 값을 보내지 않으면 0 → 해당 배지 숨김 */}
+            {(paper.metrics.trendingScore > 0 || paper.metrics.recencyScore > 0 || paper.metrics.recommendScore > 0) && (
             <div className="flex items-center gap-2 flex-wrap">
+                {paper.metrics.trendingScore > 0 && (
                 <div className="px-2 py-1 bg-accent/10 text-accent text-xs rounded-full font-medium flex items-center gap-1">
                     <Award className="w-3 h-3" />
-                    트렌딩 {(paper.metrics.trendingScore ?? 0).toFixed(1)}
+                    트렌딩 {paper.metrics.trendingScore.toFixed(1)}
                 </div>
+                )}
+                {paper.metrics.recencyScore > 0 && (
                 <div className="px-2 py-1 bg-secondary text-muted-foreground text-xs rounded-full font-medium">
-                    최신도 {(paper.metrics.recencyScore ?? 0).toFixed(1)}
+                    최신도 {paper.metrics.recencyScore.toFixed(1)}
                 </div>
+                )}
+                {paper.metrics.recommendScore > 0 && (
                 <div className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium flex items-center gap-1">
                     <Star className="w-3 h-3" />
-                    추천 {(paper.metrics.recommendScore ?? 0).toFixed(1)}
+                    추천 {paper.metrics.recommendScore.toFixed(1)}
                 </div>
+                )}
             </div>
+            )}
         </div>
     );
 }

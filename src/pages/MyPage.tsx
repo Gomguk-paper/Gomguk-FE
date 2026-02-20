@@ -31,12 +31,10 @@ export default function MyPage() {
     likedPapers,
     savedPapers,
     readPapers,
-    readPapersWithDate, // Now returned from hook
     papersLoading,
-    allPapers, // We might need to expose this from the hook or derive it
   } = useMyPageData();
 
-  const { weeklyStats, tagDistribution } = usePaperStats(readPapersWithDate);
+  const { tagDistribution } = usePaperStats(readPapers);
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -130,19 +128,14 @@ export default function MyPage() {
 
           <TabsContent value="history">
             <HistoryTab
-              readPapersWithDate={readPapersWithDate}
-              onOpenSummary={(paper) => {
-                // Creating a list of papers from readPapersWithDate for the carousel
-                const historyPapers = readPapersWithDate.map(item => item.paper);
-                handleOpenSummary(paper, historyPapers);
-              }}
+              readPapers={readPapers}
+              onOpenSummary={(paper) => handleOpenSummary(paper, readPapers)}
             />
           </TabsContent>
 
           <TabsContent value="stats">
             <StatsTab
               readPapersCount={readPapers.length}
-              weeklyStats={weeklyStats}
               tagDistribution={tagDistribution}
             />
           </TabsContent>

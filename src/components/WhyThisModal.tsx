@@ -8,6 +8,7 @@ import type { Paper } from "@/models";
 import { useStore } from "@/store/useStore";
 import { TagChip } from "./TagChip";
 import { TrendingUp, Clock, Star } from "lucide-react";
+import { UI_CONSTANTS } from "@/core/config/constants";
 
 interface WhyThisModalProps {
   paper: Paper;
@@ -17,11 +18,8 @@ interface WhyThisModalProps {
 
 export function WhyThisModal({ paper, open, onOpenChange }: WhyThisModalProps) {
   const { prefs } = useStore();
-  
-  // Calculate why this paper was recommended (mock logic)
   const reasons: { icon: React.ReactNode; text: string }[] = [];
-  
-  // Check tag matches
+
   if (prefs?.tags) {
     const matchedTags = paper.tags.filter(t => 
       prefs.tags.some(pt => pt.name.toLowerCase() === t.toLowerCase())
@@ -39,24 +37,20 @@ export function WhyThisModal({ paper, open, onOpenChange }: WhyThisModalProps) {
       }
     }
   }
-  
-  // Trending
-  if (paper.metrics.trendingScore >= 90) {
+
+  const { TRENDING_SCORE_MIN, RECENCY_SCORE_MIN } = UI_CONSTANTS.RECOMMEND;
+  if (paper.metrics.trendingScore >= TRENDING_SCORE_MIN) {
     reasons.push({
       icon: <TrendingUp className="w-4 h-4 text-trending" />,
       text: "이번 주 급상승 논문이에요 🔥"
     });
   }
-  
-  // Recency
-  if (paper.metrics.recencyScore >= 80) {
+  if (paper.metrics.recencyScore >= RECENCY_SCORE_MIN) {
     reasons.push({
       icon: <Clock className="w-4 h-4 text-accent" />,
       text: "최근에 발표된 따끈따끈한 연구예요"
     });
   }
-  
-  // Default if no specific reasons
   if (reasons.length === 0) {
     reasons.push({
       icon: <Star className="w-4 h-4 text-muted-foreground" />,

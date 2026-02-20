@@ -1,4 +1,4 @@
-import { Search as SearchIcon, SlidersHorizontal } from "lucide-react";
+import { Search as SearchIcon, SlidersHorizontal, Hash } from "lucide-react";
 import {
     Select,
     SelectContent,
@@ -18,6 +18,8 @@ interface SearchHeaderProps {
     setSortMode: (mode: SortMode) => void;
     selectedTags: string[];
     handleTagClick: (tag: string) => void;
+    allTags: string[];
+    isTrendingTag: (tag: string) => boolean;
     showMenuTrigger?: boolean;
 }
 
@@ -29,12 +31,32 @@ export function SearchHeader({
     setSortMode,
     selectedTags,
     handleTagClick,
+    allTags,
+    isTrendingTag,
     showMenuTrigger = false,
 }: SearchHeaderProps) {
+    const isHashMode = query.startsWith('#');
+    const hashQuery = isHashMode ? query.slice(1).trim().toLowerCase() : '';
+    const tagSuggestions = isHashMode
+        ? allTags
+            .filter(t => !selectedTags.includes(t) && t.toLowerCase().includes(hashQuery))
+            .slice(0, 10)
+        : [];
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            handleSearch(query);
+            if (isHashMode && tagSuggestions.length > 0) {
+                handleTagClick(tagSuggestions[0]);
+                setQuery('');
+            } else if (!isHashMode) {
+                handleSearch(query);
+            }
         }
+    };
+
+    const handleTagSuggestionClick = (tag: string) => {
+        handleTagClick(tag);
+        setQuery('');
     };
 
     return (
@@ -43,10 +65,14 @@ export function SearchHeader({
             <div className="flex items-center gap-2">
                 {showMenuTrigger && <HamburgerMenu />}
                 <div className="relative flex-1">
-                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    {isHashMode ? (
+                        <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
+                    ) : (
+                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    )}
                     <input
                         type="text"
-                        placeholder="논문 제목, 키워드로 검색..."
+                        placeholder="논문 제목, 키워드 또는 #태그 검색..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -54,6 +80,32 @@ export function SearchHeader({
                     />
                 </div>
             </div>
+
+            {/* # 태그 검색: 관련 태그 제안 */}
+            {isHashMode && (
+                <div className="space-y-2 px-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Hash className="w-3 h-3" />
+                        관련 태그
+                    </p>
+                    {tagSuggestions.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                            {tagSuggestions.map(tag => (
+                                <TagChip
+                                    key={tag}
+                                    tag={tag}
+                                    trending={isTrendingTag(tag)}
+                                    onClick={() => handleTagSuggestionClick(tag)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-xs text-muted-foreground">
+                            &apos;{query.slice(1)}&apos;에 해당하는 태그가 없습니다
+                        </p>
+                    )}
+                </div>
+            )}
 
             {/* Sort & Filter */}
             <div className="flex items-center gap-2">

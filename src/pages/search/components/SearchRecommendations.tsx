@@ -10,6 +10,7 @@ interface SearchRecommendationsProps {
     isTrendingTag: (tag: string) => boolean;
     selectedTags: string[];
     handleTagClick: (tag: string) => void;
+    setQuery?: (q: string) => void;
 }
 
 export function SearchRecommendations({
@@ -20,7 +21,13 @@ export function SearchRecommendations({
     isTrendingTag,
     selectedTags,
     handleTagClick,
+    setQuery,
 }: SearchRecommendationsProps) {
+    const onTagClick = (tag: string) => {
+        handleTagClick(tag);
+        setQuery?.('');
+    };
+
     return (
         <div className="space-y-6">
             {/* Search History */}
@@ -78,7 +85,7 @@ export function SearchRecommendations({
                             tag={tag}
                             selected={selectedTags.includes(tag)}
                             trending={isTrendingTag(tag)}
-                            onClick={() => handleTagClick(tag)}
+                            onClick={() => onTagClick(tag)}
                         />
                     ))}
                 </div>

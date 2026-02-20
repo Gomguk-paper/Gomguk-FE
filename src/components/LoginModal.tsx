@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LoginForm } from "./LoginForm";
@@ -136,15 +137,14 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
 
   if (!open && !isAnimating) return null;
 
-  return (
+  const modalContent = (
     <div
-      className={cn("fixed inset-0 z-[100]", open ? "block" : "pointer-events-none")}
+      className={cn("fixed inset-0 z-[200]", open ? "block" : "pointer-events-none")}
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-modal-title"
       aria-describedby="login-modal-description"
     >
-      {/* Overlay */}
       <div
         className={cn(
           "fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300",
@@ -155,21 +155,18 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
         aria-hidden="true"
       />
 
-      {/* Modal Panel */}
       <div
         ref={modalRef}
         className={cn(
-          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[100]",
+          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[200]",
           "bg-background border rounded-lg shadow-2xl",
           "max-w-sm w-[90%] sm:w-full",
           "p-6",
-          // prefers-reduced-motion 지원
           "motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:scale-100",
           open ? "animate-back-in-down" : "opacity-0 scale-95"
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -179,7 +176,6 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
           <span className="sr-only">Close</span>
         </button>
 
-        {/* Content */}
         <div id="login-modal-description" className="sr-only">
           로그인 모달입니다. Google 또는 Kakao 계정으로 로그인할 수 있습니다.
         </div>
@@ -190,4 +186,6 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
