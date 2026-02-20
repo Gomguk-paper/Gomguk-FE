@@ -91,7 +91,10 @@ function AppRoutes() {
 
         const isNewUser = getIsNewUserFromLocation(location.search, location.hash);
         const storedPrefs = getStoredPrefs();
-        if (isNewUser === "true" || !storedPrefs) {
+        // 기존 사용자(is_new_user=false)는 prefs가 로컬에 없어도 온보딩으로 보내지 않음 (다른 기기/localStorage 삭제 대응)
+        if (isNewUser === "false") {
+          navigate(ROUTES.HOME, { replace: true });
+        } else if (isNewUser === "true" || !storedPrefs) {
           navigate(ROUTES.ONBOARDING, { replace: true });
         } else {
           navigate(ROUTES.HOME, { replace: true });
