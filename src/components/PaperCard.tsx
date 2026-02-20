@@ -278,7 +278,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           </div>
 
           {/* 태그 아래: 논문 실제 제목 (좋아요/북마크 위), 없으면 "논문제목이 없습니다" */}
-          <div className="flex gap-3 mb-auto items-start">
+          <div className="flex gap-3 mb-3 md:mb-auto items-start">
             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
               <Lightbulb className="w-3.5 h-3.5 text-primary" />
             </div>
@@ -293,8 +293,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
-            {/* Primary Actions (좋아요/저장/읽음) */}
+          <div className="flex flex-wrap items-center gap-2 pt-1.5 border-t md:border-t-0 md:pt-0 mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}
             <div className="flex items-center gap-1 flex-1 justify-end -mr-2">
               <Tooltip>

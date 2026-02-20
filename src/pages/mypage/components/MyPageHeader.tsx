@@ -55,16 +55,23 @@ export function MyPageHeader({ user, prefs, likedCount, savedCount, readCount }:
                 <div className="min-w-0 flex-1">
                     <h2 className="font-semibold text-base truncate">{user?.name || ""}</h2>
                     {prefs && (
-                        <p className="text-sm text-muted-foreground">
-                            관심 분야 {prefs.tags.length}개 •{" "}
-                            {prefs.level === "undergraduate"
-                                ? "학부생"
-                                : prefs.level === "graduate"
-                                    ? "대학원생"
-                                    : prefs.level === "researcher"
-                                        ? "연구자"
-                                        : "실무자"}
-                        </p>
+                        <>
+                            <p className="text-sm text-muted-foreground">
+                                관심 분야 {prefs.tags.length}개 •{" "}
+                                {prefs.level === "undergraduate"
+                                    ? "학부생"
+                                    : prefs.level === "graduate"
+                                        ? "대학원생"
+                                        : prefs.level === "researcher"
+                                            ? "연구자"
+                                            : "실무자"}
+                            </p>
+                            {prefs.tags.length > 0 && (
+                                <p className="text-sm text-muted-foreground mt-0.5">
+                                    {prefs.tags.map((t) => t.name).join(", ")}
+                                </p>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
