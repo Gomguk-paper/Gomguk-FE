@@ -26,9 +26,9 @@ export function TagChip({ tag, selected, interest, trending, onClick, size = "md
         size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
         "bg-secondary text-secondary-foreground border-border",
         isInterest &&
-          "bg-[hsl(var(--tag-interest)/0.15)] text-[hsl(var(--tag-interest))] border-[hsl(var(--tag-interest)/0.5)]",
+        "bg-[hsl(var(--tag-interest)/0.15)] text-[hsl(var(--tag-interest))] border-[hsl(var(--tag-interest)/0.5)]",
         isTrendingOnly &&
-          "bg-[hsl(var(--tag-trending)/0.15)] text-[hsl(var(--tag-trending))] border-[hsl(var(--tag-trending)/0.5)]",
+        "bg-[hsl(var(--tag-trending)/0.15)] text-[hsl(var(--tag-trending))] border-[hsl(var(--tag-trending)/0.5)]",
         selected && "ring-2 ring-primary ring-offset-1",
         onClick ? "hover:scale-105 cursor-pointer" : "cursor-default"
       )}

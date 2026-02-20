@@ -206,7 +206,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                   {hookText || paper.title || "논문제목이 없습니다"}
                 </ReactMarkdown>
               </h3>
-              <div className="text-xs text-muted-foreground mb-2">
+              <div className="text-xs text-secondary-foreground/80 mb-2">
                 {paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && " et al."}
                 <span className="mx-1.5">·</span>
                 {paper.year}
@@ -282,7 +282,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
               <Lightbulb className="w-3.5 h-3.5 text-primary" />
             </div>
-            <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none line-clamp-2 [&_p]:m-0">
+            <div className="text-sm text-secondary-foreground/75 leading-relaxed prose prose-sm max-w-none line-clamp-2 [&_p]:m-0">
               <ReactMarkdown
                 remarkPlugins={[remarkMath, remarkGfm]}
                 rehypePlugins={[rehypeKatex]}
@@ -296,7 +296,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
           <div className="flex flex-wrap items-center gap-2 pt-3 border-t md:border-t-0 md:pt-0 mt-auto">
             {/* Primary Actions (좋아요/저장/읽음) */}
             {/* Primary Actions (좋아요/저장/읽음) */}
-            <div className="flex items-center gap-1 flex-1 justify-end -mr-2">
+            <div className="flex items-center gap-1 flex-1 justify-end mr-1 pr-0.5 pb-0.5">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button

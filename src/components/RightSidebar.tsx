@@ -60,13 +60,13 @@ export function RightSidebar() {
                             key={tag}
                             role="button"
                             onClick={() => navigate(`/search?tag=${encodeURIComponent(tag)}`)}
-                            className="flex items-center justify-between group cursor-pointer py-6"
+                            className="flex items-center justify-between group cursor-pointer py-3"
                         >
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 min-w-0">
                                 <span className={`flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm leading-none pt-0.5 ${!isLoggedIn ? 'w-10 h-10 text-lg' : ''}`}>
                                     {index + 1}
                                 </span>
-                                <span className={`font-bold text-[hsl(var(--tag-trending))] group-hover:opacity-80 transition-colors leading-none pt-0.5 ${!isLoggedIn ? 'text-xl' : ''}`}>
+                                <span className={`font-bold text-[hsl(var(--tag-trending))] group-hover:opacity-80 transition-colors leading-normal truncate min-w-0 ${!isLoggedIn ? 'text-xl' : ''}`}>
                                     #{tag}
                                 </span>
                             </div>
