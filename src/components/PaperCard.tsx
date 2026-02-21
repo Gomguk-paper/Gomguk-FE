@@ -64,8 +64,8 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
   const { data: summaryFromApi } = useSummaryQuery(paper.id);
   const { isTrendingTag } = useTrendingTags();
   const action = getAction(paper.id);
-  const isLiked = action?.liked || false;
-  const isSaved = action?.saved || false;
+  const isLiked = action?.liked !== undefined ? action.liked : (paper.isLiked || false);
+  const isSaved = action?.saved !== undefined ? action.saved : (paper.isSaved || false);
   /** 맨 위 텍스트: BE hook 연동 (API → paper.summary) */
   const hookText = summaryFromApi?.hook ?? paper.summary?.hook ?? "";
   const canUseActions = Boolean(user);
@@ -308,7 +308,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleActionClick(() => toggleLike(paper.id));
+                      handleActionClick(() => toggleLike(paper.id, isLiked));
                     }}
                   >
                     <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
@@ -331,7 +331,7 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleActionClick(() => toggleSave(paper.id));
+                      handleActionClick(() => toggleSave(paper.id, isSaved));
                     }}
                   >
                     <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />

@@ -55,6 +55,8 @@ export const convertPaperOutToPaper = (paperOut: PaperOut, tagMap: Record<number
             recommendScore: ((paperOut.recommend_score ?? 0) as number) * 100,
             citations: Number((raw.citation_count as number) ?? 0),
         },
+        isLiked: paperOut.is_liked,
+        isSaved: paperOut.is_scrapped,
         summary: { hook: summary.hook, points: summary.points, detailed: summary.detailed },
     };
 };
