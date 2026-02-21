@@ -78,7 +78,7 @@ export default function MyPage() {
       {/* Mobile Header */}
       <header className="bg-card border-b mobile-safe-area-pt md:hidden">
         <div className="p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr flex items-start gap-1">
-          <HamburgerMenu className="-ml-2 mt-4" />
+          <HamburgerMenu className="ml-2 mt-4" />
           <div className="flex-1">
             {renderMyPageHeader()}
           </div>
@@ -93,19 +93,19 @@ export default function MyPage() {
         <Tabs defaultValue="saved" className="p-4">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="saved" className="gap-1.5">
-              <Bookmark className="w-4 h-4" />
+              <Bookmark className="w-4 h-4 max-[400px]:hidden shrink-0" />
               저장
             </TabsTrigger>
             <TabsTrigger value="liked" className="gap-1.5">
-              <Heart className="w-4 h-4" />
+              <Heart className="w-4 h-4 max-[400px]:hidden shrink-0" />
               좋아요
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-1.5">
-              <History className="w-4 h-4" />
+              <History className="w-4 h-4 max-[400px]:hidden shrink-0" />
               히스토리
             </TabsTrigger>
             <TabsTrigger value="stats" className="gap-1.5">
-              <BarChart3 className="w-4 h-4" />
+              <BarChart3 className="w-4 h-4 max-[400px]:hidden shrink-0" />
               통계
             </TabsTrigger>
           </TabsList>

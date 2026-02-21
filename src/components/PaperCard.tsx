@@ -301,7 +301,11 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn("h-8 w-8 text-muted-foreground hover:text-liked hover:bg-red-50", isLiked && "text-liked hover:text-liked bg-red-50")}
+                    className={cn(
+                      "h-8 w-8 text-muted-foreground transition-colors",
+                      "hover:text-liked hover:bg-red-50 active:bg-red-100",
+                      isLiked && "text-liked hover:text-liked"
+                    )}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleActionClick(() => toggleLike(paper.id));
@@ -320,7 +324,11 @@ export function PaperCard({ paper, onOpenSummary }: PaperCardProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn("h-8 w-8 text-muted-foreground hover:text-saved hover:bg-blue-50", isSaved && "text-saved hover:text-saved bg-blue-50")}
+                    className={cn(
+                      "h-8 w-8 text-muted-foreground transition-colors",
+                      "hover:text-saved hover:bg-blue-50 active:bg-blue-100",
+                      isSaved && "text-saved hover:text-saved"
+                    )}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleActionClick(() => toggleSave(paper.id));
