@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -11,8 +12,9 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { clearStoredUser, type UserPrefs, type StoredUser } from "@/lib/authStorage";
+import { clearStoredUser, clearStoredPrefs, type UserPrefs, type StoredUser } from "@/lib/authStorage";
 import { authApi } from "@/api/auth";
+import { meApi } from "@/api/me";
 
 interface AccountSectionProps {
     setUser: (user: StoredUser | null) => void;
@@ -21,7 +23,10 @@ interface AccountSectionProps {
 
 export function AccountSection({ setUser, setPrefs }: AccountSectionProps) {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     const handleLogout = async () => {
         try {
@@ -35,17 +40,34 @@ export function AccountSection({ setUser, setPrefs }: AccountSectionProps) {
         }
     };
 
-    const handleDeleteAccount = () => {
-        // Clear all user data
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        setDeleteError(null);
+        try {
+            await meApi.withdraw();
+        } catch (err: unknown) {
+            const status = (err as { response?: { status?: number } })?.response?.status;
+            if (status !== 401) {
+                setIsDeleting(false);
+                setDeleteError("탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+                return;
+            }
+        }
+
+        try {
+            await authApi.logout();
+        } catch {
+            // 쿠키 삭제 실패는 무시
+        }
+
         clearStoredUser();
+        clearStoredPrefs();
         setUser(null);
         setPrefs(null);
-
-        // Clear localStorage and sessionStorage
+        queryClient.clear();
         localStorage.clear();
         sessionStorage.clear();
 
-        // Redirect to login
         navigate("/login");
     };
 
@@ -79,7 +101,15 @@ export function AccountSection({ setUser, setPrefs }: AccountSectionProps) {
             </Card>
 
             {/* 계정 삭제 Dialog */}
-            <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <Dialog
+                open={showDeleteDialog}
+                onOpenChange={(open) => {
+                    if (!isDeleting) {
+                        setShowDeleteDialog(open);
+                        if (!open) setDeleteError(null);
+                    }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="text-destructive">계정 삭제</DialogTitle>
@@ -97,19 +127,36 @@ export function AccountSection({ setUser, setPrefs }: AccountSectionProps) {
                                 <li>이 작업은 되돌릴 수 없습니다</li>
                             </ul>
                         </div>
+                        {deleteError && (
+                            <p className="text-sm text-destructive text-center">{deleteError}</p>
+                        )}
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setShowDeleteDialog(false);
+                                setDeleteError(null);
+                            }}
+                            disabled={isDeleting}
+                        >
                             취소
                         </Button>
                         <Button
                             variant="destructive"
-                            onClick={() => {
-                                handleDeleteAccount();
-                                setShowDeleteDialog(false);
-                            }}
+                            onClick={handleDeleteAccount}
+                            disabled={isDeleting}
                         >
-                            계정 삭제
+                            {isDeleting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    삭제 중...
+                                </>
+                            ) : deleteError ? (
+                                "다시 시도"
+                            ) : (
+                                "계정 삭제"
+                            )}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

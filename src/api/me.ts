@@ -35,4 +35,9 @@ export const meApi = {
     setOnboardingTags: async (tagPreferences: Record<string, number>): Promise<void> => {
         await apiClient.put('/me/onboarding-tags', { tag_preferences: tagPreferences });
     },
+
+    // 계정 탈퇴 (DELETE /me/)
+    withdraw: async (): Promise<void> => {
+        await apiClient.delete('/me/');
+    },
 };
