@@ -29,6 +29,7 @@ export default function MyPage() {
   const {
     user,
     prefs,
+    allPapers,
     likedPapers,
     savedPapers,
     readPapers,
@@ -66,20 +67,36 @@ export default function MyPage() {
   })();
 
   const realtimeLikedPapers = useMemo(() => {
-    return likedPapers.filter(paper => {
+    const filtered = likedPapers.filter(paper => {
       const action = userActions.find((a: any) => a.paperId === paper.id);
       if (action && action.liked === false) return false;
       return true;
     });
-  }, [likedPapers, userActions]);
+
+    const baseIds = new Set(likedPapers.map(p => p.id));
+    const newlyLiked = userActions
+      .filter((a: any) => a.liked === true && !baseIds.has(a.paperId))
+      .map((a: any) => allPapers.find(p => p.id === a.paperId))
+      .filter(Boolean);
+
+    return [...newlyLiked, ...filtered];
+  }, [likedPapers, userActions, allPapers]);
 
   const realtimeSavedPapers = useMemo(() => {
-    return savedPapers.filter(paper => {
+    const filtered = savedPapers.filter(paper => {
       const action = userActions.find((a: any) => a.paperId === paper.id);
       if (action && action.saved === false) return false;
       return true;
     });
-  }, [savedPapers, userActions]);
+
+    const baseIds = new Set(savedPapers.map(p => p.id));
+    const newlySaved = userActions
+      .filter((a: any) => a.saved === true && !baseIds.has(a.paperId))
+      .map((a: any) => allPapers.find(p => p.id === a.paperId))
+      .filter(Boolean);
+
+    return [...newlySaved, ...filtered];
+  }, [savedPapers, userActions, allPapers]);
 
   const { tagDistribution, hourlyDistribution, dailyDistribution } = usePaperStats(readPapers);
 
