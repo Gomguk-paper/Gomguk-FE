@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { clearStoredUser } from "@/lib/authStorage";
 import { useStore } from "@/store/useStore";
 import { authApi } from "@/api/auth";
+import { TagChip } from "@/components/TagChip";
 
 interface MyPageHeaderProps {
     user: any;
@@ -67,9 +68,11 @@ export function MyPageHeader({ user, prefs, likedCount, savedCount, readCount }:
                                             : "실무자"}
                             </p>
                             {prefs.tags.length > 0 && (
-                                <p className="text-sm text-muted-foreground mt-0.5">
-                                    {prefs.tags.map((t) => t.name).join(", ")}
-                                </p>
+                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                    {prefs.tags.map((t: any) => (
+                                        <TagChip key={t.name} tag={t.name} size="sm" interest={true} />
+                                    ))}
+                                </div>
                             )}
                         </>
                     )}
