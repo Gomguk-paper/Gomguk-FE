@@ -22,6 +22,8 @@ export interface Paper {
     recommendScore: number;
     citations: number;
   };
+  isLiked?: boolean;
+  isSaved?: boolean;
   /** PaperOut에 포함된 한국어 요약 (카드/캐러셀 표시용) */
   summary?: PaperSummaryEmbed;
 }

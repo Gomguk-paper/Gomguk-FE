@@ -10,7 +10,10 @@ import { useStore } from "@/store/useStore";
 import { useState } from "react";
 import { LoginModal } from "@/components/LoginModal";
 
+import { Paper } from "@/models";
+
 interface SummaryContentProps {
+    paper: Paper;
     summary: {
         paperId: string;
         hookOneLiner: string;
@@ -22,13 +25,13 @@ interface SummaryContentProps {
     isLoading?: boolean;
 }
 
-export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryContentProps) {
+export function SummaryContent({ paper, summary, pdfUrl, isLoading = false }: SummaryContentProps) {
     const { getAction, toggleLike, toggleSave, user } = useStore();
     const [showLoginModal, setShowLoginModal] = useState(false);
 
     const action = getAction(summary.paperId);
-    const isLiked = action?.liked || false;
-    const isSaved = action?.saved || false;
+    const isLiked = action?.liked !== undefined ? action.liked : (paper.isLiked || false);
+    const isSaved = action?.saved !== undefined ? action.saved : (paper.isSaved || false);
 
     const handleActionClick = (actionFn: () => void) => {
         if (!user) {
@@ -131,7 +134,7 @@ export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryCo
                         )}
                         onClick={(e) => {
                             e.stopPropagation();
-                            handleActionClick(() => toggleLike(summary.paperId));
+                            handleActionClick(() => toggleLike(summary.paperId, isLiked));
                         }}
                     >
                         <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
@@ -146,7 +149,7 @@ export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryCo
                         )}
                         onClick={(e) => {
                             e.stopPropagation();
-                            handleActionClick(() => toggleSave(summary.paperId));
+                            handleActionClick(() => toggleSave(summary.paperId, isSaved));
                         }}
                     >
                         <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />

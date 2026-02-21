@@ -189,7 +189,7 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
           {/* New Sub-components */}
           <SummaryMetadata paper={paper} />
 
-          <SummaryContent summary={summary} pdfUrl={paper.pdfUrl} isLoading={isLoading} />
+          <SummaryContent paper={paper} summary={summary} pdfUrl={paper.pdfUrl} isLoading={isLoading} />
 
           {/* Navigation hint */}
           <p className="text-xs text-muted-foreground text-center mt-4">

@@ -32,8 +32,8 @@ interface GomgukStore {
 
   // Actions (likes, saves, reads)
   actionsByUser: Record<string, UserAction[]>;
-  toggleLike: (paperId: string) => void;
-  toggleSave: (paperId: string) => void;
+  toggleLike: (paperId: string, currentState?: boolean) => void;
+  toggleSave: (paperId: string, currentState?: boolean) => void;
   markAsRead: (paperId: string) => void;
   getAction: (paperId: string) => UserAction | undefined;
 
@@ -118,7 +118,7 @@ export const useStore = create<GomgukStore>()(
         };
       }),
 
-      toggleLike: (paperId) => {
+      toggleLike: (paperId, currentState?: boolean) => {
         const state = get();
         const userKey = getUserActionKey(state.user);
         if (!userKey) return;
@@ -127,11 +127,12 @@ export const useStore = create<GomgukStore>()(
         set((state) => {
           const currentActions = state.actionsByUser[userKey] ?? [];
           const existing = currentActions.find(a => a.paperId === paperId);
+          const isCurrentlyActive = currentState !== undefined ? currentState : (existing?.liked ?? false);
 
           // API Call (Fire and forget)
           const paperIdNum = parseInt(paperId, 10);
           if (!isNaN(paperIdNum)) {
-            if (existing && existing.liked) {
+            if (isCurrentlyActive) {
               papersApi.unlikePaper(paperIdNum).catch(console.error);
             } else {
               papersApi.likePaper(paperIdNum).catch(console.error);
@@ -143,7 +144,7 @@ export const useStore = create<GomgukStore>()(
               actionsByUser: {
                 ...state.actionsByUser,
                 [userKey]: currentActions.map(a =>
-                  a.paperId === paperId ? { ...a, liked: !a.liked } : a
+                  a.paperId === paperId ? { ...a, liked: !isCurrentlyActive } : a
                 ),
               },
             };
@@ -151,12 +152,12 @@ export const useStore = create<GomgukStore>()(
           return {
             actionsByUser: {
               ...state.actionsByUser,
-              [userKey]: [...currentActions, { paperId, liked: true, saved: false }],
+              [userKey]: [...currentActions, { paperId, liked: !isCurrentlyActive, saved: false }],
             },
           };
         });
       },
-      toggleSave: (paperId) => {
+      toggleSave: (paperId, currentState?: boolean) => {
         const state = get();
         const userKey = getUserActionKey(state.user);
         if (!userKey) return;
@@ -164,11 +165,12 @@ export const useStore = create<GomgukStore>()(
         set((state) => {
           const currentActions = state.actionsByUser[userKey] ?? [];
           const existing = currentActions.find(a => a.paperId === paperId);
+          const isCurrentlyActive = currentState !== undefined ? currentState : (existing?.saved ?? false);
 
           // API Call
           const paperIdNum = parseInt(paperId, 10);
           if (!isNaN(paperIdNum)) {
-            if (existing && existing.saved) {
+            if (isCurrentlyActive) {
               papersApi.unscrapPaper(paperIdNum).catch(console.error);
             } else {
               papersApi.scrapPaper(paperIdNum).catch(console.error);
@@ -180,7 +182,7 @@ export const useStore = create<GomgukStore>()(
               actionsByUser: {
                 ...state.actionsByUser,
                 [userKey]: currentActions.map(a =>
-                  a.paperId === paperId ? { ...a, saved: !a.saved } : a
+                  a.paperId === paperId ? { ...a, saved: !isCurrentlyActive } : a
                 ),
               },
             };
@@ -188,7 +190,7 @@ export const useStore = create<GomgukStore>()(
           return {
             actionsByUser: {
               ...state.actionsByUser,
-              [userKey]: [...currentActions, { paperId, liked: false, saved: true }],
+              [userKey]: [...currentActions, { paperId, liked: false, saved: !isCurrentlyActive }],
             },
           };
         });
