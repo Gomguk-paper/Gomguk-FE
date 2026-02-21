@@ -68,7 +68,7 @@ export function LoginForm({
     if (provider === "google") {
       // 전체 페이지·모달 공통: OAuth 후 항상 /login으로 돌아와 콜백 처리
       const redirectUri = `${window.location.origin}${ROUTES.LOGIN}`;
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+      const backendUrl = (import.meta.env.VITE_BACKEND_URL || window.location.origin).replace(/\/$/, "");
       const loginUrl = `${backendUrl}/api/oauth/google/login?redirect_uri=${encodeURIComponent(redirectUri)}&remember=${rememberMe}`;
       window.location.href = loginUrl;
       return;

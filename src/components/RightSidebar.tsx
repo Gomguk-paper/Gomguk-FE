@@ -48,7 +48,8 @@ export function RightSidebar() {
     };
 
     return (
-        <aside className="hidden xl:flex flex-col w-[350px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
+        <aside className="hidden xl:flex flex-col w-[280px] min-h-screen p-4 gap-4 border-l sticky top-0 h-screen overflow-y-auto scrollbar-hide">
+            {/* Trends Section: flex-shrink-0으로 카드가 내용만큼 늘어나고, 길면 aside 전체 스크롤 */}
             <div className="bg-card rounded-xl border p-4 relative min-h-[500px] mt-10 flex-shrink-0">
                 <h2 className="font-display font-bold text-2xl mb-6 text-center text-foreground">Trending Topics</h2>
                 <div className={`flex flex-col divide-y transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
@@ -57,13 +58,13 @@ export function RightSidebar() {
                             key={tag}
                             role="button"
                             onClick={() => navigate(`/search?tag=${encodeURIComponent(tag)}`)}
-                            className="flex items-center justify-between group cursor-pointer py-6"
+                            className="flex items-center justify-between group cursor-pointer py-3"
                         >
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 min-w-0">
                                 <span className={`flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm leading-none pt-0.5 ${!isLoggedIn ? 'w-10 h-10 text-lg' : ''}`}>
                                     {index + 1}
                                 </span>
-                                <span className={`font-bold text-[hsl(var(--tag-trending))] group-hover:opacity-80 transition-colors leading-none pt-0.5 ${!isLoggedIn ? 'text-xl' : ''}`}>
+                                <span className={`font-bold text-[hsl(var(--tag-trending))] group-hover:opacity-80 transition-colors leading-normal truncate min-w-0 ${!isLoggedIn ? 'text-xl' : ''}`}>
                                     #{tag}
                                 </span>
                             </div>
