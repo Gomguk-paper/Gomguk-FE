@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Heart,
   Bookmark,
@@ -13,6 +13,7 @@ import { HamburgerMenu } from "@/components/HamburgerMenu";
 // Hooks
 import { useMyPageData } from "@/pages/mypage/hooks/useMyPageData";
 import { usePaperStats } from "@/pages/mypage/hooks/usePaperStats";
+import { useStore } from "@/store/useStore";
 
 // Components
 import { MyPageHeader } from "@/pages/mypage/components/MyPageHeader";
@@ -33,6 +34,52 @@ export default function MyPage() {
     readPapers,
     papersLoading,
   } = useMyPageData();
+
+  const { actionsByUser } = useStore();
+  const userActions = user ? (actionsByUser[user.id] || []) : [];
+
+  // Compute real-time counts by factoring in local optimistic updates
+  const realtimeLikedCount = (() => {
+    let count = likedPapers.length;
+    const baseIds = new Set(likedPapers.map(p => p.id));
+    userActions.forEach((action: any) => {
+      if (action.liked && !baseIds.has(action.paperId)) {
+        count++; // Locally liked but not yet in backend list
+      } else if (action.liked === false && baseIds.has(action.paperId)) {
+        count--; // Locally unliked but still in backend list
+      }
+    });
+    return Math.max(0, count);
+  })();
+
+  const realtimeSavedCount = (() => {
+    let count = savedPapers.length;
+    const baseIds = new Set(savedPapers.map(p => p.id));
+    userActions.forEach((action: any) => {
+      if (action.saved && !baseIds.has(action.paperId)) {
+        count++;
+      } else if (action.saved === false && baseIds.has(action.paperId)) {
+        count--;
+      }
+    });
+    return Math.max(0, count);
+  })();
+
+  const realtimeLikedPapers = useMemo(() => {
+    return likedPapers.filter(paper => {
+      const action = userActions.find((a: any) => a.paperId === paper.id);
+      if (action && action.liked === false) return false;
+      return true;
+    });
+  }, [likedPapers, userActions]);
+
+  const realtimeSavedPapers = useMemo(() => {
+    return savedPapers.filter(paper => {
+      const action = userActions.find((a: any) => a.paperId === paper.id);
+      if (action && action.saved === false) return false;
+      return true;
+    });
+  }, [savedPapers, userActions]);
 
   const { tagDistribution, hourlyDistribution, dailyDistribution } = usePaperStats(readPapers);
 
@@ -67,8 +114,8 @@ export default function MyPage() {
     <MyPageHeader
       user={user}
       prefs={prefs}
-      likedCount={likedPapers.length}
-      savedCount={savedPapers.length}
+      likedCount={realtimeLikedCount}
+      savedCount={realtimeSavedCount}
       readCount={readPapers.length}
     />
   );
@@ -112,17 +159,17 @@ export default function MyPage() {
 
           <TabsContent value="saved">
             <SavedPapersTab
-              papers={savedPapers}
+              papers={realtimeSavedPapers}
               loading={papersLoading}
-              onOpenSummary={(paper) => handleOpenSummary(paper, savedPapers)}
+              onOpenSummary={(paper) => handleOpenSummary(paper, realtimeSavedPapers)}
             />
           </TabsContent>
 
           <TabsContent value="liked">
             <LikedPapersTab
-              papers={likedPapers}
+              papers={realtimeLikedPapers}
               loading={papersLoading}
-              onOpenSummary={(paper) => handleOpenSummary(paper, likedPapers)}
+              onOpenSummary={(paper) => handleOpenSummary(paper, realtimeLikedPapers)}
             />
           </TabsContent>
 
