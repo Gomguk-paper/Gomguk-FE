@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
@@ -47,6 +47,8 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
   const isMobileMode = layoutMode === "mobile";
   const isDesktopMode = layoutMode === "desktop";
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   // Body scroll lock
   useEffect(() => {
     if (open) {
@@ -66,6 +68,13 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       markAsRead(papers[currentPaperIndex].id);
     }
   }, [open, currentPaperIndex, papers, markAsRead]);
+
+  // Reset scroll position when paper changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [currentPaperIndex]);
 
   if (!open) return null;
 
@@ -94,16 +103,16 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
 
   const summary = apiSummary
     ? {
-        paperId: paper.id,
-        hookOneLiner: apiSummary.hook ?? "",
-        keyPoints: normalizePoints(
-          apiSummary.points ??
-          (apiSummary as unknown as Record<string, unknown>).key_points ??
-          (apiSummary as unknown as Record<string, unknown>).keyPoints
-        ),
-        detailed: apiSummary.detailed ?? "",
-        evidenceScope: "full" as const,
-      }
+      paperId: paper.id,
+      hookOneLiner: apiSummary.hook ?? "",
+      keyPoints: normalizePoints(
+        apiSummary.points ??
+        (apiSummary as unknown as Record<string, unknown>).key_points ??
+        (apiSummary as unknown as Record<string, unknown>).keyPoints
+      ),
+      detailed: apiSummary.detailed ?? "",
+      evidenceScope: "full" as const,
+    }
     : fallbackSummary;
 
   return (
@@ -130,7 +139,10 @@ export function SummaryCarousel({ papers, initialIndex = 0, open, onClose }: Sum
       </div>
 
       {/* Content */}
-      <div className="absolute inset-0 overflow-y-auto scrollbar-hide">
+      <div
+        ref={scrollContainerRef}
+        className="absolute inset-0 overflow-y-auto scrollbar-hide"
+      >
         <div
           className="min-h-full flex flex-col justify-center px-6 pt-24 pb-36 max-w-lg mx-auto"
           onClick={goNextStep}
