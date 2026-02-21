@@ -3,9 +3,16 @@ import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Heart, Bookmark } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useStore } from "@/store/useStore";
+import { useState } from "react";
+import { LoginModal } from "@/components/LoginModal";
 
 interface SummaryContentProps {
     summary: {
+        paperId: string;
         hookOneLiner: string;
         keyPoints: string[];
         detailed: string;
@@ -16,6 +23,20 @@ interface SummaryContentProps {
 }
 
 export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryContentProps) {
+    const { getAction, toggleLike, toggleSave, user } = useStore();
+    const [showLoginModal, setShowLoginModal] = useState(false);
+
+    const action = getAction(summary.paperId);
+    const isLiked = action?.liked || false;
+    const isSaved = action?.saved || false;
+
+    const handleActionClick = (actionFn: () => void) => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+        actionFn();
+    };
     if (isLoading) {
         return (
             <div className="space-y-8 animate-pulse">
@@ -98,6 +119,40 @@ export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryCo
                         </li>
                     ))}
                 </ul>
+
+                {/* 좋아요 / 저장 버튼 */}
+                <div className="flex items-center gap-2 mt-6 justify-end border-t pt-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                            "gap-2 text-muted-foreground transition-colors hover:text-liked hover:bg-red-50 active:bg-red-100",
+                            isLiked && "text-liked hover:text-liked"
+                        )}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleActionClick(() => toggleLike(summary.paperId));
+                        }}
+                    >
+                        <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
+                        좋아요
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                            "gap-2 text-muted-foreground transition-colors hover:text-saved hover:bg-blue-50 active:bg-blue-100",
+                            isSaved && "text-saved hover:text-saved"
+                        )}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleActionClick(() => toggleSave(summary.paperId));
+                        }}
+                    >
+                        <Bookmark className={cn("w-4 h-4", isSaved && "fill-current")} />
+                        저장
+                    </Button>
+                </div>
             </div>
 
             {/* 정리: BE detailed */}
@@ -127,6 +182,8 @@ export function SummaryContent({ summary, pdfUrl, isLoading = false }: SummaryCo
                     </div>
                 )}
             </div>
+
+            <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} showNotice={true} />
         </div>
     );
 }
