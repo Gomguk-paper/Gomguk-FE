@@ -80,7 +80,7 @@ export default function MyPage() {
       {/* Mobile Header */}
       <header className="bg-card border-b mobile-safe-area-pt md:hidden">
         <div className="p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto mobile-safe-area-pl mobile-safe-area-pr flex items-start gap-1">
-          <HamburgerMenu className="-ml-2 mt-4" />
+          <HamburgerMenu className="ml-2 mt-4" />
           <div className="flex-1">
             {renderMyPageHeader()}
           </div>
