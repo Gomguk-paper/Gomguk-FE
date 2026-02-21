@@ -95,12 +95,12 @@ export function AccountSection({ setUser, setPrefs }: AccountSectionProps) {
                         onClick={() => setShowDeleteDialog(true)}
                     >
                         <User className="w-4 h-4 mr-2" />
-                        계정 삭제
+                        계정 탈퇴
                     </Button>
                 </CardContent>
             </Card>
 
-            {/* 계정 삭제 Dialog */}
+            {/* 계정 탈퇴 Dialog */}
             <Dialog
                 open={showDeleteDialog}
                 onOpenChange={(open) => {
@@ -112,9 +112,9 @@ export function AccountSection({ setUser, setPrefs }: AccountSectionProps) {
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="text-destructive">계정 삭제</DialogTitle>
+                        <DialogTitle className="text-destructive">계정 탈퇴</DialogTitle>
                         <DialogDescription>
-                            정말로 계정을 삭제하시겠습니까?
+                            정말로 계정을 탈퇴하시겠습니까?
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3 py-4">
@@ -155,7 +155,7 @@ export function AccountSection({ setUser, setPrefs }: AccountSectionProps) {
                             ) : deleteError ? (
                                 "다시 시도"
                             ) : (
-                                "계정 삭제"
+                                "계정 탈퇴"
                             )}
                         </Button>
                     </DialogFooter>

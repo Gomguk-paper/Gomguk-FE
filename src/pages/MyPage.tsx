@@ -34,7 +34,7 @@ export default function MyPage() {
     papersLoading,
   } = useMyPageData();
 
-  const { tagDistribution } = usePaperStats(readPapers);
+  const { tagDistribution, hourlyDistribution, dailyDistribution } = usePaperStats(readPapers);
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -137,6 +137,8 @@ export default function MyPage() {
             <StatsTab
               readPapersCount={readPapers.length}
               tagDistribution={tagDistribution}
+              hourlyDistribution={hourlyDistribution}
+              dailyDistribution={dailyDistribution}
             />
           </TabsContent>
         </Tabs>
