@@ -21,15 +21,6 @@ export interface StoreNotification {
 
 export type Theme = 'light' | 'dark' | 'system';
 
-interface Notification {
-  id: string;
-  type: string;
-  paperId: string;
-  title: string;
-  message: string;
-  createdAt: string;
-}
-
 interface GomgukStore {
   // User
   user: StoredUser | null;
@@ -45,11 +36,6 @@ interface GomgukStore {
   toggleSave: (paperId: string) => void;
   markAsRead: (paperId: string) => void;
   getAction: (paperId: string) => UserAction | undefined;
-
-  // Notifications
-  notifications: StoreNotification[];
-  addNotification: (notification: StoreNotification) => void;
-  getNotifications: () => StoreNotification[];
 
   // Filtering
   hiddenPapers: Record<string, boolean>;
@@ -76,9 +62,9 @@ interface GomgukStore {
   setMobileMenuOpen: (open: boolean) => void;
 
   // Notifications
-  notifications: Notification[];
-  addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => void;
-  getNotifications: () => Notification[];
+  notifications: StoreNotification[];
+  addNotification: (notification: Omit<StoreNotification, 'createdAt'>) => void;
+  getNotifications: () => StoreNotification[];
 }
 
 const getUserActionKey = (user: StoredUser | null) => {
@@ -101,13 +87,6 @@ export const useStore = create<GomgukStore>()(
 
       // Actions
       actionsByUser: {},
-
-      // Notifications
-      notifications: [],
-      addNotification: (notification) => set((state) => ({
-        notifications: [...state.notifications, { ...notification, createdAt: new Date().toISOString() }]
-      })),
-      getNotifications: () => get().notifications,
 
       // Filtering
       hiddenPapers: {},
@@ -277,9 +256,8 @@ export const useStore = create<GomgukStore>()(
           ...state.notifications,
           {
             ...notification,
-            id: `${notification.paperId}-${notification.type}`,
             createdAt: new Date().toISOString(),
-          },
+          } as StoreNotification,
         ],
       })),
       getNotifications: () => get().notifications,
