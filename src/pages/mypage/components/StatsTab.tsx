@@ -104,24 +104,64 @@ export function StatsTab({ readPapersCount, weeklyStats, tagDistribution }: Stat
                         <CardDescription>가장 많이 읽은 태그 Top 5</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ChartContainer config={chartConfig}>
-                            <PieChart>
-                                <Pie
-                                    data={tagDistribution}
-                                    dataKey="count"
-                                    nameKey="tag"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={80}
-                                    label={({ tag, count }) => `${tag}: ${count}`}
-                                >
-                                    {tagDistribution.map((_, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <ChartTooltip content={<ChartTooltipContent />} />
-                            </PieChart>
-                        </ChartContainer>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                            <div className="w-[200px] h-[200px]">
+                                <ChartContainer config={chartConfig} className="w-full h-full aspect-square">
+                                    <PieChart>
+                                        <Pie
+                                            data={tagDistribution}
+                                            dataKey="count"
+                                            nameKey="tag"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={90}
+                                            labelLine={false}
+                                            label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
+                                                const RADIAN = Math.PI / 180;
+                                                const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                                                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                                return (
+                                                    <text
+                                                        x={x}
+                                                        y={y}
+                                                        fill="white"
+                                                        textAnchor="middle"
+                                                        dominantBaseline="central"
+                                                        className="text-xs font-bold"
+                                                    >
+                                                        {value}
+                                                    </text>
+                                                );
+                                            }}
+                                        >
+                                            {tagDistribution.map((_, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                                    </PieChart>
+                                </ChartContainer>
+                            </div>
+                            <div className="flex flex-col gap-2 min-w-[120px]">
+                                {tagDistribution.map((item, index) => (
+                                    <div key={item.tag} className="flex items-center gap-2 text-sm justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div
+                                                className="w-3 h-3 rounded-sm flex-shrink-0"
+                                                style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                                            />
+                                            <span className="font-medium truncate max-w-[120px]" title={item.tag}>
+                                                {item.tag}
+                                            </span>
+                                        </div>
+                                        <span className="text-muted-foreground font-semibold">
+                                            {item.count}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             )}
