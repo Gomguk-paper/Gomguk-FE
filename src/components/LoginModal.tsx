@@ -161,6 +161,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
           "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[200]",
           "bg-background border rounded-lg shadow-2xl",
           "max-w-sm w-[90%] sm:w-full",
+          "max-h-[90vh] overflow-y-auto",
           "p-6",
           "motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:scale-100",
           open ? "animate-back-in-down" : "opacity-0 scale-95"
@@ -177,7 +178,7 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
         </button>
 
         <div id="login-modal-description" className="sr-only">
-          로그인 모달입니다. Google 또는 Kakao 계정으로 로그인할 수 있습니다.
+          로그인 모달입니다. Google 또는 GitHub 계정으로 로그인할 수 있습니다.
         </div>
         <h2 id="login-modal-title" className="sr-only">
           로그인

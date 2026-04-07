@@ -2,11 +2,13 @@ import { useEffect } from "react";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { usePaperSearch } from "@/hooks/usePaperSearch";
+import { useStore } from "@/store/useStore";
 import { SearchHeader } from "@/pages/search/components/SearchHeader";
 import { SearchRecommendations } from "@/pages/search/components/SearchRecommendations";
 import { SearchResults } from "@/pages/search/components/SearchResults";
 
 export default function SearchPage() {
+  const { user } = useStore();
   const {
     query,
     setQuery,
@@ -29,7 +31,10 @@ export default function SearchPage() {
     totalCount,
     loadMoreRef,
     isFetchingNextPage,
+    isError,
   } = usePaperSearch();
+
+  const isAuthError = isError && !user;
 
   // Always scroll to top for search page (disable restoration)
   useScrollRestoration('search', false);
@@ -97,6 +102,7 @@ export default function SearchPage() {
           title={query || selectedTags.length > 0 ? "검색 결과" : "전체 논문"}
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
+          isAuthError={isAuthError}
         />
       </div>
 

@@ -98,6 +98,8 @@ export function usePaperSearch() {
     const {
         data: papersData,
         isLoading: queryLoading,
+        isError,
+        error,
         hasNextPage,
         isFetchingNextPage,
         fetchNextPage,
@@ -207,5 +209,7 @@ export function usePaperSearch() {
         loadMoreRef,
         hasNextPage: hasNextPage ?? false,
         isFetchingNextPage,
+        isError,
+        error,
     };
 }

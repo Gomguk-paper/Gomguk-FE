@@ -11,6 +11,7 @@ interface SearchResultsProps {
     title: string;
     loadMoreRef?: RefObject<HTMLDivElement | null>;
     isFetchingNextPage?: boolean;
+    isAuthError?: boolean;
 }
 
 export function SearchResults({
@@ -21,6 +22,7 @@ export function SearchResults({
     title,
     loadMoreRef,
     isFetchingNextPage,
+    isAuthError,
 }: SearchResultsProps) {
     return (
         <section className="p-4">
@@ -36,6 +38,11 @@ export function SearchResults({
                     {Array.from({ length: 5 }).map((_, i) => (
                         <PaperCardSkeleton key={i} />
                     ))}
+                </div>
+            ) : isAuthError ? (
+                <div className="text-center py-12 text-muted-foreground">
+                    <p>로그인 후 검색 결과를 확인할 수 있습니다</p>
+                    <p className="text-sm mt-1">Google 또는 GitHub 계정으로 로그인해주세요</p>
                 </div>
             ) : papers.length > 0 ? (
                 <>
