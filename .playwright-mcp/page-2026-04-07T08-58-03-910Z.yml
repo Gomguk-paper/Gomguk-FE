@@ -1,0 +1,48 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - main [ref=e49]:
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - button "메뉴 열기" [ref=e54] [cursor=pointer]:
+            - img
+          - generic [ref=e55]:
+            - img [ref=e56]
+            - 'textbox "논문 제목, 키워드 또는 #태그 검색..." [ref=e59]'
+        - combobox [ref=e61] [cursor=pointer]:
+          - img [ref=e62]
+          - generic: 🔥 트렌딩
+          - img [ref=e63]
+      - generic [ref=e65]:
+        - generic [ref=e67]:
+          - heading "인기 태그" [level=2] [ref=e68]
+          - generic [ref=e69]:
+            - generic [ref=e71] [cursor=pointer]: "#ComputerVision"
+            - generic [ref=e73] [cursor=pointer]: "#NLP"
+            - generic [ref=e75] [cursor=pointer]: "#LLM"
+            - generic [ref=e77] [cursor=pointer]: "#CNN"
+            - generic [ref=e79] [cursor=pointer]: "#Transformer"
+            - generic [ref=e81] [cursor=pointer]: "#MachineLearning"
+            - generic [ref=e83] [cursor=pointer]: "#ObjectDetection"
+            - generic [ref=e85] [cursor=pointer]: "#Reasoning"
+            - generic [ref=e87] [cursor=pointer]: "#DeepLearning"
+            - generic [ref=e89] [cursor=pointer]: "#ImageClassification"
+        - generic [ref=e91]:
+          - heading "전체 논문" [level=2] [ref=e92]
+          - generic [ref=e93]: ...
+    - navigation [ref=e32]:
+      - generic [ref=e33]:
+        - link "홈" [ref=e34] [cursor=pointer]:
+          - /url: /
+          - img [ref=e35]
+          - generic [ref=e38]: 홈
+        - link "검색" [active] [ref=e39] [cursor=pointer]:
+          - /url: /search
+          - img [ref=e40]
+          - generic [ref=e43]: 검색
+        - link "마이" [ref=e44] [cursor=pointer]:
+          - /url: /mypage
+          - img [ref=e45]
+          - generic [ref=e48]: 마이

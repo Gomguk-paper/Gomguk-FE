@@ -1,0 +1,28 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img "곰국" [ref=e9]
+        - heading "곰국" [level=1] [ref=e10]
+        - paragraph [ref=e11]: 논문을 피드처럼 소비하다
+      - generic [ref=e12]:
+        - button "Google로 시작하기" [ref=e13] [cursor=pointer]:
+          - img [ref=e14]
+          - text: Google로 시작하기
+        - button "GitHub로 시작하기" [ref=e15] [cursor=pointer]:
+          - img [ref=e16]
+          - text: GitHub로 시작하기
+      - generic [ref=e17]:
+        - checkbox "로그인 상태 유지" [checked] [ref=e18] [cursor=pointer]:
+          - generic:
+            - img
+        - generic [ref=e19] [cursor=pointer]: 로그인 상태 유지
+      - generic [ref=e20]:
+        - link "개인정보처리방침" [disabled]:
+          - /url: "#"
+        - link "이용약관" [disabled]:
+          - /url: "#"
+      - paragraph [ref=e21]: 프로토타입 버전 • 실제 로그인 없이 체험

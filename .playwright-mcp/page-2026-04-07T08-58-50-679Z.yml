@@ -1,0 +1,59 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - generic [ref=e4]:
+      - main [ref=e5]:
+        - generic [ref=e8] [cursor=pointer]:
+          - button "메뉴 열기" [ref=e9]:
+            - img
+          - img "곰국" [ref=e11]
+          - generic [ref=e12]: 곰국
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - img [ref=e17]
+            - heading "맞춤 논문 피드" [level=2] [ref=e19]
+          - generic [ref=e23]:
+            - img [ref=e25]
+            - heading "로그인이 필요합니다" [level=3] [ref=e28]
+            - paragraph [ref=e29]: 맞춤 논문 피드를 보려면 로그인을 해야합니다
+            - button "로그인하기" [ref=e30] [cursor=pointer]
+      - navigation [ref=e32]:
+        - generic [ref=e33]:
+          - link "홈" [ref=e34] [cursor=pointer]:
+            - /url: /
+            - img [ref=e35]
+            - generic [ref=e38]: 홈
+          - link "검색" [ref=e39] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e40]
+            - generic [ref=e43]: 검색
+          - link "마이" [ref=e44] [cursor=pointer]:
+            - /url: /mypage
+            - img [ref=e45]
+            - generic [ref=e48]: 마이
+  - dialog "로그인" [ref=e49]:
+    - generic [ref=e51]:
+      - button "로그인 모달 닫기" [ref=e52] [cursor=pointer]:
+        - img [ref=e53]
+        - generic [ref=e56]: Close
+      - generic [ref=e57]: 로그인 모달입니다. Google 또는 Kakao 계정으로 로그인할 수 있습니다.
+      - heading "로그인" [level=2] [ref=e58]
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - img "곰국" [ref=e62]
+          - heading "곰국" [level=1] [ref=e63]
+          - paragraph [ref=e64]: 논문을 피드처럼 소비하다
+        - generic [ref=e65]:
+          - button "Google로 시작하기" [active] [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+            - text: Google로 시작하기
+          - button "GitHub로 시작하기" [ref=e68] [cursor=pointer]:
+            - img [ref=e69]
+            - text: GitHub로 시작하기
+        - generic [ref=e70]:
+          - checkbox "로그인 상태 유지" [checked] [ref=e71] [cursor=pointer]:
+            - generic:
+              - img
+          - generic [ref=e72] [cursor=pointer]: 로그인 상태 유지

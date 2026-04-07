@@ -1,0 +1,142 @@
+- generic:
+  - generic:
+    - list
+    - region "Notifications alt+T"
+    - generic:
+      - complementary:
+        - generic:
+          - generic:
+            - link:
+              - /url: /
+              - generic:
+                - img
+              - generic: 곰국
+          - navigation:
+            - link:
+              - /url: /
+              - img
+              - generic: 홈
+            - link:
+              - /url: /search
+              - img
+              - generic: 검색
+            - link:
+              - /url: /mypage
+              - img
+              - generic: 마이페이지
+            - link:
+              - /url: /settings
+              - img
+              - generic: 설정
+          - generic:
+            - link:
+              - /url: /login
+              - img
+              - generic: 로그인
+      - generic:
+        - main:
+          - generic:
+            - generic:
+              - heading [level=1]: 분야별 논문 검색
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                    - textbox:
+                      - /placeholder: "논문 제목, 키워드 또는 #태그 검색..."
+                - generic:
+                  - combobox [expanded]:
+                    - img
+                    - generic: 🔥 트렌딩
+                    - img
+            - generic:
+              - generic:
+                - heading [level=2]: 인기 태그
+                - generic:
+                  - generic:
+                    - generic: "#ComputerVision"
+                  - generic:
+                    - generic: "#NLP"
+                  - generic:
+                    - generic: "#LLM"
+                  - generic:
+                    - generic: "#CNN"
+                  - generic:
+                    - generic: "#Transformer"
+                  - generic:
+                    - generic: "#MachineLearning"
+                  - generic:
+                    - generic: "#ObjectDetection"
+                  - generic:
+                    - generic: "#Reasoning"
+                  - generic:
+                    - generic: "#DeepLearning"
+                  - generic:
+                    - generic: "#ImageClassification"
+            - generic:
+              - generic:
+                - heading [level=2]: 전체 논문
+                - generic: 0개
+              - generic:
+                - paragraph: 검색 결과가 없습니다
+                - paragraph: 다른 키워드로 시도해보세요
+      - complementary:
+        - generic:
+          - heading [level=2]: Trending Topics
+          - generic:
+            - button:
+              - generic:
+                - generic: "1"
+                - generic: "#인공지능"
+              - generic:
+                - generic: 인기 태그
+                - img
+            - button:
+              - generic:
+                - generic: "2"
+                - generic: "#머신러닝"
+              - generic:
+                - generic: 인기 태그
+                - img
+            - button:
+              - generic:
+                - generic: "3"
+                - generic: "#딥러닝"
+              - generic:
+                - generic: 인기 태그
+                - img
+            - button:
+              - generic:
+                - generic: "4"
+                - generic: "#자연어처리"
+              - generic:
+                - generic: 인기 태그
+                - img
+            - button:
+              - generic:
+                - generic: "5"
+                - generic: "#컴퓨터비전"
+              - generic:
+                - generic: 인기 태그
+                - img
+          - button:
+            - generic:
+              - generic:
+                - img
+              - paragraph: 로그인이 필요합니다
+              - paragraph: 현재 인기있는 주제를 보려면 로그인을 해야합니다
+        - generic:
+          - generic: 이용약관
+          - generic: 개인정보처리방침
+          - generic: 쿠키 정책
+          - generic: 접근성
+          - generic: 광고 정보
+          - generic: © 2026 Gomguk Corp.
+  - listbox [ref=e222]:
+    - option "🔥 트렌딩" [active] [selected] [ref=e223]:
+      - img [ref=e226]
+      - generic [ref=e228]: 🔥 트렌딩
+    - option "🕐 최신순" [ref=e229]:
+      - generic [ref=e231]: 🕐 최신순
+    - option "⭐ 추천순" [ref=e232]:
+      - generic [ref=e234]: ⭐ 추천순

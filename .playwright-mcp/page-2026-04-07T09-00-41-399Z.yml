@@ -1,0 +1,115 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - link "곰국 곰국" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "곰국" [ref=e9]
+          - generic [ref=e10]: 곰국
+        - navigation [ref=e11]:
+          - link "홈" [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+            - generic [ref=e16]: 홈
+          - link "검색" [ref=e17] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e18]
+            - generic [ref=e21]: 검색
+          - link "마이페이지" [ref=e22] [cursor=pointer]:
+            - /url: /mypage
+            - img [ref=e23]
+            - generic [ref=e26]: 마이페이지
+          - link "설정" [ref=e27] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e28]
+            - generic [ref=e31]: 설정
+        - link "로그인" [ref=e33] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e34]
+          - generic [ref=e37]: 로그인
+    - main [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - heading "분야별 논문 검색" [level=1] [ref=e42]
+          - generic [ref=e43]:
+            - generic [ref=e45]:
+              - img [ref=e46]
+              - 'textbox "논문 제목, 키워드 또는 #태그 검색..." [ref=e49]'
+            - generic [ref=e50]:
+              - combobox [ref=e51] [cursor=pointer]:
+                - img [ref=e52]
+                - generic: 🔥 트렌딩
+                - img [ref=e53]
+              - generic [ref=e224] [cursor=pointer]: "#NLP"
+        - generic [ref=e56]:
+          - heading "인기 태그" [level=2] [ref=e57]
+          - generic [ref=e201]:
+            - generic [ref=e203] [cursor=pointer]: "#ComputerVision"
+            - generic [ref=e205] [cursor=pointer]: "#NLP"
+            - generic [ref=e207] [cursor=pointer]: "#LLM"
+            - generic [ref=e209] [cursor=pointer]: "#CNN"
+            - generic [ref=e211] [cursor=pointer]: "#Transformer"
+            - generic [ref=e213] [cursor=pointer]: "#MachineLearning"
+            - generic [ref=e215] [cursor=pointer]: "#ObjectDetection"
+            - generic [ref=e217] [cursor=pointer]: "#Reasoning"
+            - generic [ref=e219] [cursor=pointer]: "#DeepLearning"
+            - generic [ref=e221] [cursor=pointer]: "#ImageClassification"
+        - generic [ref=e59]:
+          - heading "검색 결과" [level=2] [ref=e225]
+          - generic [ref=e61]: ...
+    - complementary [ref=e183]:
+      - generic [ref=e184]:
+        - heading "Trending Topics" [level=2] [ref=e185]
+        - generic:
+          - 'button "1 #인공지능 인기 태그"':
+            - generic:
+              - generic: "1"
+              - generic: "#인공지능"
+            - generic:
+              - generic: 인기 태그
+              - img
+          - 'button "2 #머신러닝 인기 태그"':
+            - generic:
+              - generic: "2"
+              - generic: "#머신러닝"
+            - generic:
+              - generic: 인기 태그
+              - img
+          - 'button "3 #딥러닝 인기 태그"':
+            - generic:
+              - generic: "3"
+              - generic: "#딥러닝"
+            - generic:
+              - generic: 인기 태그
+              - img
+          - 'button "4 #자연어처리 인기 태그"':
+            - generic:
+              - generic: "4"
+              - generic: "#자연어처리"
+            - generic:
+              - generic: 인기 태그
+              - img
+          - 'button "5 #컴퓨터비전 인기 태그"':
+            - generic:
+              - generic: "5"
+              - generic: "#컴퓨터비전"
+            - generic:
+              - generic: 인기 태그
+              - img
+        - button "로그인하여 Trending Topics 보기" [ref=e186] [cursor=pointer]:
+          - generic [ref=e187]:
+            - img [ref=e189]
+            - paragraph [ref=e192]: 로그인이 필요합니다
+            - paragraph [ref=e193]:
+              - text: 현재 인기있는 주제를 보려면
+              - text: 로그인을 해야합니다
+      - generic [ref=e194]:
+        - generic [ref=e195] [cursor=pointer]: 이용약관
+        - generic [ref=e196] [cursor=pointer]: 개인정보처리방침
+        - generic [ref=e197] [cursor=pointer]: 쿠키 정책
+        - generic [ref=e198] [cursor=pointer]: 접근성
+        - generic [ref=e199] [cursor=pointer]: 광고 정보
+        - generic [ref=e200]: © 2026 Gomguk Corp.
