@@ -1,6 +1,6 @@
 ---
 name: qa-visual-tester
-description: Run visual QA testing against a web app using Playwright MCP. Use this skill whenever the user wants to QA test a website or web app, verify UI requirements, create a QA checklist, run automated visual checks, test a deployed URL, validate a feature visually, or check for UI bugs. Triggers on phrases like "QA 해줘", "테스트해줘", "QA 시트 작성", "playwright로 테스트", "화면 확인해줘", "qa-visual-tester", or any request to visually validate web UI behavior against requirements.
+description: Run visual QA testing against a web app using Playwright MCP. Use this skill whenever the user wants to QA test a website or web app, verify UI requirements, create a QA checklist, run automated visual checks, test a deployed URL, validate a feature visually, check for UI bugs, or test across multiple viewport sizes (tablet, mobile, desktop). Triggers on phrases like "QA 해줘", "테스트해줘", "QA 시트 작성", "playwright로 테스트", "화면 확인해줘", "태블릿 테스트", "뷰포트", "qa-visual-tester", or any request to visually validate web UI behavior across devices or screen sizes.
 ---
 
 # QA Visual Tester
@@ -160,6 +160,83 @@ These are the tools available via Microsoft Playwright MCP:
 | `browser_resize` | Resize viewport (useful for mobile testing) |
 
 **Mobile viewport test**: Use `browser_resize` with `width: 390, height: 844` to simulate iPhone 14.
+
+### Tablet Viewport Reference
+
+| Label | Width | Height | Device |
+|-------|-------|--------|--------|
+| `768x1024` | 768 | 1024 | iPad Mini |
+| `820x1180` | 820 | 1180 | iPad Air |
+| `834x1194` | 834 | 1194 | iPad Pro 11" |
+| `1024x1366` | 1024 | 1366 | iPad Pro 12.9" |
+| `800x1280` | 800 | 1280 | Samsung Galaxy Tab S8 |
+
+---
+
+## Multi-Viewport Testing Mode
+
+When the user asks to test across **multiple viewports or tablet sizes**, follow this loop instead of the standard single-viewport flow.
+
+### Setup
+
+Ask the user (or infer from context):
+1. Which viewport sizes to test — use the table above or accept custom dimensions
+2. Whether to run ALL test cases per viewport, or a subset (e.g., layout-only cases)
+
+### Per-Viewport Loop
+
+For each viewport in the list:
+
+1. **Resize** — `browser_resize` to `{width, height}`
+2. **Announce** — output: `## Testing viewport: {label} ({width}x{height})`
+3. **Run all test cases** — follow the standard Phase 3 execution loop
+4. **Save results** to `./qa-results/{label}/TC-XX/` (e.g., `qa-results/768x1024-iPad-Mini/TC-01/`)
+
+```
+qa-results/
+  768x1024-iPad-Mini/
+    TC-01/
+      screenshot-initial.png
+      screenshot-result.png
+      result.md
+    TC-02/
+      ...
+  820x1180-iPad-Air/
+    TC-01/
+      ...
+  QA_REPORT.md          ← cross-viewport summary
+```
+
+### Cross-Viewport QA Report
+
+After all viewports are tested, create `./qa-results/QA_REPORT.md` with a viewport comparison section:
+
+```markdown
+# QA Report — Multi-Viewport
+
+**App**: [URL]
+**Date**: [ISO date]
+**Viewports Tested**: [list]
+
+## Summary by Viewport
+
+| Viewport | Total | Pass | Fail | Blocked |
+|----------|-------|------|------|---------|
+| 768x1024 (iPad Mini) | X | X | X | X |
+| 820x1180 (iPad Air)  | X | X | X | X |
+
+## Cross-Viewport Issues
+
+List test cases that FAIL on some viewports but PASS on others — these are layout regressions.
+
+| TC | Title | Fails On | Passes On |
+|----|-------|----------|-----------|
+| TC-02 | Nav menu overflow | 768x1024 | 1024x1366 |
+
+## Per-Viewport Details
+
+[Link or inline results for each viewport]
+```
 
 ---
 

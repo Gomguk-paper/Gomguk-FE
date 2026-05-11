@@ -1,0 +1,554 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - link "곰국 곰국" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "곰국" [ref=e9]
+          - generic [ref=e10]: 곰국
+        - navigation [ref=e11]:
+          - link "홈" [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+            - generic [ref=e16]: 홈
+          - link "검색" [ref=e17] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e18]
+            - generic [ref=e21]: 검색
+          - link "마이페이지" [ref=e22] [cursor=pointer]:
+            - /url: /mypage
+            - img [ref=e23]
+            - generic [ref=e26]: 마이페이지
+          - link "설정" [ref=e27] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e28]
+            - generic [ref=e31]: 설정
+        - link "g g_1180656827 google Account" [ref=e33] [cursor=pointer]:
+          - /url: /mypage
+          - generic [ref=e34]:
+            - generic [ref=e35]: g
+            - generic [ref=e36]:
+              - generic [ref=e37]: g_1180656827
+              - generic [ref=e38]: google Account
+          - button "로그아웃" [ref=e39]:
+            - img [ref=e40]
+    - main [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - heading "분야별 논문 검색" [level=1] [ref=e47]
+          - generic [ref=e48]:
+            - generic [ref=e50]:
+              - img [ref=e51]
+              - 'textbox "논문 제목, 키워드 또는 #태그 검색..." [active] [ref=e54]': transformer
+            - combobox [ref=e56] [cursor=pointer]:
+              - img [ref=e57]
+              - generic: 🔥 트렌딩
+              - img [ref=e58]
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - heading "검색 결과" [level=2] [ref=e790]
+            - generic [ref=e66]: 185개
+          - generic [ref=e791]:
+            - article [ref=e792] [cursor=pointer]:
+              - 'img "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale figure" [ref=e795]'
+              - generic [ref=e796]:
+                - generic [ref=e797]:
+                  - generic [ref=e798]:
+                    - 'heading "CNN의 시대는 끝났습니다: ''이미지는 단어다''라는 선언 하나로 비전 AI의 판도를 바꾼 논문." [level=3] [ref=e799]':
+                      - paragraph [ref=e800]: "CNN의 시대는 끝났습니다: '이미지는 단어다'라는 선언 하나로 비전 AI의 판도를 바꾼 논문."
+                    - generic [ref=e801]: Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov et al.·2020
+                  - generic [ref=e802]:
+                    - button [ref=e803]:
+                      - img
+                    - button [ref=e804]:
+                      - img
+                - generic [ref=e805]:
+                  - generic [ref=e807]: "#ComputerVision"
+                  - generic [ref=e809]: "#Transformer"
+                  - generic [ref=e811]: "#ViT"
+                - generic [ref=e812]:
+                  - img [ref=e814]
+                  - paragraph [ref=e817]: "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale"
+                - generic [ref=e819]:
+                  - button [ref=e820]:
+                    - img
+                  - button [ref=e821]:
+                    - img
+            - article [ref=e822] [cursor=pointer]:
+              - img "GPT-4 Technical Report figure" [ref=e825]
+              - generic [ref=e826]:
+                - generic [ref=e827]:
+                  - generic [ref=e828]:
+                    - heading "상위 10% 변호사 시험 합격, 이제 AI는 당신의 논리력을 앞지르기 시작했습니다." [level=3] [ref=e829]:
+                      - paragraph [ref=e830]: 상위 10% 변호사 시험 합격, 이제 AI는 당신의 논리력을 앞지르기 시작했습니다.
+                    - generic [ref=e831]: OpenAI, Josh Achiam, Steven Adler et al.·2023
+                  - generic [ref=e832]:
+                    - button [ref=e833]:
+                      - img
+                    - button [ref=e834]:
+                      - img
+                - generic [ref=e835]:
+                  - generic [ref=e837]: "#ComputerVision"
+                  - generic [ref=e839]: "#NLP"
+                  - generic [ref=e841]: "#LLM"
+                - generic [ref=e842]:
+                  - img [ref=e844]
+                  - paragraph [ref=e847]: GPT-4 Technical Report
+                - generic [ref=e849]:
+                  - button [ref=e850]:
+                    - img
+                  - button [ref=e851]:
+                    - img
+            - article [ref=e852] [cursor=pointer]:
+              - img "Attention Is All You Need figure" [ref=e855]
+              - generic [ref=e856]:
+                - generic [ref=e857]:
+                  - generic [ref=e858]:
+                    - heading "RNN과 CNN은 이제 끝났습니다. 오직 'Attention' 하나면 충분합니다." [level=3] [ref=e859]:
+                      - paragraph [ref=e860]: RNN과 CNN은 이제 끝났습니다. 오직 'Attention' 하나면 충분합니다.
+                    - generic [ref=e861]: Ashish Vaswani, Noam Shazeer, Niki Parmar et al.·2017
+                  - generic [ref=e862]:
+                    - button [ref=e863]:
+                      - img
+                    - button [ref=e864]:
+                      - img
+                - generic [ref=e865]:
+                  - generic [ref=e867]: "#NLP"
+                  - generic [ref=e869]: "#Transformer"
+                  - generic [ref=e871]: "#DeepLearning"
+                - generic [ref=e872]:
+                  - img [ref=e874]
+                  - paragraph [ref=e877]: Attention Is All You Need
+                - generic [ref=e879]:
+                  - button [ref=e880]:
+                    - img
+                  - button [ref=e881]:
+                    - img
+            - article [ref=e882] [cursor=pointer]:
+              - img "The Llama 3 Herd of Models figure" [ref=e885]
+              - generic [ref=e886]:
+                - generic [ref=e887]:
+                  - generic [ref=e888]:
+                    - 'heading "GPT-4의 독점은 끝났습니다: 오픈소스가 ''프론티어급'' 성능을 완전히 정복한 역사적 순간." [level=3] [ref=e889]':
+                      - paragraph [ref=e890]: "GPT-4의 독점은 끝났습니다: 오픈소스가 '프론티어급' 성능을 완전히 정복한 역사적 순간."
+                    - generic [ref=e891]: Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri et al.·2024
+                  - generic [ref=e892]:
+                    - button [ref=e893]:
+                      - img
+                    - button [ref=e894]:
+                      - img
+                - generic [ref=e895]:
+                  - generic [ref=e897]: "#NLP"
+                  - generic [ref=e899]: "#LLM"
+                  - generic [ref=e901]: "#Transformer"
+                - generic [ref=e902]:
+                  - img [ref=e904]
+                  - paragraph [ref=e907]: The Llama 3 Herd of Models
+                - generic [ref=e909]:
+                  - button [ref=e910]:
+                    - img
+                  - button [ref=e911]:
+                    - img
+            - article [ref=e912] [cursor=pointer]:
+              - 'img "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows figure" [ref=e915]'
+              - generic [ref=e916]:
+                - generic [ref=e917]:
+                  - generic [ref=e918]:
+                    - heading "이미지 처리에서 아직도 CNN만 고집하시나요? 아, 어쩌면 당신이 알던 ViT도 이미 구식일지 모릅니다." [level=3] [ref=e919]:
+                      - paragraph [ref=e920]: 이미지 처리에서 아직도 CNN만 고집하시나요? 아, 어쩌면 당신이 알던 ViT도 이미 구식일지 모릅니다.
+                    - generic [ref=e921]: Ze Liu, Yutong Lin, Yue Cao et al.·2021
+                  - generic [ref=e922]:
+                    - button [ref=e923]:
+                      - img
+                    - button [ref=e924]:
+                      - img
+                - generic [ref=e925]:
+                  - generic [ref=e927]: "#ComputerVision"
+                  - generic [ref=e929]: "#Transformer"
+                  - generic [ref=e931]: "#ViT"
+                - generic [ref=e932]:
+                  - img [ref=e934]
+                  - paragraph [ref=e937]: "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows"
+                - generic [ref=e939]:
+                  - button [ref=e940]:
+                    - img
+                  - button [ref=e941]:
+                    - img
+            - article [ref=e942] [cursor=pointer]:
+              - img "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer figure" [ref=e945]
+              - generic [ref=e946]:
+                - generic [ref=e947]:
+                  - generic [ref=e948]:
+                    - heading "분류, 요약, 번역? 귀찮게 따로 만들지 마세요. 이제 모든 NLP는 '텍스트 입력, 텍스트 출력' 하나로 끝납니다." [level=3] [ref=e949]:
+                      - paragraph [ref=e950]: 분류, 요약, 번역? 귀찮게 따로 만들지 마세요. 이제 모든 NLP는 '텍스트 입력, 텍스트 출력' 하나로 끝납니다.
+                    - generic [ref=e951]: Colin Raffel, Noam Shazeer, Adam Roberts et al.·2019
+                  - generic [ref=e952]:
+                    - button [ref=e953]:
+                      - img
+                    - button [ref=e954]:
+                      - img
+                - generic [ref=e955]:
+                  - generic [ref=e957]: "#NLP"
+                  - generic [ref=e959]: "#LLM"
+                  - generic [ref=e961]: "#TransferLearning"
+                - generic [ref=e962]:
+                  - img [ref=e964]
+                  - paragraph [ref=e967]: Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer
+                - generic [ref=e969]:
+                  - button [ref=e970]:
+                    - img
+                  - button [ref=e971]:
+                    - img
+            - article [ref=e972] [cursor=pointer]:
+              - img "Qwen2.5-VL Technical Report figure" [ref=e975]
+              - generic [ref=e976]:
+                - generic [ref=e977]:
+                  - generic [ref=e978]:
+                    - heading "GPT-4o와 클로드 3.5 소넷의 자리를 위협하는, '눈'이 달린 오픈소스의 끝판왕이 등장했습니다." [level=3] [ref=e979]:
+                      - paragraph [ref=e980]: GPT-4o와 클로드 3.5 소넷의 자리를 위협하는, '눈'이 달린 오픈소스의 끝판왕이 등장했습니다.
+                    - generic [ref=e981]: Shuai Bai, Keqin Chen, Xuejing Liu et al.·2025
+                  - generic [ref=e982]:
+                    - button [ref=e983]:
+                      - img
+                    - button [ref=e984]:
+                      - img
+                - generic [ref=e985]:
+                  - generic [ref=e987]: "#ComputerVision"
+                  - generic [ref=e989]: "#NLP"
+                  - generic [ref=e991]: "#VLM"
+                - generic [ref=e992]:
+                  - img [ref=e994]
+                  - paragraph [ref=e997]: Qwen2.5-VL Technical Report
+                - generic [ref=e999]:
+                  - button [ref=e1000]:
+                    - img
+                  - button [ref=e1001]:
+                    - img
+            - article [ref=e1002] [cursor=pointer]:
+              - 'img "VGGT: Visual Geometry Grounded Transformer figure" [ref=e1005]'
+              - generic [ref=e1006]:
+                - generic [ref=e1007]:
+                  - generic [ref=e1008]:
+                    - heading "최적화 수식은 이제 지우세요. 1초 만에 3D의 모든 것을 끝내는 트랜스포머가 왔습니다." [level=3] [ref=e1009]:
+                      - paragraph [ref=e1010]: 최적화 수식은 이제 지우세요. 1초 만에 3D의 모든 것을 끝내는 트랜스포머가 왔습니다.
+                    - generic [ref=e1011]: Jianyuan Wang, Minghao Chen, Nikita Karaev et al.·2025
+                  - generic [ref=e1012]:
+                    - button [ref=e1013]:
+                      - img
+                    - button [ref=e1014]:
+                      - img
+                - generic [ref=e1015]:
+                  - generic [ref=e1017]: "#ComputerVision"
+                  - generic [ref=e1019]: "#Transformer"
+                  - generic [ref=e1021]: "#3DReconstruction"
+                - generic [ref=e1022]:
+                  - img [ref=e1024]
+                  - paragraph [ref=e1027]: "VGGT: Visual Geometry Grounded Transformer"
+                - generic [ref=e1029]:
+                  - button [ref=e1030]:
+                    - img
+                  - button [ref=e1031]:
+                    - img
+            - article [ref=e1032] [cursor=pointer]:
+              - img "Zero-Shot Text-to-Image Generation figure" [ref=e1035]
+              - generic [ref=e1036]:
+                - generic [ref=e1037]:
+                  - generic [ref=e1038]:
+                    - heading "복잡한 아키텍처는 다 사치였습니다. 텍스트와 이미지를 하나의 '문장'으로 이어버린 DALL-E의 충격적 등장." [level=3] [ref=e1039]:
+                      - paragraph [ref=e1040]: 복잡한 아키텍처는 다 사치였습니다. 텍스트와 이미지를 하나의 '문장'으로 이어버린 DALL-E의 충격적 등장.
+                    - generic [ref=e1041]: Aditya Ramesh, Mikhail Pavlov, Gabriel Goh et al.·2021
+                  - generic [ref=e1042]:
+                    - button [ref=e1043]:
+                      - img
+                    - button [ref=e1044]:
+                      - img
+                - generic [ref=e1045]:
+                  - generic [ref=e1047]: "#ComputerVision"
+                  - generic [ref=e1049]: "#NLP"
+                  - generic [ref=e1051]: "#TextToImage"
+                - generic [ref=e1052]:
+                  - img [ref=e1054]
+                  - paragraph [ref=e1057]: Zero-Shot Text-to-Image Generation
+                - generic [ref=e1059]:
+                  - button [ref=e1060]:
+                    - img
+                  - button [ref=e1061]:
+                    - img
+            - article [ref=e1062] [cursor=pointer]:
+              - img "Visual Prompt Tuning figure" [ref=e1065]
+              - generic [ref=e1066]:
+                - generic [ref=e1067]:
+                  - generic [ref=e1068]:
+                    - heading "아직도 모델 전체를 파인튜닝하시나요? 단 1%의 파라미터로 '풀 파인튜닝'을 압살하는 방법이 여기 있습니다." [level=3] [ref=e1069]:
+                      - paragraph [ref=e1070]: 아직도 모델 전체를 파인튜닝하시나요? 단 1%의 파라미터로 '풀 파인튜닝'을 압살하는 방법이 여기 있습니다.
+                    - generic [ref=e1071]: Menglin Jia, Luming Tang, Bor-Chun Chen et al.·2022
+                  - generic [ref=e1072]:
+                    - button [ref=e1073]:
+                      - img
+                    - button [ref=e1074]:
+                      - img
+                - generic [ref=e1075]:
+                  - generic [ref=e1077]: "#ComputerVision"
+                  - generic [ref=e1079]: "#Transformer"
+                  - generic [ref=e1081]: "#PEFT"
+                - generic [ref=e1082]:
+                  - img [ref=e1084]
+                  - paragraph [ref=e1087]: Visual Prompt Tuning
+                - generic [ref=e1089]:
+                  - button [ref=e1090]:
+                    - img
+                  - button [ref=e1091]:
+                    - img
+            - article [ref=e1092] [cursor=pointer]:
+              - 'img "CogVideoX: Text-to-Video Diffusion Models with An Expert Transformer figure" [ref=e1095]'
+              - generic [ref=e1096]:
+                - generic [ref=e1097]:
+                  - generic [ref=e1098]:
+                    - heading "😲 10초 영상이 뚝딱?! 텍스트로 만드는 초고화질 영상 생성 AI 등장!" [level=3] [ref=e1099]:
+                      - paragraph [ref=e1100]: 😲 10초 영상이 뚝딱?! 텍스트로 만드는 초고화질 영상 생성 AI 등장!
+                    - generic [ref=e1101]: Zhuoyi Yang, Jiayan Teng, Wendi Zheng et al.·2024
+                  - generic [ref=e1102]:
+                    - button [ref=e1103]:
+                      - img
+                    - button [ref=e1104]:
+                      - img
+                - generic [ref=e1105]:
+                  - generic [ref=e1107]: "#ComputerVision"
+                  - generic [ref=e1109]: "#VAE"
+                  - generic [ref=e1111]: "#Transformer"
+                - generic [ref=e1112]:
+                  - img [ref=e1114]
+                  - paragraph [ref=e1117]: "CogVideoX: Text-to-Video Diffusion Models with An Expert Transformer"
+                - generic [ref=e1119]:
+                  - button [ref=e1120]:
+                    - img
+                  - button [ref=e1121]:
+                    - img
+            - article [ref=e1122] [cursor=pointer]:
+              - 'img "SAM 2: Segment Anything in Images and Videos figure" [ref=e1125]'
+              - generic [ref=e1126]:
+                - generic [ref=e1127]:
+                  - generic [ref=e1128]:
+                    - heading "🤯 영상 속 모든 것을 마음대로 자른다?! SAM 2 등장! (feat. 3배 빠른 속도)" [level=3] [ref=e1129]:
+                      - paragraph [ref=e1130]: 🤯 영상 속 모든 것을 마음대로 자른다?! SAM 2 등장! (feat. 3배 빠른 속도)
+                    - generic [ref=e1131]: Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu et al.·2024
+                  - generic [ref=e1132]:
+                    - button [ref=e1133]:
+                      - img
+                    - button [ref=e1134]:
+                      - img
+                - generic [ref=e1135]:
+                  - generic [ref=e1137]: "#ComputerVision"
+                  - generic [ref=e1139]: "#FoundationModel"
+                  - generic [ref=e1141]: "#Transformer"
+                - generic [ref=e1142]:
+                  - img [ref=e1144]
+                  - paragraph [ref=e1147]: "SAM 2: Segment Anything in Images and Videos"
+                - generic [ref=e1149]:
+                  - button [ref=e1150]:
+                    - img
+                  - button [ref=e1151]:
+                    - img
+            - article [ref=e1152] [cursor=pointer]:
+              - 'img "Gemma 2: Improving Open Language Models at a Practical Size figure" [ref=e1155]'
+              - generic [ref=e1156]:
+                - generic [ref=e1157]:
+                  - generic [ref=e1158]:
+                    - 'heading "🤯 Gemma 2 공개: 초경량 모델의 놀라운 성능 향상! (2B-27B 파라미터) ✨" [level=3] [ref=e1159]':
+                      - paragraph [ref=e1160]: "🤯 Gemma 2 공개: 초경량 모델의 놀라운 성능 향상! (2B-27B 파라미터) ✨"
+                    - generic [ref=e1161]: Gemma Team, Morgane Riviere, Shreya Pathak et al.·2024
+                  - generic [ref=e1162]:
+                    - button [ref=e1163]:
+                      - img
+                    - button [ref=e1164]:
+                      - img
+                - generic [ref=e1165]:
+                  - generic [ref=e1167]: "#NLP"
+                  - generic [ref=e1169]: "#LLM"
+                  - generic [ref=e1171]: "#KnowledgeDistillation"
+                - generic [ref=e1172]:
+                  - img [ref=e1174]
+                  - paragraph [ref=e1177]: "Gemma 2: Improving Open Language Models at a Practical Size"
+                - generic [ref=e1179]:
+                  - button [ref=e1180]:
+                    - img
+                  - button [ref=e1181]:
+                    - img
+            - article [ref=e1182] [cursor=pointer]:
+              - 'img "Octo: An Open-Source Generalist Robot Policy figure" [ref=e1185]'
+              - generic [ref=e1186]:
+                - generic [ref=e1187]:
+                  - generic [ref=e1188]:
+                    - heading "🤖 로봇계의 GPT 등장?! 80만 트레이닝 데이터로 탄생한 Octo의 등장! 🐙" [level=3] [ref=e1189]:
+                      - paragraph [ref=e1190]: 🤖 로봇계의 GPT 등장?! 80만 트레이닝 데이터로 탄생한 Octo의 등장! 🐙
+                    - generic [ref=e1191]: Octo Model Team, Dibya Ghosh, Homer Walke et al.·2024
+                  - generic [ref=e1192]:
+                    - button [ref=e1193]:
+                      - img
+                    - button [ref=e1194]:
+                      - img
+                - generic [ref=e1195]:
+                  - generic [ref=e1197]: "#Robotics"
+                  - generic [ref=e1199]: "#TransferLearning"
+                  - generic [ref=e1201]: "#FoundationModel"
+                - generic [ref=e1202]:
+                  - img [ref=e1204]
+                  - paragraph [ref=e1207]: "Octo: An Open-Source Generalist Robot Policy"
+                - generic [ref=e1209]:
+                  - button [ref=e1210]:
+                    - img
+                  - button [ref=e1211]:
+                    - img
+            - article [ref=e1212] [cursor=pointer]:
+              - 'img "Smarter, Better, Faster, Longer: A Modern Bidirectional Encoder for Fast, Memory Efficient, and Long Context Finetuning and Inference figure" [ref=e1215]'
+              - generic [ref=e1216]:
+                - generic [ref=e1217]:
+                  - generic [ref=e1218]:
+                    - heading "🚨BERT, 드디어 업그레이드?! 더 똑똑하고 빨라진 ModernBERT 등장!🚀" [level=3] [ref=e1219]:
+                      - paragraph [ref=e1220]: 🚨BERT, 드디어 업그레이드?! 더 똑똑하고 빨라진 ModernBERT 등장!🚀
+                    - generic [ref=e1221]: Benjamin Warner, Antoine Chaffin, Benjamin Clavié et al.·2024
+                  - generic [ref=e1222]:
+                    - button [ref=e1223]:
+                      - img
+                    - button [ref=e1224]:
+                      - img
+                - generic [ref=e1225]:
+                  - generic [ref=e1227]: "#NLP"
+                  - generic [ref=e1229]: "#Transformer"
+                  - generic [ref=e1231]: "#BERT"
+                - generic [ref=e1232]:
+                  - img [ref=e1234]
+                  - paragraph [ref=e1237]: "Smarter, Better, Faster, Longer: A Modern Bidirectional Encoder for Fast, Memory Efficient, and Long Context Finetuning and Inference"
+                - generic [ref=e1239]:
+                  - button [ref=e1240]:
+                    - img
+                  - button [ref=e1241]:
+                    - img
+            - article [ref=e1242] [cursor=pointer]:
+              - 'img "GR00T N1: An Open Foundation Model for Generalist Humanoid Robots figure" [ref=e1245]'
+              - generic [ref=e1246]:
+                - generic [ref=e1247]:
+                  - generic [ref=e1248]:
+                    - heading "🤖 인간형 로봇, 드디어 범용 인공지능 손에?! (ft. GR00T N1) 🚀" [level=3] [ref=e1249]:
+                      - paragraph [ref=e1250]: 🤖 인간형 로봇, 드디어 범용 인공지능 손에?! (ft. GR00T N1) 🚀
+                    - generic [ref=e1251]: NVIDIA, :, Johan Bjorck et al.·2025
+                  - generic [ref=e1252]:
+                    - button [ref=e1253]:
+                      - img
+                    - button [ref=e1254]:
+                      - img
+                - generic [ref=e1255]:
+                  - generic [ref=e1257]: "#Robotics"
+                  - generic [ref=e1259]: "#VLA"
+                  - generic [ref=e1261]: "#FoundationModel"
+                - generic [ref=e1262]:
+                  - img [ref=e1264]
+                  - paragraph [ref=e1267]: "GR00T N1: An Open Foundation Model for Generalist Humanoid Robots"
+                - generic [ref=e1269]:
+                  - button [ref=e1270]:
+                    - img
+                  - button [ref=e1271]:
+                    - img
+            - article [ref=e1272] [cursor=pointer]:
+              - img "Unified Training of Universal Time Series Forecasting Transformers figure" [ref=e1275]
+              - generic [ref=e1276]:
+                - generic [ref=e1277]:
+                  - generic [ref=e1278]:
+                    - heading "⏱️ 시계열 데이터 예측, 이제 딥러닝 하나로 끝낸다?! 🤯 범용 시계열 예측 트랜스포머 등장!" [level=3] [ref=e1279]:
+                      - paragraph [ref=e1280]: ⏱️ 시계열 데이터 예측, 이제 딥러닝 하나로 끝낸다?! 🤯 범용 시계열 예측 트랜스포머 등장!
+                    - generic [ref=e1281]: Gerald Woo, Chenghao Liu, Akshat Kumar et al.·2024
+                  - generic [ref=e1282]:
+                    - button [ref=e1283]:
+                      - img
+                    - button [ref=e1284]:
+                      - img
+                - generic [ref=e1285]:
+                  - generic [ref=e1287]: "#FoundationModel"
+                  - generic [ref=e1289]: "#Transformer"
+                  - generic [ref=e1291]: "#TimeSeries"
+                - generic [ref=e1292]:
+                  - img [ref=e1294]
+                  - paragraph [ref=e1297]: Unified Training of Universal Time Series Forecasting Transformers
+                - generic [ref=e1299]:
+                  - button [ref=e1300]:
+                    - img
+                  - button [ref=e1301]:
+                    - img
+            - article [ref=e1302] [cursor=pointer]:
+              - img "Scaling Rectified Flow Transformers for High-Resolution Image Synthesis figure" [ref=e1305]
+              - generic [ref=e1306]:
+                - generic [ref=e1307]:
+                  - generic [ref=e1308]:
+                    - heading "🤯 이미지 생성 AI, 어디까지 왔어? 초고화질 변환의 끝판왕 등장! 🖼️✨" [level=3] [ref=e1309]:
+                      - paragraph [ref=e1310]: 🤯 이미지 생성 AI, 어디까지 왔어? 초고화질 변환의 끝판왕 등장! 🖼️✨
+                    - generic [ref=e1311]: Patrick Esser, Sumith Kulal, Andreas Blattmann et al.·2024
+                  - generic [ref=e1312]:
+                    - button [ref=e1313]:
+                      - img
+                    - button [ref=e1314]:
+                      - img
+                - generic [ref=e1315]:
+                  - generic [ref=e1317]: "#ComputerVision"
+                  - generic [ref=e1319]: "#TextToImage"
+                  - generic [ref=e1321]: "#Transformer"
+                - generic [ref=e1322]:
+                  - img [ref=e1324]
+                  - paragraph [ref=e1327]: Scaling Rectified Flow Transformers for High-Resolution Image Synthesis
+                - generic [ref=e1329]:
+                  - button [ref=e1330]:
+                    - img
+                  - button [ref=e1331]:
+                    - img
+            - article [ref=e1332] [cursor=pointer]:
+              - 'img "Vision Mamba: Efficient Visual Representation Learning with Bidirectional State Space Model figure" [ref=e1335]'
+              - generic [ref=e1336]:
+                - generic [ref=e1337]:
+                  - generic [ref=e1338]:
+                    - heading "Mamba가 Vision Transformer를 대체한다?!🐍🔥 이미지 처리 속도와 효율, 모두 잡아버린 Vision Mamba 등장!" [level=3] [ref=e1339]:
+                      - paragraph [ref=e1340]: Mamba가 Vision Transformer를 대체한다?!🐍🔥 이미지 처리 속도와 효율, 모두 잡아버린 Vision Mamba 등장!
+                    - generic [ref=e1341]: Lianghui Zhu, Bencheng Liao, Qian Zhang et al.·2024
+                  - generic [ref=e1342]:
+                    - button [ref=e1343]:
+                      - img
+                    - button [ref=e1344]:
+                      - img
+                - generic [ref=e1345]:
+                  - generic [ref=e1347]: "#ComputerVision"
+                  - generic [ref=e1349]: "#SSM"
+                  - generic [ref=e1351]: "#Mamba"
+                - generic [ref=e1352]:
+                  - img [ref=e1354]
+                  - paragraph [ref=e1357]: "Vision Mamba: Efficient Visual Representation Learning with Bidirectional State Space Model"
+                - generic [ref=e1359]:
+                  - button [ref=e1360]:
+                    - img
+                  - button [ref=e1361]:
+                    - img
+            - article [ref=e1362] [cursor=pointer]:
+              - 'img "FAST: Efficient Action Tokenization for Vision-Language-Action Models figure" [ref=e1365]'
+              - generic [ref=e1366]:
+                - generic [ref=e1367]:
+                  - generic [ref=e1368]:
+                    - heading "로봇 팔 움직임, 이제 AI가 5배 더 빠르게?! 🤖✨ 초고속 액션 토크나이저 FAST 등장!" [level=3] [ref=e1369]:
+                      - paragraph [ref=e1370]: 로봇 팔 움직임, 이제 AI가 5배 더 빠르게?! 🤖✨ 초고속 액션 토크나이저 FAST 등장!
+                    - generic [ref=e1371]: Karl Pertsch, Kyle Stachowicz, Brian Ichter et al.·2025
+                  - generic [ref=e1372]:
+                    - button [ref=e1373]:
+                      - img
+                    - button [ref=e1374]:
+                      - img
+                - generic [ref=e1375]:
+                  - generic [ref=e1377]: "#Robotics"
+                  - generic [ref=e1379]: "#VLA"
+                  - generic [ref=e1381]: "#Transformer"
+                - generic [ref=e1382]:
+                  - img [ref=e1384]
+                  - paragraph [ref=e1387]: "FAST: Efficient Action Tokenization for Vision-Language-Action Models"
+                - generic [ref=e1389]:
+                  - button [ref=e1390]:
+                    - img
+                  - button [ref=e1391]:
+                    - img

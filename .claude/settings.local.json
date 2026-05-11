@@ -17,7 +17,19 @@
       "Bash(cp /c/Users/onebe/gomgit/qa-results/TC-01/desktop-1920.png /c/Users/onebe/gomgit/qa-results/TC-13/home-1920.png)",
       "Bash(cp /c/Users/onebe/gomgit/qa-results/TC-02/desktop-1920.png /c/Users/onebe/gomgit/qa-results/TC-13/search-1920.png)",
       "Bash(mkdir -p /c/Users/onebe/gomgit/.claude/skills/qa-visual-tester)",
-      "Bash(cp -r \"/c/Users/onebe/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/qa-visual-tester/.\" /c/Users/onebe/gomgit/.claude/skills/qa-visual-tester/)"
+      "Bash(cp -r \"/c/Users/onebe/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/qa-visual-tester/.\" /c/Users/onebe/gomgit/.claude/skills/qa-visual-tester/)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_press_key"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }

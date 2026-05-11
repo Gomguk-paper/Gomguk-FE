@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { usePaperSearch } from "@/hooks/usePaperSearch";
@@ -6,9 +6,12 @@ import { useStore } from "@/store/useStore";
 import { SearchHeader } from "@/pages/search/components/SearchHeader";
 import { SearchRecommendations } from "@/pages/search/components/SearchRecommendations";
 import { SearchResults } from "@/pages/search/components/SearchResults";
+import { LoginModal } from "@/components/LoginModal";
+import { isAxiosError } from "axios";
 
 export default function SearchPage() {
   const { user } = useStore();
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const {
     query,
     setQuery,
@@ -32,14 +35,25 @@ export default function SearchPage() {
     loadMoreRef,
     isFetchingNextPage,
     isError,
+    error,
   } = usePaperSearch();
 
-  const isAuthError = isError && !user;
+  // 비로그인이거나 401 응답인 경우 인증 에러로 처리
+  const isAuthError =
+    !user ||
+    (isError && isAxiosError(error) && error.response?.status === 401);
 
   // Always scroll to top for search page (disable restoration)
   useScrollRestoration('search', false);
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  // 세션 만료 시 로그인 모달 열기
+  useEffect(() => {
+    const handler = () => setLoginModalOpen(true);
+    window.addEventListener("auth:session-expired", handler);
+    return () => window.removeEventListener("auth:session-expired", handler);
   }, []);
 
   return (
@@ -103,8 +117,12 @@ export default function SearchPage() {
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
           isAuthError={isAuthError}
+          onLoginClick={() => setLoginModalOpen(true)}
         />
       </div>
+
+      {/* Login Modal */}
+      <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} showNotice={true} />
 
       {/* Summary Carousel */}
       <SummaryCarousel

@@ -1,0 +1,77 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - link "곰국 곰국" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "곰국" [ref=e9]
+          - generic [ref=e10]: 곰국
+        - navigation [ref=e11]:
+          - link "홈" [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+            - generic [ref=e16]: 홈
+          - link "검색" [ref=e17] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e18]
+            - generic [ref=e21]: 검색
+          - link "마이페이지" [ref=e22] [cursor=pointer]:
+            - /url: /mypage
+            - img [ref=e23]
+            - generic [ref=e26]: 마이페이지
+          - link "설정" [ref=e27] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e28]
+            - generic [ref=e31]: 설정
+        - link "g g_1180656827 google Account" [ref=e33] [cursor=pointer]:
+          - /url: /mypage
+          - generic [ref=e34]:
+            - generic [ref=e35]: g
+            - generic [ref=e36]:
+              - generic [ref=e37]: g_1180656827
+              - generic [ref=e38]: google Account
+          - button "로그아웃" [ref=e39]:
+            - img [ref=e40]
+    - main [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - heading "분야별 논문 검색" [level=1] [ref=e47]
+          - generic [ref=e48]:
+            - generic [ref=e50]:
+              - img [ref=e51]
+              - 'textbox "논문 제목, 키워드 또는 #태그 검색..." [ref=e54]'
+            - generic [ref=e55]:
+              - combobox [ref=e56] [cursor=pointer]:
+                - img [ref=e57]
+                - generic: 🔥 트렌딩
+                - img [ref=e58]
+              - generic [ref=e961] [cursor=pointer]: "#NLP"
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - heading "최근 검색어" [level=2] [ref=e63]
+              - button "전체 삭제" [ref=e64] [cursor=pointer]
+            - generic [ref=e66] [cursor=pointer]:
+              - img [ref=e67]
+              - generic [ref=e71]: transformer
+              - button [ref=e72]:
+                - img [ref=e73]
+          - generic [ref=e76]:
+            - heading "인기 태그" [level=2] [ref=e77]
+            - generic [ref=e805]:
+              - generic [ref=e807] [cursor=pointer]: "#ComputerVision"
+              - generic [ref=e809] [cursor=pointer]: "#NLP"
+              - generic [ref=e811] [cursor=pointer]: "#LLM"
+              - generic [ref=e813] [cursor=pointer]: "#CNN"
+              - generic [ref=e815] [cursor=pointer]: "#Transformer"
+              - generic [ref=e817] [cursor=pointer]: "#MachineLearning"
+              - generic [ref=e819] [cursor=pointer]: "#ObjectDetection"
+              - generic [ref=e821] [cursor=pointer]: "#ImageClassification"
+              - generic [ref=e823] [cursor=pointer]: "#Reasoning"
+              - generic [ref=e825] [cursor=pointer]: "#DeepLearning"
+        - generic [ref=e79]:
+          - heading "검색 결과" [level=2] [ref=e962]
+          - generic [ref=e81]: ...

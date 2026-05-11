@@ -158,10 +158,11 @@ export function LoginModal({ open, onOpenChange, showNotice = false }: LoginModa
       <div
         ref={modalRef}
         className={cn(
-          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[200]",
+          "fixed left-1/2 -translate-x-1/2 z-[200]",
+          "top-[50%] -translate-y-1/2",
           "bg-background border rounded-lg shadow-2xl",
           "max-w-sm w-[90%] sm:w-full",
-          "max-h-[90vh] overflow-y-auto",
+          "max-h-[min(90vh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] overflow-y-auto",
           "p-6",
           "motion-reduce:animate-none motion-reduce:opacity-100 motion-reduce:scale-100",
           open ? "animate-back-in-down" : "opacity-0 scale-95"

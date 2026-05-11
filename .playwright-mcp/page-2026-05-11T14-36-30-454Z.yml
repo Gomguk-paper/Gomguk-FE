@@ -1,0 +1,555 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - link "곰국 곰국" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "곰국" [ref=e9]
+          - generic [ref=e10]: 곰국
+        - navigation [ref=e11]:
+          - link "홈" [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+            - generic [ref=e16]: 홈
+          - link "검색" [ref=e17] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e18]
+            - generic [ref=e21]: 검색
+          - link "마이페이지" [ref=e22] [cursor=pointer]:
+            - /url: /mypage
+            - img [ref=e23]
+            - generic [ref=e26]: 마이페이지
+          - link "설정" [ref=e27] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e28]
+            - generic [ref=e31]: 설정
+        - link "g g_1180656827 google Account" [ref=e33] [cursor=pointer]:
+          - /url: /mypage
+          - generic [ref=e34]:
+            - generic [ref=e35]: g
+            - generic [ref=e36]:
+              - generic [ref=e37]: g_1180656827
+              - generic [ref=e38]: google Account
+          - button "로그아웃" [ref=e39]:
+            - img [ref=e40]
+    - main [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - heading "분야별 논문 검색" [level=1] [ref=e47]
+          - generic [ref=e48]:
+            - generic [ref=e50]:
+              - img [ref=e51]
+              - 'textbox "논문 제목, 키워드 또는 #태그 검색..." [active] [ref=e54]'
+            - combobox [ref=e56] [cursor=pointer]:
+              - img [ref=e57]
+              - generic: 🔥 트렌딩
+              - img [ref=e58]
+        - heading "인기 태그" [level=2] [ref=e62]
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - heading "전체 논문" [level=2] [ref=e65]
+            - generic [ref=e66]: 1978개
+          - generic [ref=e188]:
+            - article [ref=e189] [cursor=pointer]:
+              - img "Efficiently Approximating the Minimum-Volume Bounding Box of a Point Set in Three Dimensions figure" [ref=e192]
+              - generic [ref=e193]:
+                - generic [ref=e194]:
+                  - generic [ref=e195]:
+                    - heading "아직도 3D 최적화에 AABB나 무거운 OBB만 쓰시나요? 이 논문이 당신의 물리 연산 비용을 획기적으로 줄여드립니다." [level=3] [ref=e196]:
+                      - paragraph [ref=e197]: 아직도 3D 최적화에 AABB나 무거운 OBB만 쓰시나요? 이 논문이 당신의 물리 연산 비용을 획기적으로 줄여드립니다.
+                    - generic [ref=e198]: Gill Barequet, Sariel Har-Peled·2025
+                  - generic [ref=e199]:
+                    - button [ref=e200]:
+                      - img
+                    - button [ref=e201]:
+                      - img
+                - generic [ref=e202]:
+                  - generic [ref=e204]: "#255"
+                  - generic [ref=e206]: "#256"
+                  - generic [ref=e208]: "#257"
+                - generic [ref=e209]:
+                  - img [ref=e211]
+                  - paragraph [ref=e214]: Efficiently Approximating the Minimum-Volume Bounding Box of a Point Set in Three Dimensions
+                - generic [ref=e216]:
+                  - button [ref=e217]:
+                    - img
+                  - button [ref=e218]:
+                    - img
+            - article [ref=e219] [cursor=pointer]:
+              - 'img "Online Behavioral Advertising: A Literature Review and Research Agenda figure" [ref=e222]'
+              - generic [ref=e223]:
+                - generic [ref=e224]:
+                  - generic [ref=e225]:
+                    - heading "당신이 짠 타겟팅 광고 로직이 유저에게 '불쾌한 골짜기'를 선사하고 있는 이유." [level=3] [ref=e226]:
+                      - paragraph [ref=e227]: 당신이 짠 타겟팅 광고 로직이 유저에게 '불쾌한 골짜기'를 선사하고 있는 이유.
+                    - generic [ref=e228]: Sophie C. Boerman, Sanne Kruikemeier, Frederik J. Zuiderveen Borgesius·2025
+                  - generic [ref=e229]:
+                    - button [ref=e230]:
+                      - img
+                    - button [ref=e231]:
+                      - img
+                - generic [ref=e232]:
+                  - generic [ref=e234]: "#259"
+                  - generic [ref=e236]: "#260"
+                  - generic [ref=e238]: "#261"
+                - generic [ref=e239]:
+                  - img [ref=e241]
+                  - paragraph [ref=e244]: "Online Behavioral Advertising: A Literature Review and Research Agenda"
+                - generic [ref=e246]:
+                  - button [ref=e247]:
+                    - img
+                  - button [ref=e248]:
+                    - img
+            - article [ref=e249] [cursor=pointer]:
+              - img "Qwen3 Technical Report figure" [ref=e252]
+              - generic [ref=e253]:
+                - generic [ref=e254]:
+                  - generic [ref=e255]:
+                    - heading "이제 추론 전용 모델과 일반 챗 모델을 구분하는 건 시간 낭비입니다." [level=3] [ref=e256]:
+                      - paragraph [ref=e257]: 이제 추론 전용 모델과 일반 챗 모델을 구분하는 건 시간 낭비입니다.
+                    - generic [ref=e258]: An Yang, Anfeng Li, Baosong Yang et al.·2025
+                  - generic [ref=e259]:
+                    - button [ref=e260]:
+                      - img
+                    - button [ref=e261]:
+                      - img
+                - generic [ref=e262]:
+                  - generic [ref=e264]: "#274"
+                  - generic [ref=e266]: "#276"
+                  - generic [ref=e268]: "#279"
+                - generic [ref=e269]:
+                  - img [ref=e271]
+                  - paragraph [ref=e274]: Qwen3 Technical Report
+                - generic [ref=e276]:
+                  - button [ref=e277]:
+                    - img
+                  - button [ref=e278]:
+                    - img
+            - article [ref=e279] [cursor=pointer]:
+              - 'img "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale figure" [ref=e282]'
+              - generic [ref=e283]:
+                - generic [ref=e284]:
+                  - generic [ref=e285]:
+                    - 'heading "CNN의 시대는 끝났습니다: ''이미지는 단어다''라는 선언 하나로 비전 AI의 판도를 바꾼 논문." [level=3] [ref=e286]':
+                      - paragraph [ref=e287]: "CNN의 시대는 끝났습니다: '이미지는 단어다'라는 선언 하나로 비전 AI의 판도를 바꾼 논문."
+                    - generic [ref=e288]: Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov et al.·2020
+                  - generic [ref=e289]:
+                    - button [ref=e290]:
+                      - img
+                    - button [ref=e291]:
+                      - img
+                - generic [ref=e292]:
+                  - generic [ref=e294]: "#270"
+                  - generic [ref=e296]: "#311"
+                  - generic [ref=e298]: "#322"
+                - generic [ref=e299]:
+                  - img [ref=e301]
+                  - paragraph [ref=e304]: "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale"
+                - generic [ref=e306]:
+                  - button [ref=e307]:
+                    - img
+                  - button [ref=e308]:
+                    - img
+            - article [ref=e309] [cursor=pointer]:
+              - img "GPT-4 Technical Report figure" [ref=e312]
+              - generic [ref=e313]:
+                - generic [ref=e314]:
+                  - generic [ref=e315]:
+                    - heading "상위 10% 변호사 시험 합격, 이제 AI는 당신의 논리력을 앞지르기 시작했습니다." [level=3] [ref=e316]:
+                      - paragraph [ref=e317]: 상위 10% 변호사 시험 합격, 이제 AI는 당신의 논리력을 앞지르기 시작했습니다.
+                    - generic [ref=e318]: OpenAI, Josh Achiam, Steven Adler et al.·2023
+                  - generic [ref=e319]:
+                    - button [ref=e320]:
+                      - img
+                    - button [ref=e321]:
+                      - img
+                - generic [ref=e322]:
+                  - generic [ref=e324]: "#270"
+                  - generic [ref=e326]: "#274"
+                  - generic [ref=e328]: "#276"
+                - generic [ref=e329]:
+                  - img [ref=e331]
+                  - paragraph [ref=e334]: GPT-4 Technical Report
+                - generic [ref=e336]:
+                  - button [ref=e337]:
+                    - img
+                  - button [ref=e338]:
+                    - img
+            - article [ref=e339] [cursor=pointer]:
+              - 'img "Scikit-learn: Machine Learning in Python figure" [ref=e342]'
+              - generic [ref=e343]:
+                - generic [ref=e344]:
+                  - generic [ref=e345]:
+                    - heading "딥러닝이 전부가 아닙니다, 당신이 매일 쓰는 .fit()과 .predict()의 진짜 기원을 아십니까?" [level=3] [ref=e346]:
+                      - paragraph [ref=e347]: 딥러닝이 전부가 아닙니다, 당신이 매일 쓰는 .fit()과 .predict()의 진짜 기원을 아십니까?
+                    - generic [ref=e348]: Fabian Pedregosa, Gaël Varoquaux, Alexandre Gramfort et al.·2012
+                  - generic [ref=e349]:
+                    - button [ref=e350]:
+                      - img
+                    - button [ref=e351]:
+                      - img
+                - generic [ref=e352]:
+                  - generic [ref=e354]: "#562"
+                  - generic [ref=e356]: "#776"
+                  - generic [ref=e358]: "#1044"
+                - generic [ref=e359]:
+                  - img [ref=e361]
+                  - paragraph [ref=e364]: "Scikit-learn: Machine Learning in Python"
+                - generic [ref=e366]:
+                  - button [ref=e367]:
+                    - img
+                  - button [ref=e368]:
+                    - img
+            - article [ref=e369] [cursor=pointer]:
+              - img "Squeeze-and-Excitation Networks figure" [ref=e372]
+              - generic [ref=e373]:
+                - generic [ref=e374]:
+                  - generic [ref=e375]:
+                    - heading "고작 '채널 가중치' 하나 조절했을 뿐인데, 2017년 전 세계 딥러닝 1위를 차지한 치트키." [level=3] [ref=e376]:
+                      - paragraph [ref=e377]: 고작 '채널 가중치' 하나 조절했을 뿐인데, 2017년 전 세계 딥러닝 1위를 차지한 치트키.
+                    - generic [ref=e378]: Jie Hu, Li Shen, Samuel Albanie et al.·2017
+                  - generic [ref=e379]:
+                    - button [ref=e380]:
+                      - img
+                    - button [ref=e381]:
+                      - img
+                - generic [ref=e382]:
+                  - generic [ref=e384]: "#270"
+                  - generic [ref=e386]: "#306"
+                  - generic [ref=e388]: "#473"
+                - generic [ref=e389]:
+                  - img [ref=e391]
+                  - paragraph [ref=e394]: Squeeze-and-Excitation Networks
+                - generic [ref=e396]:
+                  - button [ref=e397]:
+                    - img
+                  - button [ref=e398]:
+                    - img
+            - article [ref=e399] [cursor=pointer]:
+              - 'img "Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning figure" [ref=e402]'
+              - generic [ref=e403]:
+                - generic [ref=e404]:
+                  - generic [ref=e405]:
+                    - 'heading "당신이 학습시키는 토큰 80%는 쓰레기입니다: RL 효율을 5배 높이는 20%의 비밀" [level=3] [ref=e406]':
+                      - paragraph [ref=e407]: "당신이 학습시키는 토큰 80%는 쓰레기입니다: RL 효율을 5배 높이는 20%의 비밀"
+                    - generic [ref=e408]: Shenzhi Wang, Le Yu, Chang Gao et al.·2025
+                  - generic [ref=e409]:
+                    - button [ref=e410]:
+                      - img
+                    - button [ref=e411]:
+                      - img
+                - generic [ref=e412]:
+                  - generic [ref=e414]: "#274"
+                  - generic [ref=e416]: "#276"
+                  - generic [ref=e418]: "#309"
+                - generic [ref=e419]:
+                  - img [ref=e421]
+                  - paragraph [ref=e424]: "Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning"
+                - generic [ref=e426]:
+                  - button [ref=e427]:
+                    - img
+                  - button [ref=e428]:
+                    - img
+            - article [ref=e429] [cursor=pointer]:
+              - 'img "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows figure" [ref=e432]'
+              - generic [ref=e433]:
+                - generic [ref=e434]:
+                  - generic [ref=e435]:
+                    - heading "이미지 처리에서 아직도 CNN만 고집하시나요? 아, 어쩌면 당신이 알던 ViT도 이미 구식일지 모릅니다." [level=3] [ref=e436]:
+                      - paragraph [ref=e437]: 이미지 처리에서 아직도 CNN만 고집하시나요? 아, 어쩌면 당신이 알던 ViT도 이미 구식일지 모릅니다.
+                    - generic [ref=e438]: Ze Liu, Yutong Lin, Yue Cao et al.·2021
+                  - generic [ref=e439]:
+                    - button [ref=e440]:
+                      - img
+                    - button [ref=e441]:
+                      - img
+                - generic [ref=e442]:
+                  - generic [ref=e444]: "#270"
+                  - generic [ref=e446]: "#311"
+                  - generic [ref=e448]: "#322"
+                - generic [ref=e449]:
+                  - img [ref=e451]
+                  - paragraph [ref=e454]: "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows"
+                - generic [ref=e456]:
+                  - button [ref=e457]:
+                    - img
+                  - button [ref=e458]:
+                    - img
+            - article [ref=e459] [cursor=pointer]:
+              - 'img "PaLM-E: An Embodied Multimodal Language Model figure" [ref=e462]'
+              - generic [ref=e463]:
+                - generic [ref=e464]:
+                  - generic [ref=e465]:
+                    - heading "당신이 아는 LLM은 '입만 산' 모델입니다. 이제 5,620억 개의 파라미터가 직접 로봇을 움직입니다." [level=3] [ref=e466]:
+                      - paragraph [ref=e467]: 당신이 아는 LLM은 '입만 산' 모델입니다. 이제 5,620억 개의 파라미터가 직접 로봇을 움직입니다.
+                    - generic [ref=e468]: Danny Driess, Fei Xia, Mehdi S. M. Sajjadi et al.·2023
+                  - generic [ref=e469]:
+                    - button [ref=e470]:
+                      - img
+                    - button [ref=e471]:
+                      - img
+                - generic [ref=e472]:
+                  - generic [ref=e474]: "#274"
+                  - generic [ref=e476]: "#276"
+                  - generic [ref=e478]: "#291"
+                - generic [ref=e479]:
+                  - img [ref=e481]
+                  - paragraph [ref=e484]: "PaLM-E: An Embodied Multimodal Language Model"
+                - generic [ref=e486]:
+                  - button [ref=e487]:
+                    - img
+                  - button [ref=e488]:
+                    - img
+            - article [ref=e489] [cursor=pointer]:
+              - img "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer figure" [ref=e492]
+              - generic [ref=e493]:
+                - generic [ref=e494]:
+                  - generic [ref=e495]:
+                    - heading "분류, 요약, 번역? 귀찮게 따로 만들지 마세요. 이제 모든 NLP는 '텍스트 입력, 텍스트 출력' 하나로 끝납니다." [level=3] [ref=e496]:
+                      - paragraph [ref=e497]: 분류, 요약, 번역? 귀찮게 따로 만들지 마세요. 이제 모든 NLP는 '텍스트 입력, 텍스트 출력' 하나로 끝납니다.
+                    - generic [ref=e498]: Colin Raffel, Noam Shazeer, Adam Roberts et al.·2019
+                  - generic [ref=e499]:
+                    - button [ref=e500]:
+                      - img
+                    - button [ref=e501]:
+                      - img
+                - generic [ref=e502]:
+                  - generic [ref=e504]: "#274"
+                  - generic [ref=e506]: "#276"
+                  - generic [ref=e508]: "#295"
+                - generic [ref=e509]:
+                  - img [ref=e511]
+                  - paragraph [ref=e514]: Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer
+                - generic [ref=e516]:
+                  - button [ref=e517]:
+                    - img
+                  - button [ref=e518]:
+                    - img
+            - article [ref=e519] [cursor=pointer]:
+              - 'img "RoBERTa: A Robustly Optimized BERT Pretraining Approach figure" [ref=e522]'
+              - generic [ref=e523]:
+                - generic [ref=e524]:
+                  - generic [ref=e525]:
+                    - heading "BERT는 틀리지 않았습니다, 우리가 '제대로' 가르치지 않았을 뿐입니다." [level=3] [ref=e526]:
+                      - paragraph [ref=e527]: BERT는 틀리지 않았습니다, 우리가 '제대로' 가르치지 않았을 뿐입니다.
+                    - generic [ref=e528]: Yinhan Liu, Myle Ott, Naman Goyal et al.·2019
+                  - generic [ref=e529]:
+                    - button [ref=e530]:
+                      - img
+                    - button [ref=e531]:
+                      - img
+                - generic [ref=e532]:
+                  - generic [ref=e534]: "#274"
+                  - generic [ref=e536]: "#276"
+                  - generic [ref=e538]: "#311"
+                - generic [ref=e539]:
+                  - img [ref=e541]
+                  - paragraph [ref=e544]: "RoBERTa: A Robustly Optimized BERT Pretraining Approach"
+                - generic [ref=e546]:
+                  - button [ref=e547]:
+                    - img
+                  - button [ref=e548]:
+                    - img
+            - article [ref=e549] [cursor=pointer]:
+              - img "Attention Is All You Need figure" [ref=e552]
+              - generic [ref=e553]:
+                - generic [ref=e554]:
+                  - generic [ref=e555]:
+                    - heading "RNN과 CNN은 이제 끝났습니다. 오직 'Attention' 하나면 충분합니다." [level=3] [ref=e556]:
+                      - paragraph [ref=e557]: RNN과 CNN은 이제 끝났습니다. 오직 'Attention' 하나면 충분합니다.
+                    - generic [ref=e558]: Ashish Vaswani, Noam Shazeer, Niki Parmar et al.·2017
+                  - generic [ref=e559]:
+                    - button [ref=e560]:
+                      - img
+                    - button [ref=e561]:
+                      - img
+                - generic [ref=e562]:
+                  - generic [ref=e564]: "#274"
+                  - generic [ref=e566]: "#311"
+                  - generic [ref=e568]: "#418"
+                - generic [ref=e569]:
+                  - img [ref=e571]
+                  - paragraph [ref=e574]: Attention Is All You Need
+                - generic [ref=e576]:
+                  - button [ref=e577]:
+                    - img
+                  - button [ref=e578]:
+                    - img
+            - article [ref=e579] [cursor=pointer]:
+              - img "Approximation Algorithms for Maximin Fair Division figure" [ref=e582]
+              - generic [ref=e583]:
+                - generic [ref=e584]:
+                  - generic [ref=e585]:
+                    - 'heading "N분의 1은 틀렸습니다: 모두가 ''내가 이득 봤다''고 믿게 만드는 분배 알고리즘의 마법." [level=3] [ref=e586]':
+                      - paragraph [ref=e587]: "N분의 1은 틀렸습니다: 모두가 '내가 이득 봤다'고 믿게 만드는 분배 알고리즘의 마법."
+                    - generic [ref=e588]: Siddharth Barman, Sanath Kumar Krishnamurthy·2017
+                  - generic [ref=e589]:
+                    - button [ref=e590]:
+                      - img
+                    - button [ref=e591]:
+                      - img
+                - generic [ref=e592]:
+                  - generic [ref=e594]: "#256"
+                  - generic [ref=e596]: "#1967"
+                  - generic [ref=e598]: "#1968"
+                - generic [ref=e599]:
+                  - img [ref=e601]
+                  - paragraph [ref=e604]: Approximation Algorithms for Maximin Fair Division
+                - generic [ref=e606]:
+                  - button [ref=e607]:
+                    - img
+                  - button [ref=e608]:
+                    - img
+            - article [ref=e609] [cursor=pointer]:
+              - 'img "FLUX.1 Kontext: Flow Matching for In-Context Image Generation and Editing in Latent Space figure" [ref=e612]'
+              - generic [ref=e613]:
+                - generic [ref=e614]:
+                  - generic [ref=e615]:
+                    - heading "아직도 생성과 편집을 따로 하시나요? FLUX.1 Kontext가 모든 이미지 워크플로우를 하나로 통합했습니다." [level=3] [ref=e616]:
+                      - paragraph [ref=e617]: 아직도 생성과 편집을 따로 하시나요? FLUX.1 Kontext가 모든 이미지 워크플로우를 하나로 통합했습니다.
+                    - generic [ref=e618]: Black Forest Labs, Stephen Batifol, Andreas Blattmann et al.·2025
+                  - generic [ref=e619]:
+                    - button [ref=e620]:
+                      - img
+                    - button [ref=e621]:
+                      - img
+                - generic [ref=e622]:
+                  - generic [ref=e624]: "#270"
+                  - generic [ref=e626]: "#280"
+                  - generic [ref=e628]: "#281"
+                - generic [ref=e629]:
+                  - img [ref=e631]
+                  - paragraph [ref=e634]: "FLUX.1 Kontext: Flow Matching for In-Context Image Generation and Editing in Latent Space"
+                - generic [ref=e636]:
+                  - button [ref=e637]:
+                    - img
+                  - button [ref=e638]:
+                    - img
+            - article [ref=e639] [cursor=pointer]:
+              - img "The Llama 3 Herd of Models figure" [ref=e642]
+              - generic [ref=e643]:
+                - generic [ref=e644]:
+                  - generic [ref=e645]:
+                    - 'heading "GPT-4의 독점은 끝났습니다: 오픈소스가 ''프론티어급'' 성능을 완전히 정복한 역사적 순간." [level=3] [ref=e646]':
+                      - paragraph [ref=e647]: "GPT-4의 독점은 끝났습니다: 오픈소스가 '프론티어급' 성능을 완전히 정복한 역사적 순간."
+                    - generic [ref=e648]: Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri et al.·2024
+                  - generic [ref=e649]:
+                    - button [ref=e650]:
+                      - img
+                    - button [ref=e651]:
+                      - img
+                - generic [ref=e652]:
+                  - generic [ref=e654]: "#274"
+                  - generic [ref=e656]: "#276"
+                  - generic [ref=e658]: "#311"
+                - generic [ref=e659]:
+                  - img [ref=e661]
+                  - paragraph [ref=e664]: The Llama 3 Herd of Models
+                - generic [ref=e666]:
+                  - button [ref=e667]:
+                    - img
+                  - button [ref=e668]:
+                    - img
+            - article [ref=e669] [cursor=pointer]:
+              - img "Butterfly Counting in Bipartite Networks figure" [ref=e672]
+              - generic [ref=e673]:
+                - generic [ref=e674]:
+                  - generic [ref=e675]:
+                    - heading "수조 개의 복잡한 관계를 단 몇 초 만에? 그래프 연산의 상식을 뒤엎는 알고리즘의 등장." [level=3] [ref=e676]:
+                      - paragraph [ref=e677]: 수조 개의 복잡한 관계를 단 몇 초 만에? 그래프 연산의 상식을 뒤엎는 알고리즘의 등장.
+                    - generic [ref=e678]: Seyed-Vahid Sanei-Mehri, Ahmet Erdem Sariyuce, Srikanta Tirthapura·2018
+                  - generic [ref=e679]:
+                    - button [ref=e680]:
+                      - img
+                    - button [ref=e681]:
+                      - img
+                - generic [ref=e682]:
+                  - generic [ref=e684]: "#256"
+                  - generic [ref=e686]: "#1454"
+                  - generic [ref=e688]: "#1981"
+                - generic [ref=e689]:
+                  - img [ref=e691]
+                  - paragraph [ref=e694]: Butterfly Counting in Bipartite Networks
+                - generic [ref=e696]:
+                  - button [ref=e697]:
+                    - img
+                  - button [ref=e698]:
+                    - img
+            - article [ref=e699] [cursor=pointer]:
+              - 'img "Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success figure" [ref=e702]'
+              - generic [ref=e703]:
+                - generic [ref=e704]:
+                  - generic [ref=e705]:
+                    - heading "성공률은 20% 점프, 속도는 무려 26배. OpenVLA를 '진짜' 로봇 전문가로 만드는 마법의 레시피를 찾았습니다." [level=3] [ref=e706]:
+                      - paragraph [ref=e707]: 성공률은 20% 점프, 속도는 무려 26배. OpenVLA를 '진짜' 로봇 전문가로 만드는 마법의 레시피를 찾았습니다.
+                    - generic [ref=e708]: Moo Jin Kim, Chelsea Finn, Percy Liang·2025
+                  - generic [ref=e709]:
+                    - button [ref=e710]:
+                      - img
+                    - button [ref=e711]:
+                      - img
+                - generic [ref=e712]:
+                  - generic [ref=e714]: "#291"
+                  - generic [ref=e716]: "#292"
+                  - generic [ref=e718]: "#316"
+                - generic [ref=e719]:
+                  - img [ref=e721]
+                  - paragraph [ref=e724]: "Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success"
+                - generic [ref=e726]:
+                  - button [ref=e727]:
+                    - img
+                  - button [ref=e728]:
+                    - img
+            - article [ref=e729] [cursor=pointer]:
+              - img "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks figure" [ref=e732]
+              - generic [ref=e733]:
+                - generic [ref=e734]:
+                  - generic [ref=e735]:
+                    - heading "당신의 LLM이 자꾸 '아무말 대잔치'를 하는 이유, 공부만 시키고 '오픈북'을 안 줬기 때문입니다." [level=3] [ref=e736]:
+                      - paragraph [ref=e737]: 당신의 LLM이 자꾸 '아무말 대잔치'를 하는 이유, 공부만 시키고 '오픈북'을 안 줬기 때문입니다.
+                    - generic [ref=e738]: Patrick Lewis, Ethan Perez, Aleksandra Piktus et al.·2020
+                  - generic [ref=e739]:
+                    - button [ref=e740]:
+                      - img
+                    - button [ref=e741]:
+                      - img
+                - generic [ref=e742]:
+                  - generic [ref=e744]: "#274"
+                  - generic [ref=e746]: "#276"
+                  - generic [ref=e748]: "#315"
+                - generic [ref=e749]:
+                  - img [ref=e751]
+                  - paragraph [ref=e754]: Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks
+                - generic [ref=e756]:
+                  - button [ref=e757]:
+                    - img
+                  - button [ref=e758]:
+                    - img
+            - article [ref=e759] [cursor=pointer]:
+              - img "Does Reinforcement Learning Really Incentivize Reasoning Capacity in LLMs Beyond the Base Model? figure" [ref=e762]
+              - generic [ref=e763]:
+                - generic [ref=e764]:
+                  - generic [ref=e765]:
+                    - heading "당신의 LLM은 RL을 통해 똑똑해진 것이 아니라, 단지 정답을 '빨리' 말하도록 가스라이팅 당했을 뿐입니다." [level=3] [ref=e766]:
+                      - paragraph [ref=e767]: 당신의 LLM은 RL을 통해 똑똑해진 것이 아니라, 단지 정답을 '빨리' 말하도록 가스라이팅 당했을 뿐입니다.
+                    - generic [ref=e768]: Yang Yue, Zhiqi Chen, Rui Lu et al.·2025
+                  - generic [ref=e769]:
+                    - button [ref=e770]:
+                      - img
+                    - button [ref=e771]:
+                      - img
+                - generic [ref=e772]:
+                  - generic [ref=e774]: "#274"
+                  - generic [ref=e776]: "#276"
+                  - generic [ref=e778]: "#279"
+                - generic [ref=e779]:
+                  - img [ref=e781]
+                  - paragraph [ref=e784]: Does Reinforcement Learning Really Incentivize Reasoning Capacity in LLMs Beyond the Base Model?
+                - generic [ref=e786]:
+                  - button [ref=e787]:
+                    - img
+                  - button [ref=e788]:
+                    - img

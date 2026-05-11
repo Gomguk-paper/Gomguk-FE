@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { BottomNav } from "@/components/BottomNav";
@@ -47,6 +47,7 @@ function AppRoutes() {
   const oauthProcessedRef = useRef(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const storedUser = getStoredUser();
@@ -65,6 +66,19 @@ function AppRoutes() {
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 초기 마운트 시에만 실행
+
+  // [전역] 세션 만료 처리 — 어느 페이지에 있든 user를 초기화하고 쿼리 캐시를 비워
+  // 이전에는 Home.tsx에만 로컬 핸들러가 있어 Search 등 다른 페이지에서 세션 만료 시
+  // UI는 로그인 상태로 보이지만 API는 401을 반환하는 불일치가 발생했음
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      clearStoredUser();
+      setUser(null);
+      queryClient.invalidateQueries();
+    };
+    window.addEventListener('auth:session-expired', handleSessionExpired);
+    return () => window.removeEventListener('auth:session-expired', handleSessionExpired);
+  }, [setUser, queryClient]);
 
   // 전역 OAuth 콜백: 모달/전체페이지 구분 없이 어느 경로로 돌아와도 access_token 처리 (무한 모달 방지)
   useEffect(() => {
@@ -150,13 +164,7 @@ function AppRoutes() {
         />
         <Route
           path="/settings"
-          element={
-            user ? (
-              <Settings />
-            ) : (
-              <Navigate to="/login" replace state={{ reason: "auth", from: "/settings" }} />
-            )
-          }
+          element={<Settings loginRequired={!user} />}
         />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />

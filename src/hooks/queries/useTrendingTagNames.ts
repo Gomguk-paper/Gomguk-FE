@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { tagsApi } from "@/api";
 import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
 import { useMemo } from "react";
+import { useStore } from "@/store/useStore";
 
 /**
  * 트렌딩 목록의 유일한 소스: GET /tags/trending 의 tag_ids.
@@ -9,6 +10,7 @@ import { useMemo } from "react";
  * /tags/trending 엔드포인트가 없을 경우(404 등) count 기준 상위 태그로 폴백.
  */
 export function useTrendingTagNames(limit: number = 20) {
+    const { user } = useStore();
     const {
         data: trendingData,
         isLoading: trendingLoading,
@@ -16,6 +18,7 @@ export function useTrendingTagNames(limit: number = 20) {
     } = useQuery({
         queryKey: ["tags", "trending", limit],
         queryFn: () => tagsApi.getTrendingTagIds({ limit }),
+        enabled: !!user,
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
         retry: false, // 404면 재시도하지 않음

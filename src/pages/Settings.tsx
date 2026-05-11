@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
+import { LoginModal } from "@/components/LoginModal";
 
 import { ProfileSection } from "./settings/components/ProfileSection";
 import { InterestSection } from "./settings/components/InterestSection";
@@ -15,10 +16,11 @@ import { ReadingSection } from "./settings/components/ReadingSection";
 import { AccountSection } from "./settings/components/AccountSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function Settings() {
+export default function Settings({ loginRequired = false }: { loginRequired?: boolean }) {
   const navigate = useNavigate();
   const { user, prefs, setUser, setPrefs } = useStore();
   const [autoMarkAsRead, setAutoMarkAsRead] = useState(true);
+  const [loginModalOpen, setLoginModalOpen] = useState(loginRequired);
 
   return (
     <main className="min-h-screen mobile-content-padding bg-muted/30">
@@ -71,6 +73,13 @@ export default function Settings() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 로그인 모달 (비로그인 접근 시) */}
+      <LoginModal
+        open={loginModalOpen}
+        onOpenChange={setLoginModalOpen}
+        showNotice={true}
+      />
     </main>
   );
 }

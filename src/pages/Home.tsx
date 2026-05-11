@@ -40,13 +40,6 @@ export default function Home() {
     fetchNextPage,
   } = usePaperFeedQuery({ enabled: !!user });
 
-  // 세션 만료 시( refresh 실패 ) 로그인 모달 열기
-  useEffect(() => {
-    const handler = () => setLoginModalOpen(true);
-    window.addEventListener("auth:session-expired", handler);
-    return () => window.removeEventListener("auth:session-expired", handler);
-  }, []);
-
   // 401 후 재로그인 시 피드 다시 불러오기
   useEffect(() => {
     if (user && papersError && isAxiosError(papersErrorDetails) && papersErrorDetails.response?.status === 401) {

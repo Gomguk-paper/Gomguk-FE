@@ -1,0 +1,102 @@
+- generic:
+  - generic:
+    - list
+    - region "Notifications alt+T"
+    - generic:
+      - complementary:
+        - generic:
+          - generic:
+            - link:
+              - /url: /
+              - generic:
+                - img
+              - generic: 곰국
+          - navigation:
+            - link:
+              - /url: /
+              - img
+              - generic: 홈
+            - link:
+              - /url: /search
+              - img
+              - generic: 검색
+            - link:
+              - /url: /mypage
+              - img
+              - generic: 마이페이지
+            - link:
+              - /url: /settings
+              - img
+              - generic: 설정
+          - generic:
+            - link:
+              - /url: /mypage
+              - generic:
+                - generic: g
+                - generic:
+                  - generic: g_1180656827
+                  - generic: google Account
+              - button:
+                - img
+      - generic:
+        - main:
+          - generic:
+            - generic:
+              - heading [level=1]: 분야별 논문 검색
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                    - textbox:
+                      - /placeholder: "논문 제목, 키워드 또는 #태그 검색..."
+                - generic:
+                  - combobox [expanded]:
+                    - img
+                    - generic: 🔥 트렌딩
+                    - img
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=2]: 최근 검색어
+                  - button: 전체 삭제
+                - generic:
+                  - generic:
+                    - img
+                    - generic: transformer
+                    - button:
+                      - img
+              - generic:
+                - heading [level=2]: 인기 태그
+                - generic:
+                  - generic:
+                    - generic: "#ComputerVision"
+                  - generic:
+                    - generic: "#NLP"
+                  - generic:
+                    - generic: "#LLM"
+                  - generic:
+                    - generic: "#CNN"
+                  - generic:
+                    - generic: "#Transformer"
+                  - generic:
+                    - generic: "#MachineLearning"
+                  - generic:
+                    - generic: "#ObjectDetection"
+                  - generic:
+                    - generic: "#ImageClassification"
+                  - generic:
+                    - generic: "#Reasoning"
+                  - generic:
+                    - generic: "#DeepLearning"
+            - generic:
+              - generic:
+                - heading [level=2]: 전체 논문
+                - generic: ...
+  - listbox [ref=e203]:
+    - option "🔥 트렌딩" [active] [selected] [ref=e204]:
+      - img [ref=e207]
+      - generic [ref=e209]: 🔥 트렌딩
+    - option "🕐 최신순" [ref=e210]:
+      - generic [ref=e212]: 🕐 최신순
+    - option "⭐ 추천순" [ref=e213]:
+      - generic [ref=e215]: ⭐ 추천순
