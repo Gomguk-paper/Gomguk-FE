@@ -48,6 +48,13 @@ export const UI_CONSTANTS = {
     FADE_DURATION: 200,
     TRANSITION_DURATION: 300,
   },
+
+  // 광고 설정
+  ADSENSE: {
+    CLIENT_ID: "ca-pub-0000000000000000", // TODO: 실제 클라이언트 ID로 변경
+    SLOT_ID: "0000000000", // TODO: 실제 광고 단위 ID로 변경
+    FEED_INTERVAL: 5, // 5번째 카드마다 광고 노출
+  },
 } as const;
 
 export const ROUTES = {

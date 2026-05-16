@@ -3,6 +3,8 @@ import { BookOpen, Lock, Sparkles } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
+import { AdSenseCard } from "@/components/AdSenseCard";
+import { UI_CONSTANTS } from "@/core/config/constants";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { LoginModal } from "@/components/LoginModal";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
@@ -170,9 +172,16 @@ export default function Home() {
               })()
             ) : displayedPapers.length > 0 ? (
               // Success state - show papers
-              displayedPapers.map((paper: any, index: number) => (
-                <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
-              ))
+              displayedPapers.flatMap((paper: any, index: number) => {
+                const elements = [];
+                if (index > 0 && index % UI_CONSTANTS.ADSENSE.FEED_INTERVAL === 0) {
+                  elements.push(<AdSenseCard key={`ad-${index}`} />);
+                }
+                elements.push(
+                  <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
+                );
+                return elements;
+              })
             ) : (
               // Empty state - no papers available
               <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
