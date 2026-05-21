@@ -20,10 +20,11 @@ import { usePaperCarousel } from "@/hooks/ui/usePaperCarousel";
 import { useState, useEffect } from "react";
 import { isAxiosError } from "axios";
 import { cn } from "@/lib/utils";
+import { Paper } from "@/models";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useStore();
+  const { user, setUser } = useStore();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   // Restore scroll position when navigating back to this page
@@ -42,12 +43,13 @@ export default function Home() {
     fetchNextPage,
   } = usePaperFeedQuery({ enabled: !!user });
 
-  // 401 후 재로그인 시 피드 다시 불러오기
+  // 401 에러 발생 시 세션 만료 처리 (유저 상태 초기화 및 로그인 모달 오픈)
   useEffect(() => {
     if (user && papersError && isAxiosError(papersErrorDetails) && papersErrorDetails.response?.status === 401) {
-      refetchPapers();
+      setUser(null);
+      setLoginModalOpen(true);
     }
-  }, [user, papersError, papersErrorDetails, refetchPapers]);
+  }, [user, papersError, papersErrorDetails, setUser]);
 
   // 2. Domain / Business Logic
   const { sortedPapers } = useRecommendedPapers({
@@ -172,10 +174,10 @@ export default function Home() {
               })()
             ) : displayedPapers.length > 0 ? (
               // Success state - show papers
-              displayedPapers.flatMap((paper: any, index: number) => {
+              displayedPapers.flatMap((paper: Paper, index: number) => {
                 const elements = [];
                 if (index > 0 && index % UI_CONSTANTS.ADSENSE.FEED_INTERVAL === 0) {
-                  elements.push(<AdSenseCard key={`ad-${index}`} />);
+                  elements.push(<AdSenseCard key={`ad-${paper.id}`} />);
                 }
                 elements.push(
                   <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
