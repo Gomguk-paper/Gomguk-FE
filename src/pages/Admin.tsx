@@ -237,6 +237,9 @@ export default function Admin() {
                   <span className="text-3xl font-extrabold font-mono text-foreground">
                     {stats.cpu.percent.toFixed(1)}%
                   </span>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {stats.cpu.cores} 논리 코어 (Cores)
+                  </span>
                 </div>
                 <Progress value={stats.cpu.percent} className="h-2.5" />
               </CardContent>
