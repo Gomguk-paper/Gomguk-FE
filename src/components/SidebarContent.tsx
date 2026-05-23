@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Search, User, Settings, LogOut, LogIn, BookOpen } from "lucide-react";
+import { Home, Search, User, Settings, LogOut, LogIn, BookOpen, ShieldAlert } from "lucide-react";
+import { isAdminUser } from "@/core/lib/adminGuard";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 import { useStore } from "@/store/useStore";
@@ -76,6 +77,21 @@ export function SidebarContent({ className, onLinkClick }: SidebarContentProps) 
                         </NavLink>
                     );
                 })}
+                {user && isAdminUser(user) && (
+                    <NavLink
+                        to="/admin"
+                        onClick={onLinkClick}
+                        className={cn(
+                            "flex items-center gap-4 px-4 py-3 rounded-full text-lg",
+                            location.pathname === "/admin"
+                                ? "font-bold text-primary bg-secondary/50"
+                                : "text-foreground hover:bg-secondary/30"
+                        )}
+                    >
+                        <ShieldAlert className={cn("w-6 h-6", location.pathname === "/admin" && "stroke-[2.5]")} />
+                        <span>관리자 페이지</span>
+                    </NavLink>
+                )}
             </nav>
 
             {/* User Area / Auth Actions */}

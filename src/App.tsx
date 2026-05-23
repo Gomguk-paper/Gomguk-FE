@@ -12,6 +12,8 @@ import SearchPage from "./pages/Search";
 import MyPage from "./pages/MyPage";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
+import { isAdminUser } from "@/core/lib/adminGuard";
 import TermsOfService from "./pages/legal/TermsOfService";
 import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import CookiePolicy from "./pages/legal/CookiePolicy";
@@ -99,6 +101,8 @@ function AppRoutes() {
           name: userData.name,
           provider: userData.provider as "google" | "github" | "kakao",
           createdAt: new Date().toISOString(),
+          email: userData.email,
+          is_admin: userData.is_admin,
         };
         setStoredUser(newUser);
         setUser(newUser);
@@ -165,6 +169,10 @@ function AppRoutes() {
         <Route
           path="/settings"
           element={<Settings loginRequired={!user} />}
+        />
+        <Route
+          path="/admin"
+          element={user && isAdminUser(user) ? <Admin /> : <Navigate to="/" replace />}
         />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -81,6 +81,8 @@ export function LoginForm({
       name: "테스트 유저",
       provider: provider,
       createdAt: new Date().toISOString(),
+      email: "injoon00280@gmail.com", // Set admin email for local mock testing
+      is_admin: true,
     };
 
     // 상태 저장

@@ -64,6 +64,7 @@ export const ROUTES = {
   LOGIN: "/login",
   ONBOARDING: "/onboarding",
   SETTINGS: "/settings",
+  ADMIN: "/admin",
 } as const;
 
 export const COLORS = {

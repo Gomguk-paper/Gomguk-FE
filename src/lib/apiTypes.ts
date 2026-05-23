@@ -118,6 +118,7 @@ export interface MeResponse {
     provider: string;
     email: string;
     name: string;
+    is_admin: boolean;
     profile_image: string | null;
     meta?: Record<string, any>;
 }
@@ -176,7 +177,9 @@ export interface PaperResponse {
 export interface AddSummaryBody {
     paper_id: number;
     style?: string;
-    body: string;
+    hook: string;
+    points: string[];
+    detailed: string;
 }
 
 export interface AddPaperTagsBody {
