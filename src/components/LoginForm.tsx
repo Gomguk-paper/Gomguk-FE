@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -140,14 +141,14 @@ export function LoginForm({
             Google로 시작하기
           </Button>
           <Button
-            id="btn_login_kakao"
+            id="btn_login_github"
             variant="outline"
             className="w-full h-12 text-base"
-            onClick={() => handleLogin("kakao")}
+            onClick={() => handleLogin("github")}
             disabled={isLoading}
             aria-label="GitHub로 시작하기"
           >
-            {loadingProvider === "kakao" ? (
+            {loadingProvider === "github" ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <img
@@ -218,14 +219,14 @@ export function LoginForm({
           Google로 시작하기
         </Button>
         <Button
-          id="btn_login_kakao"
+          id="btn_login_github"
           variant="outline"
           className="w-full h-12 text-base"
-          onClick={() => handleLogin("kakao")}
+          onClick={() => handleLogin("github")}
           disabled={isLoading}
           aria-label="GitHub로 시작하기"
         >
-          {loadingProvider === "kakao" ? (
+          {loadingProvider === "github" ? (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           ) : (
             <img src="/github.png" alt="" aria-hidden="true" className="h-5 w-5 object-contain dark:invert" />
@@ -248,25 +249,21 @@ export function LoginForm({
       </div>
 
       <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-        <a
+        <Link
           id="link_privacy"
-          href="#"
-          aria-disabled="true"
-          className="pointer-events-none cursor-not-allowed opacity-60"
+          to="/privacy"
+          className="hover:underline"
         >
           개인정보처리방침
-        </a>
-        <a
+        </Link>
+        <Link
           id="link_terms"
-          href="#"
-          aria-disabled="true"
-          className="pointer-events-none cursor-not-allowed opacity-60"
+          to="/terms"
+          className="hover:underline"
         >
           이용약관
-        </a>
+        </Link>
       </div>
-
-      <p className="text-xs text-muted-foreground">프로토타입 버전 • 실제 로그인 없이 체험</p>
     </div>
   );
 }

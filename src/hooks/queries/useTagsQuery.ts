@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { tagsApi } from "@/api";
 import { useMemo } from "react";
+import { useStore } from "@/store/useStore";
 
 export const useTagsQuery = () => {
+    const { user } = useStore();
     const { data: tagsResponse, isLoading, error } = useQuery({
         queryKey: ['all-tags'],
         queryFn: async () => {
@@ -17,6 +19,7 @@ export const useTagsQuery = () => {
             }
             return allItems;
         },
+        enabled: !!user,
         retry: 1,
         staleTime: 5 * 60 * 1000, // 5 minutes cache
     });

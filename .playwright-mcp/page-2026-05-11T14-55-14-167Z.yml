@@ -1,0 +1,78 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - link "곰국 곰국" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "곰국" [ref=e9]
+          - generic [ref=e10]: 곰국
+        - navigation [ref=e11]:
+          - link "홈" [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+            - generic [ref=e16]: 홈
+          - link "검색" [ref=e17] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e18]
+            - generic [ref=e21]: 검색
+          - link "마이페이지" [ref=e22] [cursor=pointer]:
+            - /url: /mypage
+            - img [ref=e23]
+            - generic [ref=e26]: 마이페이지
+          - link "설정" [ref=e27] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e28]
+            - generic [ref=e31]: 설정
+        - link "g g_1180656827 google Account" [ref=e33] [cursor=pointer]:
+          - /url: /mypage
+          - generic [ref=e34]:
+            - generic [ref=e35]: g
+            - generic [ref=e36]:
+              - generic [ref=e37]: g_1180656827
+              - generic [ref=e38]: google Account
+          - button "로그아웃" [ref=e39]:
+            - img [ref=e40]
+    - main [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - heading "마이페이지" [level=1] [ref=e48]
+            - generic [ref=e49]:
+              - button "로그아웃" [ref=e50] [cursor=pointer]
+              - button [ref=e51] [cursor=pointer]:
+                - img
+          - generic [ref=e52]:
+            - generic [ref=e54]: g
+            - generic [ref=e55]:
+              - heading "g_1180656827" [level=2] [ref=e56]
+              - paragraph [ref=e57]: 관심 분야 1개 • 연구자
+              - generic [ref=e60]: "#FoundationModel"
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e63]: "0"
+              - generic [ref=e64]: 좋아요
+            - generic [ref=e65]:
+              - generic [ref=e66]: "0"
+              - generic [ref=e67]: 저장
+            - generic [ref=e68]:
+              - generic [ref=e69]: "0"
+              - generic [ref=e70]: 읽음
+        - generic [ref=e71]:
+          - tablist [ref=e72]:
+            - tab "저장" [selected] [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+              - text: 저장
+            - tab "좋아요" [ref=e76] [cursor=pointer]:
+              - img [ref=e77]
+              - text: 좋아요
+            - tab "히스토리" [ref=e79] [cursor=pointer]:
+              - img [ref=e80]
+              - text: 히스토리
+            - tab "통계" [ref=e84] [cursor=pointer]:
+              - img [ref=e85]
+              - text: 통계
+          - tabpanel "저장" [ref=e87]:
+            - generic [ref=e88]: 로딩 중...

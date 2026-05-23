@@ -3,6 +3,8 @@ import { BookOpen, Lock, Sparkles } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useStore } from "@/store/useStore";
 import { PaperCard } from "@/components/PaperCard";
+import { AdSenseCard } from "@/components/AdSenseCard";
+import { UI_CONSTANTS } from "@/core/config/constants";
 import { SummaryCarousel } from "@/components/SummaryCarousel";
 import { LoginModal } from "@/components/LoginModal";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
@@ -18,10 +20,11 @@ import { usePaperCarousel } from "@/hooks/ui/usePaperCarousel";
 import { useState, useEffect } from "react";
 import { isAxiosError } from "axios";
 import { cn } from "@/lib/utils";
+import { Paper } from "@/models";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useStore();
+  const { user, setUser } = useStore();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   // Restore scroll position when navigating back to this page
@@ -40,19 +43,13 @@ export default function Home() {
     fetchNextPage,
   } = usePaperFeedQuery({ enabled: !!user });
 
-  // 세션 만료 시( refresh 실패 ) 로그인 모달 열기
-  useEffect(() => {
-    const handler = () => setLoginModalOpen(true);
-    window.addEventListener("auth:session-expired", handler);
-    return () => window.removeEventListener("auth:session-expired", handler);
-  }, []);
-
-  // 401 후 재로그인 시 피드 다시 불러오기
+  // 401 에러 발생 시 세션 만료 처리 (유저 상태 초기화 및 로그인 모달 오픈)
   useEffect(() => {
     if (user && papersError && isAxiosError(papersErrorDetails) && papersErrorDetails.response?.status === 401) {
-      refetchPapers();
+      setUser(null);
+      setLoginModalOpen(true);
     }
-  }, [user, papersError, papersErrorDetails, refetchPapers]);
+  }, [user, papersError, papersErrorDetails, setUser]);
 
   // 2. Domain / Business Logic
   const { sortedPapers } = useRecommendedPapers({
@@ -177,9 +174,16 @@ export default function Home() {
               })()
             ) : displayedPapers.length > 0 ? (
               // Success state - show papers
-              displayedPapers.map((paper: any, index: number) => (
-                <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
-              ))
+              displayedPapers.flatMap((paper: Paper, index: number) => {
+                const elements = [];
+                if (index > 0 && index % UI_CONSTANTS.ADSENSE.FEED_INTERVAL === 0) {
+                  elements.push(<AdSenseCard key={`ad-${paper.id}`} />);
+                }
+                elements.push(
+                  <PaperCard key={paper.id} paper={paper} onOpenSummary={() => openCarousel(index)} />
+                );
+                return elements;
+              })
             ) : (
               // Empty state - no papers available
               <div className="flex flex-col items-center justify-center py-12 px-4 text-center">

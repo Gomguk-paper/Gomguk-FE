@@ -1,0 +1,42 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - link "곰국 곰국" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "곰국" [ref=e9]
+          - generic [ref=e10]: 곰국
+        - navigation [ref=e11]:
+          - link "홈" [ref=e12] [cursor=pointer]:
+            - /url: /
+            - img [ref=e13]
+            - generic [ref=e16]: 홈
+          - link "검색" [ref=e17] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e18]
+            - generic [ref=e21]: 검색
+          - link "마이페이지" [ref=e22] [cursor=pointer]:
+            - /url: /mypage
+            - img [ref=e23]
+            - generic [ref=e26]: 마이페이지
+          - link "설정" [ref=e27] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e28]
+            - generic [ref=e31]: 설정
+        - link "로그인" [ref=e33] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e34]
+          - generic [ref=e37]: 로그인
+    - main [ref=e39]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - img [ref=e44]
+          - heading "맞춤 논문 피드" [level=2] [ref=e46]
+        - generic [ref=e50]:
+          - img [ref=e52]
+          - heading "로그인이 필요합니다" [level=3] [ref=e55]
+          - paragraph [ref=e56]: 맞춤 논문 피드를 보려면 로그인을 해야합니다
+          - button "로그인하기" [ref=e57] [cursor=pointer]

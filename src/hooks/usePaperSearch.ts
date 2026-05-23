@@ -7,6 +7,7 @@ import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
 import { useTrendingTags, TRENDING_TOP_COUNT_SEARCH } from "@/contexts/TrendingTagsContext";
 import { convertPaperOutToPaper } from "@/lib/paperUtils";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useStore } from "@/store/useStore";
 
 
 export type SortMode = "trending" | "recent" | "recommended";
@@ -14,6 +15,7 @@ export type SortMode = "trending" | "recent" | "recommended";
 const PAGE_SIZE = 20;
 
 export function usePaperSearch() {
+    const { user } = useStore();
     const [searchParams, setSearchParams] = useSearchParams();
     const initialTags = searchParams.getAll("tag");
 
@@ -83,7 +85,7 @@ export function usePaperSearch() {
                 tags: hasTagFilter ? tagIds : undefined,
             });
         },
-        enabled: tagFilterReady && !isHashMode,
+        enabled: !!user && tagFilterReady && !isHashMode,
         initialPageParam: 0,
         getNextPageParam: (lastPage, allPages) => {
             const totalFetched = allPages.reduce((sum, p) => sum + p.items.length, 0);
@@ -98,6 +100,8 @@ export function usePaperSearch() {
     const {
         data: papersData,
         isLoading: queryLoading,
+        isError,
+        error,
         hasNextPage,
         isFetchingNextPage,
         fetchNextPage,
@@ -207,5 +211,7 @@ export function usePaperSearch() {
         loadMoreRef,
         hasNextPage: hasNextPage ?? false,
         isFetchingNextPage,
+        isError,
+        error,
     };
 }

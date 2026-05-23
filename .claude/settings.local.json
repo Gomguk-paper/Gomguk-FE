@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/onebe/.claude/**)",
+      "Read(//c/Users/onebe/gomgit/**)",
+      "Bash(npx @playwright/mcp@latest --version)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_resize",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_type",
+      "mcp__plugin_playwright_playwright__browser_console_messages",
+      "Bash(cp /c/Users/onebe/gomgit/qa-results/TC-01/mobile-360.png /c/Users/onebe/gomgit/qa-results/TC-12/mobile-360.png)",
+      "Bash(cp /c/Users/onebe/gomgit/qa-results/TC-02/mobile-360.png /c/Users/onebe/gomgit/qa-results/TC-12/search-360.png)",
+      "Bash(cp /c/Users/onebe/gomgit/qa-results/TC-03/mobile-360.png /c/Users/onebe/gomgit/qa-results/TC-12/login-360.png)",
+      "Bash(cp /c/Users/onebe/gomgit/qa-results/TC-01/desktop-1920.png /c/Users/onebe/gomgit/qa-results/TC-13/home-1920.png)",
+      "Bash(cp /c/Users/onebe/gomgit/qa-results/TC-02/desktop-1920.png /c/Users/onebe/gomgit/qa-results/TC-13/search-1920.png)",
+      "Bash(mkdir -p /c/Users/onebe/gomgit/.claude/skills/qa-visual-tester)",
+      "Bash(cp -r \"/c/Users/onebe/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills/qa-visual-tester/.\" /c/Users/onebe/gomgit/.claude/skills/qa-visual-tester/)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_press_key",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:5173 -o /dev/null -w \"%{http_code}\")"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
+}

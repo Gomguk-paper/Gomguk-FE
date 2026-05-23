@@ -1,0 +1,46 @@
+{
+  "skill_name": "qa-visual-tester",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "QA 테스트 해줘. URL은 https://example.com 이고 요구사항은: 1) 페이지 타이틀이 'Example Domain'이어야 함 2) 메인 텍스트에 'This domain is for use in illustrative examples' 문구가 있어야 함 3) 'More information...' 링크가 존재해야 함",
+      "expected_output": "qa-results/ 디렉토리에 TC-01, TC-02, TC-03 폴더가 생성되고 각 폴더에 screenshot과 result.md가 있어야 함. qa-results/QA_REPORT.md 최종 보고서 생성.",
+      "files": [],
+      "expectations": [
+        "qa-results/ 디렉토리가 생성됨",
+        "각 테스트 케이스별 서브디렉토리가 존재함 (TC-01, TC-02 등)",
+        "각 TC 폴더에 result.md 파일이 있음",
+        "result.md에 PASS/FAIL/BLOCKED 상태가 명시됨",
+        "QA_REPORT.md 최종 보고서가 생성됨",
+        "QA_REPORT.md에 테스트 결과 테이블이 포함됨"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "모바일 레이아웃 QA 해줘. https://example.com 를 모바일(390px) 뷰포트로 테스트해. 요구사항: 페이지가 모바일에서 정상적으로 렌더링되고 텍스트가 잘리지 않아야 함",
+      "expected_output": "모바일 뷰포트(390px)로 설정 후 테스트. 스크린샷에 모바일 화면이 캡처되어야 함. 결과 디렉토리에 저장.",
+      "files": [],
+      "expectations": [
+        "browser_resize가 390px 너비로 호출됨",
+        "모바일 뷰포트 스크린샷이 저장됨",
+        "result.md에 모바일 테스트임이 명시됨",
+        "QA_REPORT.md가 생성됨"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "로그인 폼 QA 시트 작성하고 테스트해줘. 대상: https://the-internet.herokuapp.com/login, 요구사항: 1) 올바른 계정(tomsmith/SuperSecretPassword!)으로 로그인 성공 2) 틀린 비밀번호 입력시 에러 메시지 표시 3) 로그아웃 버튼이 로그인 후 보여야 함",
+      "expected_output": "3개의 테스트 케이스가 생성되고 각각 실행됨. 로그인 성공/실패 시나리오 모두 테스트. 각 TC 폴더에 증거 스크린샷 포함.",
+      "files": [],
+      "expectations": [
+        "로그인 성공 TC가 포함됨",
+        "잘못된 비밀번호 에러 메시지 TC가 포함됨",
+        "로그아웃 버튼 TC가 포함됨",
+        "browser_fill이 username/password 필드에 사용됨",
+        "browser_click이 로그인 버튼에 사용됨",
+        "각 TC에 스크린샷이 있음",
+        "QA_REPORT.md가 생성됨"
+      ]
+    }
+  ]
+}

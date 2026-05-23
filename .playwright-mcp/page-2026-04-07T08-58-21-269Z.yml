@@ -1,0 +1,81 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - generic [ref=e4]:
+      - main [ref=e217]:
+        - generic [ref=e219]:
+          - button "메뉴 열기" [ref=e220] [cursor=pointer]:
+            - img
+          - generic [ref=e221]:
+            - generic [ref=e222]:
+              - heading "마이페이지" [level=1] [ref=e223]
+              - generic [ref=e224]:
+                - button "로그아웃" [ref=e225] [cursor=pointer]
+                - button [ref=e226] [cursor=pointer]:
+                  - img
+            - generic [ref=e227]:
+              - generic [ref=e229]: G
+              - generic:
+                - heading [level=2]
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - generic [ref=e232]: "0"
+                - generic [ref=e233]: 좋아요
+              - generic [ref=e234]:
+                - generic [ref=e235]: "0"
+                - generic [ref=e236]: 저장
+              - generic [ref=e237]:
+                - generic [ref=e238]: "0"
+                - generic [ref=e239]: 읽음
+        - generic [ref=e241]:
+          - tablist [ref=e242]:
+            - tab "저장" [selected] [ref=e243] [cursor=pointer]
+            - tab "좋아요" [ref=e244] [cursor=pointer]
+            - tab "히스토리" [ref=e245] [cursor=pointer]
+            - tab "통계" [ref=e246] [cursor=pointer]
+          - tabpanel "저장" [ref=e247]:
+            - generic [ref=e248]:
+              - img [ref=e249]
+              - paragraph [ref=e251]: 저장한 논문이 없어요
+              - paragraph [ref=e252]: 홈에서 논문을 탐색해보세요
+      - navigation [ref=e32]:
+        - generic [ref=e33]:
+          - link "홈" [ref=e34] [cursor=pointer]:
+            - /url: /
+            - img [ref=e35]
+            - generic [ref=e38]: 홈
+          - link "검색" [ref=e39] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e40]
+            - generic [ref=e43]: 검색
+          - link "마이" [ref=e44] [cursor=pointer]:
+            - /url: /mypage
+            - img [ref=e45]
+            - generic [ref=e48]: 마이
+  - dialog "로그인" [ref=e253]:
+    - generic [ref=e255]:
+      - button "로그인 모달 닫기" [ref=e256] [cursor=pointer]:
+        - img [ref=e257]
+        - generic [ref=e260]: Close
+      - generic [ref=e261]: 로그인 모달입니다. Google 또는 Kakao 계정으로 로그인할 수 있습니다.
+      - heading "로그인" [level=2] [ref=e262]
+      - generic [ref=e263]:
+        - generic [ref=e264]: 로그인이 필요합니다.
+        - generic [ref=e265]:
+          - img "곰국" [ref=e267]
+          - heading "곰국" [level=1] [ref=e268]
+          - paragraph [ref=e269]: 논문을 피드처럼 소비하다
+        - generic [ref=e270]:
+          - button "Google로 시작하기" [active] [ref=e271] [cursor=pointer]:
+            - img [ref=e272]
+            - text: Google로 시작하기
+          - button "GitHub로 시작하기" [ref=e273] [cursor=pointer]:
+            - img [ref=e274]
+            - text: GitHub로 시작하기
+        - generic [ref=e275]:
+          - checkbox "로그인 상태 유지" [checked] [ref=e276] [cursor=pointer]:
+            - generic:
+              - img
+          - generic [ref=e277] [cursor=pointer]: 로그인 상태 유지
