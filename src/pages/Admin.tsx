@@ -1,12 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, Loader2, ShieldCheck } from "lucide-react";
-import { useStore } from "@/store/useStore";
+import { ArrowLeft, Loader2, ShieldCheck, Cpu, HardDrive, Database, Info, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -14,495 +9,356 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { adminApi } from "@/api/admin";
-import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
-import { useQueryClient } from "@tanstack/react-query";
+import type { SystemStatsResponse } from "@/lib/apiTypes";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
+
+interface HistoryItem {
+  time: string;
+  cpu: number;
+  memory: number;
+}
+
+const HISTORY_STORAGE_KEY = "gomguk_admin_stats_history";
+const MAX_HISTORY_LEN = 12; // 12 items * 5 min = 1 hour history
+const FETCH_INTERVAL = 300000; // 5 minutes (300,000 ms)
+
+function formatBytesToGB(bytes: number): string {
+  return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+}
 
 export default function Admin() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { tagsResponse, isLoading: tagsLoading } = useTagsQuery();
+  const [stats, setStats] = useState<SystemStatsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [uptime, setUptime] = useState("");
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Loading States for Form Submissions
-  const [submittingTag, setSubmittingTag] = useState(false);
-  const [submittingPaper, setSubmittingPaper] = useState(false);
-  const [submittingSummary, setSubmittingSummary] = useState(false);
-
-  // 1. Tag Form States
-  const [tagName, setTagName] = useState("");
-  const [tagDesc, setTagDesc] = useState("");
-
-  // 2. Paper Form States
-  const [paperTitle, setPaperTitle] = useState("");
-  const [paperShort, setPaperShort] = useState("");
-  const [paperAuthors, setPaperAuthors] = useState("");
-  const [paperPublishedAt, setPaperPublishedAt] = useState("");
-  const [paperImageUrl, setPaperImageUrl] = useState("");
-  const [paperRawUrl, setPaperRawUrl] = useState("");
-  const [paperSource, setPaperSource] = useState<"arxiv" | "github">("arxiv");
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
-
-  // 3. Summary Form States
-  const [sumPaperId, setSumPaperId] = useState("");
-  const [sumStyle, setSumStyle] = useState("plain");
-  const [sumHook, setSumHook] = useState("");
-  const [sumPoints, setSumPoints] = useState<string[]>([""]);
-  const [sumDetailed, setSumDetailed] = useState("");
-
-  // Tag Form Submit Handler
-  const handleTagSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tagName.trim()) return;
-
-    setSubmittingTag(true);
-    try {
-      await adminApi.createTag({
-        name: tagName.trim(),
-        description: tagDesc.trim(),
-      });
-      toast({
-        title: "태그 등록 성공",
-        description: `태그 '${tagName}'가 성공적으로 등록되었습니다.`,
-      });
-      setTagName("");
-      setTagDesc("");
-      // Refetch tags query
-      queryClient.invalidateQueries({ queryKey: ["all-tags"] });
-    } catch (err: any) {
-      console.error(err);
-      toast({
-        variant: "destructive",
-        title: "태그 등록 실패",
-        description: err.response?.data?.detail || "에러가 발생했습니다.",
-      });
-    } finally {
-      setSubmittingTag(false);
+  // 로컬 스토리지에서 과거 기록 로드
+  useEffect(() => {
+    const saved = localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (saved) {
+      try {
+        setHistory(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse system stats history", e);
+      }
     }
-  };
+  }, []);
 
-  // Paper Form Submit Handler
-  const handlePaperSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!paperTitle.trim() || !paperShort.trim() || !paperPublishedAt) return;
+  const fetchStats = async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
+    else setRefreshing(true);
 
-    setSubmittingPaper(true);
     try {
-      const authorsList = paperAuthors
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean);
+      const data = await adminApi.getSystemStats();
+      setStats(data);
 
-      const paperData = {
-        title: paperTitle.trim(),
-        short: paperShort.trim(),
-        authors: authorsList,
-        published_at: new Date(paperPublishedAt).toISOString(),
-        image_url: paperImageUrl.trim(),
-        raw_url: paperRawUrl.trim(),
-        source: paperSource,
-        tag_ids: selectedTagIds,
+      // 타임라인 데이터 기록 누적
+      const nowStr = new Date().toLocaleTimeString("ko-KR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      const newItem: HistoryItem = {
+        time: nowStr,
+        cpu: Number(data.cpu.percent.toFixed(1)),
+        memory: Number(data.memory.percent.toFixed(1)),
       };
 
-      await adminApi.createPaper(paperData);
-      toast({
-        title: "논문 등록 성공",
-        description: `논문 '${paperTitle}'이 성공적으로 등록되었습니다.`,
+      setHistory((prev) => {
+        // Prevent duplicate entries within the exact same second (e.g. from React 18 Strict Mode double effect)
+        if (prev.length > 0 && prev[prev.length - 1].time === newItem.time) {
+          return prev;
+        }
+        const next = [...prev, newItem].slice(-MAX_HISTORY_LEN);
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(next));
+        return next;
       });
-
-      // Reset Form
-      setPaperTitle("");
-      setPaperShort("");
-      setPaperAuthors("");
-      setPaperPublishedAt("");
-      setPaperImageUrl("");
-      setPaperRawUrl("");
-      setPaperSource("arxiv");
-      setSelectedTagIds([]);
     } catch (err: any) {
       console.error(err);
       toast({
         variant: "destructive",
-        title: "논문 등록 실패",
-        description: err.response?.data?.detail || "에러가 발생했습니다.",
+        title: "리소스 조회 실패",
+        description: err.response?.data?.detail || "서버 리소스 정보를 가져오는데 실패했습니다.",
       });
     } finally {
-      setSubmittingPaper(false);
+      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  // Summary Form Submit Handler
-  const handleSummarySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const paperIdNum = parseInt(sumPaperId, 10);
-    if (isNaN(paperIdNum) || !sumHook.trim() || !sumDetailed.trim()) return;
+  // 초기 로드 및 5분 주기 폴링
+  useEffect(() => {
+    fetchStats();
+    const interval = setInterval(() => {
+      fetchStats(true);
+    }, FETCH_INTERVAL);
 
-    setSubmittingSummary(true);
-    try {
-      const cleanPoints = sumPoints.map((p) => p.trim()).filter(Boolean);
+    return () => {
+      clearInterval(interval);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
 
-      await adminApi.createSummary({
-        paper_id: paperIdNum,
-        style: sumStyle,
-        hook: sumHook.trim(),
-        points: cleanPoints,
-        detailed: sumDetailed.trim(),
-      });
+  // Uptime 실시간 타이머 계산 (부팅 시각 기준)
+  useEffect(() => {
+    if (!stats?.boot_time) return;
 
-      toast({
-        title: "요약본 등록 성공",
-        description: `논문 ID ${sumPaperId}번에 대한 요약본이 성공적으로 등록되었습니다.`,
-      });
+    if (timerRef.current) clearInterval(timerRef.current);
 
-      // Reset Form
-      setSumPaperId("");
-      setSumStyle("plain");
-      setSumHook("");
-      setSumPoints([""]);
-      setSumDetailed("");
-    } catch (err: any) {
-      console.error(err);
-      toast({
-        variant: "destructive",
-        title: "요약본 등록 실패",
-        description: err.response?.data?.detail || "에러가 발생했습니다.",
-      });
-    } finally {
-      setSubmittingSummary(false);
-    }
-  };
+    const updateUptime = () => {
+      const boot = new Date(stats.boot_time).getTime();
+      const now = new Date().getTime();
+      const diffMs = now - boot;
 
-  // Summary Points Handlers
-  const handleAddPoint = () => {
-    setSumPoints([...sumPoints, ""]);
-  };
+      if (diffMs < 0) {
+        setUptime("정보 확인 중");
+        return;
+      }
 
-  const handleRemovePoint = (index: number) => {
-    if (sumPoints.length > 1) {
-      setSumPoints(sumPoints.filter((_, i) => i !== index));
-    }
-  };
+      const diffSecs = Math.floor(diffMs / 1000);
+      const days = Math.floor(diffSecs / 86400);
+      const hours = Math.floor((diffSecs % 86400) / 3600);
+      const mins = Math.floor((diffSecs % 3600) / 60);
+      const secs = diffSecs % 60;
 
-  const handlePointChange = (index: number, value: string) => {
-    const newPoints = [...sumPoints];
-    newPoints[index] = value;
-    setSumPoints(newPoints);
-  };
+      let timeStr = "";
+      if (days > 0) timeStr += `${days}일 `;
+      if (days > 0 || hours > 0) timeStr += `${hours}시간 `;
+      timeStr += `${mins}분 ${secs}초`;
+
+      setUptime(timeStr);
+    };
+
+    updateUptime();
+    timerRef.current = setInterval(updateUptime, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [stats]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-background">
+        <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground text-sm font-medium">서버 리소스 분석 중...</p>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-muted/20 pb-20">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b mobile-safe-area-pt">
-        <div className="flex items-center gap-3 p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-primary" />
-            <h1 className="font-display text-xl font-bold">관리자 대시보드</h1>
+        <div className="flex items-center justify-between p-4 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              <h1 className="font-display text-xl font-bold">서버 모니터링 대시보드</h1>
+            </div>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchStats(true)}
+            disabled={refreshing}
+            className="rounded-full gap-1.5"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+            <span>수동 갱신</span>
+          </Button>
         </div>
       </header>
 
       <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto p-4 space-y-6">
-        <Tabs defaultValue="paper" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-12 bg-background border rounded-lg p-1 shadow-sm">
-            <TabsTrigger value="paper" className="font-medium text-sm">논문 등록</TabsTrigger>
-            <TabsTrigger value="summary" className="font-medium text-sm">요약 작성</TabsTrigger>
-            <TabsTrigger value="tag" className="font-medium text-sm">태그 등록</TabsTrigger>
-          </TabsList>
+        {/* System Info Profile Card */}
+        {stats && (
+          <Card className="border shadow-md bg-gradient-to-br from-card to-secondary/10 overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -mr-6 -mt-6"></div>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                <Info className="w-4 h-4" />
+                <span>System Profile</span>
+              </div>
+              <CardTitle className="text-xl font-bold mt-1">서버 인프라 기본 정보</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm mt-1">
+                <div className="p-3.5 bg-background/50 border rounded-xl">
+                  <span className="text-muted-foreground block text-xs font-medium">운영체제 (OS)</span>
+                  <span className="font-semibold text-foreground mt-1 block truncate" title={stats.os}>{stats.os}</span>
+                </div>
+                <div className="p-3.5 bg-background/50 border rounded-xl">
+                  <span className="text-muted-foreground block text-xs font-medium">CPU 코어 정보</span>
+                  <span className="font-semibold text-foreground mt-1 block">{stats.cpu.cores} 논리 코어 (Cores)</span>
+                </div>
+                <div className="p-3.5 bg-background/50 border rounded-xl">
+                  <span className="text-muted-foreground block text-xs font-medium">무중단 가동 시간 (Uptime)</span>
+                  <span className="font-semibold text-primary mt-1 block font-mono">{uptime}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* 1. Paper Registration Tab */}
-          <TabsContent value="paper" className="mt-4">
-            <Card className="border shadow-md">
-              <CardHeader>
-                <CardTitle className="text-lg">새 논문 등록</CardTitle>
-                <CardDescription>데이터베이스에 새로운 논문 정보 및 태그 연결 정보를 수동으로 입력합니다.</CardDescription>
+        {/* Real-time Usage Gauges */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* CPU Load */}
+            <Card className="border shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <Cpu className="w-5 h-5 text-primary" />
+                  <span>CPU 사용량</span>
+                </CardTitle>
+                <CardDescription>최근 CPU 부하율</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handlePaperSubmit} className="space-y-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="paper-title">논문 제목</Label>
-                    <Input
-                      id="paper-title"
-                      placeholder="논문 제목 입력"
-                      value={paperTitle}
-                      onChange={(e) => setPaperTitle(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="paper-short">한줄 소개 (Short Description)</Label>
-                    <Input
-                      id="paper-short"
-                      placeholder="피드에서 카드 하단에 노출될 간단한 소개 문구"
-                      value={paperShort}
-                      onChange={(e) => setPaperShort(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="paper-authors">저자 (쉼표로 구분)</Label>
-                    <Input
-                      id="paper-authors"
-                      placeholder="예: Yann LeCun, Yoshua Bengio, Geoffrey Hinton"
-                      value={paperAuthors}
-                      onChange={(e) => setPaperAuthors(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="paper-published">발행 날짜</Label>
-                      <Input
-                        id="paper-published"
-                        type="date"
-                        value={paperPublishedAt}
-                        onChange={(e) => setPaperPublishedAt(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="paper-source">출처 (Source)</Label>
-                      <Select
-                        value={paperSource}
-                        onValueChange={(val: "arxiv" | "github") => setPaperSource(val)}
-                      >
-                        <SelectTrigger id="paper-source">
-                          <SelectValue placeholder="출처 선택" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="arxiv">ArXiv</SelectItem>
-                          <SelectItem value="github">GitHub</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="paper-image">대표 이미지 URL</Label>
-                    <Input
-                      id="paper-image"
-                      type="url"
-                      placeholder="https://example.com/image.png"
-                      value={paperImageUrl}
-                      onChange={(e) => setPaperImageUrl(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="paper-raw">논문 원본 URL</Label>
-                    <Input
-                      id="paper-raw"
-                      type="url"
-                      placeholder="https://arxiv.org/abs/..."
-                      value={paperRawUrl}
-                      onChange={(e) => setPaperRawUrl(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Tags Selection */}
-                  <div className="space-y-2">
-                    <Label>태그 연결</Label>
-                    {tagsLoading ? (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        태그 불러오는 중...
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border rounded-lg p-3 bg-muted/10 max-h-40 overflow-y-auto">
-                        {tagsResponse?.map((item) => (
-                          <div key={item.tag.id} className="flex items-center space-x-2 py-1">
-                            <Checkbox
-                              id={`tag-${item.tag.id}`}
-                              checked={selectedTagIds.includes(item.tag.id)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedTagIds([...selectedTagIds, item.tag.id]);
-                                } else {
-                                  setSelectedTagIds(selectedTagIds.filter((id) => id !== item.tag.id));
-                                }
-                              }}
-                            />
-                            <label
-                              htmlFor={`tag-${item.tag.id}`}
-                              className="text-sm font-medium leading-none cursor-pointer select-none"
-                            >
-                              {item.tag.name}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <Button type="submit" className="w-full mt-2" disabled={submittingPaper}>
-                    {submittingPaper && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    논문 등록 완료
-                  </Button>
-                </form>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col gap-1 items-start">
+                  <span className="text-3xl font-extrabold font-mono text-foreground">
+                    {stats.cpu.percent.toFixed(1)}%
+                  </span>
+                </div>
+                <Progress value={stats.cpu.percent} className="h-2.5" />
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* 2. Summary Form Tab */}
-          <TabsContent value="summary" className="mt-4">
-            <Card className="border shadow-md">
-              <CardHeader>
-                <CardTitle className="text-lg">논문 요약 작성</CardTitle>
-                <CardDescription>등록된 논문에 상세 요약 정보 및 카드뉴스형 포인트 데이터를 작성합니다.</CardDescription>
+            {/* RAM Load */}
+            <Card className="border shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <Database className="w-5 h-5 text-primary" />
+                  <span>메모리 (RAM) 용량</span>
+                </CardTitle>
+                <CardDescription>물리 메모리 점유율</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSummarySubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="sum-paper-id">논문 ID (Number)</Label>
-                      <Input
-                        id="sum-paper-id"
-                        type="number"
-                        placeholder="예: 42"
-                        value={sumPaperId}
-                        onChange={(e) => setSumPaperId(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="sum-style">요약 스타일 (Style)</Label>
-                      <Select value={sumStyle} onValueChange={setSumStyle}>
-                        <SelectTrigger id="sum-style">
-                          <SelectValue placeholder="스타일 선택" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="plain">일반 (Plain)</SelectItem>
-                          <SelectItem value="detailed">상세 설명 (Detailed)</SelectItem>
-                          <SelectItem value="dc">디시인사이드 스타일 (DC)</SelectItem>
-                          <SelectItem value="basic_aggro">어그로 (Aggro)</SelectItem>
-                          <SelectItem value="instagram_card_news">인스타 카드뉴스 (Instagram)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="sum-hook">한줄 요약 (Hook)</Label>
-                    <Input
-                      id="sum-hook"
-                      placeholder="논문의 핵심을 담은 강렬한 한줄 요약"
-                      value={sumHook}
-                      onChange={(e) => setSumHook(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  {/* Summary Points Inputs */}
-                  <div className="space-y-2">
-                    <Label>요약 핵심 포인트</Label>
-                    <div className="space-y-2">
-                      {sumPoints.map((point, index) => (
-                        <div key={index} className="flex gap-2 items-center">
-                          <Input
-                            placeholder={`핵심 포인트 ${index + 1} 입력`}
-                            value={point}
-                            onChange={(e) => handlePointChange(index, e.target.value)}
-                            required
-                          />
-                          {sumPoints.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleRemovePoint(index)}
-                              className="shrink-0"
-                            >
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 text-xs"
-                      onClick={handleAddPoint}
-                    >
-                      <Plus className="w-3.5 h-3.5 mr-1" /> 포인트 추가
-                    </Button>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="sum-detailed">상세 설명 (Detailed Body)</Label>
-                    <Textarea
-                      id="sum-detailed"
-                      rows={5}
-                      placeholder="상세한 논문 요약 본문을 마크다운 형식으로 작성 가능합니다."
-                      value={sumDetailed}
-                      onChange={(e) => setSumDetailed(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full mt-2" disabled={submittingSummary}>
-                    {submittingSummary && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    요약본 등록 완료
-                  </Button>
-                </form>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col gap-1 items-start">
+                  <span className="text-3xl font-extrabold font-mono text-foreground">
+                    {stats.memory.percent.toFixed(1)}%
+                  </span>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {formatBytesToGB(stats.memory.used)} / {formatBytesToGB(stats.memory.total)}
+                  </span>
+                </div>
+                <Progress value={stats.memory.percent} className="h-2.5" />
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* 3. Tag Registration Tab */}
-          <TabsContent value="tag" className="mt-4">
-            <Card className="border shadow-md">
-              <CardHeader>
-                <CardTitle className="text-lg">새 태그 추가</CardTitle>
-                <CardDescription>서비스 전반에서 사용될 새로운 분야 태그를 등록합니다.</CardDescription>
+            {/* Disk Load */}
+            <Card className="border shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <HardDrive className="w-5 h-5 text-primary" />
+                  <span>디스크 저장소 공간</span>
+                </CardTitle>
+                <CardDescription>메인 파일시스템 용량</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleTagSubmit} className="space-y-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="tag-name">태그 이름</Label>
-                    <Input
-                      id="tag-name"
-                      placeholder="예: ComputerVision (공백 불가 권장)"
-                      value={tagName}
-                      onChange={(e) => setTagName(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="tag-description">태그 설명</Label>
-                    <Textarea
-                      id="tag-description"
-                      rows={3}
-                      placeholder="태그에 대한 상세 설명 입력"
-                      value={tagDesc}
-                      onChange={(e) => setTagDesc(e.target.value)}
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full mt-2" disabled={submittingTag}>
-                    {submittingTag && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    태그 등록 완료
-                  </Button>
-                </form>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col gap-1 items-start">
+                  <span className="text-3xl font-extrabold font-mono text-foreground">
+                    {stats.disk.percent.toFixed(1)}%
+                  </span>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {formatBytesToGB(stats.disk.used)} / {formatBytesToGB(stats.disk.total)}
+                  </span>
+                </div>
+                <Progress value={stats.disk.percent} className="h-2.5" />
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
+
+        {/* Resource Trend Timeline Chart */}
+        <Card className="border shadow-md">
+          <CardHeader>
+            <CardTitle className="text-lg font-bold">인프라 리소스 추이 그래프</CardTitle>
+            <CardDescription>
+              지표는 5분주기로 갱신되며 최근 1시간 동안의 흐름을 보여줍니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-2">
+            {history.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center border border-dashed rounded-xl bg-muted/10">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mb-2" />
+                <p className="text-xs text-muted-foreground">지표 데이터 수집 대기 중...</p>
+              </div>
+            ) : (
+              <div className="h-72 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={history}
+                    margin={{
+                      top: 10,
+                      right: 15,
+                      left: -20,
+                      bottom: 0,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis
+                      dataKey="time"
+                      tick={{ fontSize: 10 }}
+                      stroke="#888888"
+                    />
+                    <YAxis
+                      domain={[0, 100]}
+                      tick={{ fontSize: 10 }}
+                      stroke="#888888"
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--background))",
+                        borderColor: "hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                      labelStyle={{ fontSize: "11px", fontWeight: "bold" }}
+                      itemStyle={{ fontSize: "12px" }}
+                    />
+                    <Legend verticalAlign="top" height={36} iconType="circle" />
+                    <Line
+                      type="monotone"
+                      name="CPU 사용률 (%)"
+                      dataKey="cpu"
+                      stroke="hsl(220, 60%, 35%)"
+                      strokeWidth={2.5}
+                      activeDot={{ r: 6 }}
+                      dot={{ r: 3 }}
+                    />
+                    <Line
+                      type="monotone"
+                      name="메모리 사용률 (%)"
+                      dataKey="memory"
+                      stroke="hsl(142, 70%, 45%)"
+                      strokeWidth={2.5}
+                      activeDot={{ r: 6 }}
+                      dot={{ r: 3 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

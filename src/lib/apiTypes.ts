@@ -229,3 +229,34 @@ export interface Report {
     relatedPaperIds: string[];
     imageUrl?: string;
 }
+
+// ============================================
+// System Resource Stats Types
+// ============================================
+
+export interface CpuInfo {
+    percent: number;
+    cores: number;
+}
+
+export interface MemoryInfo {
+    total: number;
+    available: number;
+    used: number;
+    percent: number;
+}
+
+export interface DiskInfo {
+    total: number;
+    used: number;
+    free: number;
+    percent: number;
+}
+
+export interface SystemStatsResponse {
+    cpu: CpuInfo;
+    memory: MemoryInfo;
+    disk: DiskInfo;
+    os: string;
+    boot_time: string;
+}

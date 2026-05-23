@@ -7,7 +7,8 @@ import type {
     AddSummaryBody,
     SummaryResponse,
     AddPaperTagsBody,
-    AttachTagsResponse
+    AttachTagsResponse,
+    SystemStatsResponse
 } from '@/lib/apiTypes';
 
 export const adminApi = {
@@ -38,6 +39,12 @@ export const adminApi = {
             `/add/paper/${paperId}/tags`,
             body
         );
+        return response.data;
+    },
+
+    // Get server system resource statistics
+    getSystemStats: async (): Promise<SystemStatsResponse> => {
+        const response = await apiClient.get<SystemStatsResponse>('/admin/system-stats');
         return response.data;
     },
 };
