@@ -1,13 +1,10 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MoreHorizontal, Lock, ArrowUpRight } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useStore } from "@/store/useStore";
-import { LoginModal } from "@/components/LoginModal";
 import { LegalModal } from "@/components/LegalModal";
 import { useTrendingTags } from "@/contexts/TrendingTagsContext";
-import { UI_CONSTANTS } from "@/core/config/constants";
 
 const TRENDING_VISIBLE = 5;
 
@@ -15,13 +12,9 @@ export function RightSidebar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { toast } = useToast();
-    const { user } = useStore();
     const [showAllTrends, setShowAllTrends] = useState(false);
-    const [loginModalOpen, setLoginModalOpen] = useState(false);
     const [legalModalOpen, setLegalModalOpen] = useState(false);
     const [legalContentType, setLegalContentType] = useState<"terms" | "privacy" | "cookies" | "accessibility" | "advertising" | null>(null);
-
-    const isLoggedIn = Boolean(user);
 
     const { trendingTagNames } = useTrendingTags();
     const tags = trendingTagNames ?? [];
@@ -35,9 +28,8 @@ export function RightSidebar() {
         return null;
     }
 
-    const visibleTags = isLoggedIn
-        ? (showAllTrends ? tags : tags.slice(0, TRENDING_VISIBLE))
-        : [...UI_CONSTANTS.SIDEBAR_PREVIEW_TAGS];
+    // 트렌딩은 전역 데이터라 비로그인에게도 그대로 보여준다.
+    const visibleTags = showAllTrends ? tags : tags.slice(0, TRENDING_VISIBLE);
 
     const handleTrendOptions = (tag: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -52,7 +44,7 @@ export function RightSidebar() {
             {/* Trends Section: flex-shrink-0으로 카드가 내용만큼 늘어나고, 길면 aside 전체 스크롤 */}
             <div className="bg-card rounded-xl border p-4 relative min-h-[500px] mt-10 flex-shrink-0">
                 <h2 className="font-display font-bold text-2xl mb-6 text-center text-foreground">Trending Topics</h2>
-                <div className={`flex flex-col divide-y transition-all ${!isLoggedIn ? 'blur-sm pointer-events-none' : ''}`}>
+                <div className="flex flex-col divide-y transition-all">
                     {visibleTags.map((tag, index) => (
                         <div
                             key={tag}
@@ -61,35 +53,28 @@ export function RightSidebar() {
                             className="flex items-center justify-between group cursor-pointer py-3"
                         >
                             <div className="flex items-center gap-2 min-w-0">
-                                <span className={`flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm leading-none pt-0.5 ${!isLoggedIn ? 'w-10 h-10 text-lg' : ''}`}>
+                                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm leading-none pt-0.5">
                                     {index + 1}
                                 </span>
-                                <span className={`font-bold text-[hsl(var(--tag-trending))] group-hover:opacity-80 transition-colors leading-normal truncate min-w-0 ${!isLoggedIn ? 'text-xl' : ''}`}>
+                                <span className="font-bold text-[hsl(var(--tag-trending))] group-hover:opacity-80 transition-colors leading-normal truncate min-w-0">
                                     #{tag}
                                 </span>
                             </div>
 
                             <div className="flex items-center gap-2 text-muted-foreground">
-                                {!isLoggedIn && (
-                                    <span className="text-sm font-medium">인기 태그</span>
-                                )}
-                                {isLoggedIn ? (
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={(e) => handleTrendOptions(tag, e)}
-                                    >
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                ) : (
-                                    <ArrowUpRight className="h-5 w-5 opacity-50" />
-                                )}
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={(e) => handleTrendOptions(tag, e)}
+                                >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
                             </div>
                         </div>
                     ))}
                 </div>
-                {isLoggedIn && tags.length > TRENDING_VISIBLE && (
+                {tags.length > TRENDING_VISIBLE && (
                     <Button
                         variant="secondary"
                         className="w-full justify-center mt-6 py-6 font-bold text-muted-foreground hover:text-foreground transition-colors"
@@ -97,27 +82,6 @@ export function RightSidebar() {
                     >
                         {showAllTrends ? "간단히 보기" : "더 보기"}
                     </Button>
-                )}
-
-                {!isLoggedIn && !loginModalOpen && (
-                    <div
-                        className="absolute inset-0 cursor-pointer rounded-xl flex items-center justify-center bg-background/30 backdrop-blur-sm z-0"
-                        onClick={() => setLoginModalOpen(true)}
-                        role="button"
-                        aria-label="로그인하여 Trending Topics 보기"
-                    >
-                        <div className="text-center p-4 flex flex-col items-center">
-                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 shadow-sm backdrop-blur-sm">
-                                <Lock className="w-6 h-6 text-primary" />
-                            </div>
-                            <p className="font-semibold text-lg mb-2">로그인이 필요합니다</p>
-                            <p className="text-sm text-muted-foreground text-center">
-                                현재 인기있는 주제를 보려면
-                                <br />
-                                로그인을 해야합니다
-                            </p>
-                        </div>
-                    </div>
                 )}
             </div>
 
@@ -158,7 +122,6 @@ export function RightSidebar() {
                 </div>
             </div>
 
-            <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} showNotice={true} />
             <LegalModal open={legalModalOpen} onOpenChange={setLegalModalOpen} contentType={legalContentType} />
         </aside>
     );

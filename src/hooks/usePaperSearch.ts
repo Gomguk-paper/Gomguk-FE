@@ -7,6 +7,7 @@ import { useTagsQuery } from "@/hooks/queries/useTagsQuery";
 import { useTrendingTags, TRENDING_TOP_COUNT_SEARCH } from "@/contexts/TrendingTagsContext";
 import { convertPaperOutToPaper } from "@/lib/paperUtils";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useStore } from "@/store/useStore";
 
 
 export type SortMode = "trending" | "recent" | "recommended";
@@ -67,8 +68,11 @@ export function usePaperSearch() {
     // 텍스트 검색어: 태그가 있거나 # 모드면 절대 전달하지 않음 (태그 검색과 텍스트 검색 완전 분리)
     const textQuery = (!isHashMode && selectedTags.length === 0) ? (query.trim() || undefined) : undefined;
 
+    // 비로그인도 검색 가능. 좋아요/저장 상태와 추천 정렬이 사용자별로 달라 키에 사용자 id 포함
+    const userId = useStore((s) => s.user?.id ?? null);
+
     const infiniteQuery = useInfiniteQuery({
-        queryKey: ['papers', 'search', sortMode, textQuery ?? '', tagIds],
+        queryKey: ['papers', 'search', userId, sortMode, textQuery ?? '', tagIds],
         queryFn: ({ pageParam = 0 }) => {
             const hasTagFilter = tagIds.length > 0;
             if (sortMode === 'recommended' && !hasTagFilter) {

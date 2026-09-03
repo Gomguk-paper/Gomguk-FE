@@ -25,8 +25,6 @@ export const UI_CONSTANTS = {
     MIN_TAGS_FOR_ONBOARDING: 1,
   },
 
-  SIDEBAR_PREVIEW_TAGS: ["인공지능", "머신러닝", "딥러닝", "자연어처리", "컴퓨터비전"] as const,
-
   RECOMMEND: {
     TRENDING_SCORE_MIN: 90,
     RECENCY_SCORE_MIN: 80,
